@@ -4,10 +4,14 @@
 
 pub mod accounts;
 pub mod clock;
+pub mod home;
+pub mod lessons;
 pub mod store;
 pub mod upstream;
 
 pub use accounts::{AccountStore, LoginRecord, SessionRecord, StudentAccount};
 pub use clock::{Clock, SystemClock};
+pub use home::{ContinueItem, HomeData, HomeStore, MissionCounts, MissionKind};
+pub use lessons::{Lesson, LessonStep, LessonStore};
 pub use store::StoreError;
 pub use upstream::Upstream;

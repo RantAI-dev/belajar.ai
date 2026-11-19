@@ -20,6 +20,34 @@ pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<DateTim
         .map_err(serde::de::Error::custom)
 }
 
+/// The same format for a nullable instant field (`completedAt`), so a DTO can say
+/// `Option<DateTime<Utc>>` instead of splitting the field in two.
+pub mod option {
+    use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S: Serializer>(
+        value: &Option<DateTime<Utc>>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error> {
+        match value {
+            Some(instant) => super::serialize(instant, serializer),
+            None => serializer.serialize_none(),
+        }
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(
+        deserializer: D,
+    ) -> Result<Option<DateTime<Utc>>, D::Error> {
+        match Option::<String>::deserialize(deserializer)? {
+            None => Ok(None),
+            Some(text) => DateTime::parse_from_rfc3339(&text)
+                .map(|dt| Some(dt.with_timezone(&Utc)))
+                .map_err(serde::de::Error::custom),
+        }
+    }
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, reason = "tests")]
 mod tests {
@@ -46,5 +74,23 @@ mod tests {
             .with_nanosecond(999_999_999)
             .unwrap();
         assert_eq!(to_wire(&dt), "2026-01-02T03:04:05.999Z");
+    }
+
+    #[test]
+    fn a_nullable_instant_is_the_same_format_or_null() {
+        #[derive(serde::Serialize)]
+        struct Nullable {
+            #[serde(with = "super::option")]
+            at: Option<DateTime<Utc>>,
+        }
+        let dt = Utc.with_ymd_and_hms(2026, 11, 11, 8, 30, 0).unwrap();
+        assert_eq!(
+            serde_json::to_value(Nullable { at: Some(dt) }).unwrap(),
+            serde_json::json!({ "at": "2026-11-11T08:30:00.000Z" })
+        );
+        assert_eq!(
+            serde_json::to_value(Nullable { at: None }).unwrap(),
+            serde_json::json!({ "at": null })
+        );
     }
 }
