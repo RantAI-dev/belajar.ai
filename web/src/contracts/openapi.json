@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "belajar.ai",
-    "description": "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations and streamed answers for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+    "description": "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     "license": {
       "name": ""
     },
@@ -1129,6 +1129,388 @@
         }
       }
     },
+    "/v1/practice-sets": {
+      "get": {
+        "tags": ["practice_views"],
+        "summary": "This student's sets, newest first, paginated.",
+        "operationId": "list_practice_sets",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page size; default 20, at most 50, larger is lowered, 0 or less is invalid",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The nextCursor of the previous page",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSetListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["practice_generate"],
+        "summary": "Generates a practice set, streaming the upstream's progress to the caller.",
+        "operationId": "create_practice_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeneratePracticeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "SSE stream: `progress` events, then one `ready` event with the set — or one `error` event with the standard error body",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/practice-sets/{id}": {
+      "get": {
+        "tags": ["practice_views"],
+        "summary": "One set, exactly as `POST /v1/practice-sets` delivered it in the `ready` event — the answer\nkey appears only in `result`, and only after the set is submitted.",
+        "operationId": "get_practice_set",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The practice set",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/practice-sets/{id}/questions/{questionId}/page": {
+      "get": {
+        "tags": ["practice_views"],
+        "summary": "The book page a cited answer used, only for the owner and only after submit.",
+        "operationId": "question_page",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The practice set",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "questionId",
+            "in": "path",
+            "description": "The question whose cited source has a page",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book page image, fetched server-side",
+            "content": {
+              "image/svg+xml": {}
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such set or question, not submitted, or no page for it",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/practice-sets/{id}/submit": {
+      "post": {
+        "tags": ["practice_submit"],
+        "summary": "Grades a submitted set. The answer key is revealed here and nowhere before.",
+        "operationId": "submit_practice_set",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The practice set",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPracticeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The graded review: correct answers, explanations and sources",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The set was already submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/subjects": {
       "get": {
         "tags": ["subjects"],
@@ -1256,6 +1638,56 @@
             }
           },
           "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/topic-mastery": {
+      "get": {
+        "tags": ["practice_views"],
+        "summary": "The student's mastery of every topic they have practised.",
+        "operationId": "topic_mastery",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "query",
+            "description": "One of our subject ids; all of them when omitted",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicMasteryListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
             "description": "",
             "content": {
               "application/json": {
@@ -1536,6 +1968,30 @@
           }
         }
       },
+      "GeneratePracticeRequest": {
+        "type": "object",
+        "required": ["subjectId", "topic", "practiceType", "totalQuestions"],
+        "properties": {
+          "practiceType": {
+            "type": "string",
+            "description": "One of `mcq_normal`, `mcq_multiple_correct`, `mcq_story`, `mcq_mixed`."
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "One of our eight subject ids, e.g. `ipa`."
+          },
+          "topic": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int64",
+            "description": "5, 10 or 15.",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
       "Health": {
         "type": "object",
         "required": ["status"],
@@ -1739,6 +2195,19 @@
           }
         }
       },
+      "OptionDto": {
+        "type": "object",
+        "description": "One answer option.",
+        "required": ["label", "text"],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
       "PasswordChangeRequest": {
         "type": "object",
         "required": ["currentPassword", "newPassword"],
@@ -1778,6 +2247,216 @@
         },
         "additionalProperties": false
       },
+      "PracticeResultDto": {
+        "type": "object",
+        "description": "The review a submission returns, and what `GET /v1/practice-sets/{id}` keeps showing after.",
+        "required": ["correctCount", "totalCount", "starsEarned", "items"],
+        "properties": {
+          "correctCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultItemDto"
+            }
+          },
+          "starsEarned": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "PracticeSetDto": {
+        "type": "object",
+        "description": "One practice set. `result` is `null` until the student submits.",
+        "required": [
+          "id",
+          "subjectId",
+          "topic",
+          "practiceType",
+          "totalQuestions",
+          "status",
+          "questions",
+          "createdAt"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "practiceType": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionDto"
+            }
+          },
+          "result": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PracticeResultDto"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/PracticeStatusDto"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "PracticeSetListDto": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PracticeSetSummaryDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "PracticeSetSummaryDto": {
+        "type": "object",
+        "description": "One row of the list: nothing from the stored practice JSON.",
+        "required": [
+          "id",
+          "subjectId",
+          "topic",
+          "practiceType",
+          "totalQuestions",
+          "status",
+          "createdAt"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "practiceType": {
+            "type": "string"
+          },
+          "scoreCorrect": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "status": {
+            "$ref": "#/components/schemas/PracticeStatusDto"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "PracticeStatusDto": {
+        "type": "string",
+        "description": "A set's status: `ready` until it is submitted, `submitted` for ever after.",
+        "enum": ["ready", "submitted"]
+      },
+      "ProgressEventDto": {
+        "type": "object",
+        "description": "One `progress` event of the generation stream.",
+        "required": ["stage", "delivered", "total", "elapsedMs"],
+        "properties": {
+          "delivered": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "elapsedMs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "stage": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "QuestionDto": {
+        "type": "object",
+        "description": "One question, with nothing that reveals the answer. `number` is 1-based.",
+        "required": ["id", "number", "kind", "stem", "options"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/QuestionKindDto"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptionDto"
+            }
+          },
+          "stem": {
+            "type": "string"
+          },
+          "story": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "QuestionKindDto": {
+        "type": "string",
+        "description": "One question's kind as the client sees it.",
+        "enum": ["single", "multiple", "story"]
+      },
       "Ready": {
         "type": "object",
         "required": ["status"],
@@ -1794,6 +2473,16 @@
           },
           "status": {
             "type": "string"
+          }
+        }
+      },
+      "ReadyEventDto": {
+        "type": "object",
+        "description": "The last event of a successful generation.",
+        "required": ["practiceSet"],
+        "properties": {
+          "practiceSet": {
+            "$ref": "#/components/schemas/PracticeSetDto"
           }
         }
       },
@@ -1827,6 +2516,44 @@
           }
         },
         "additionalProperties": false
+      },
+      "ResultItemDto": {
+        "type": "object",
+        "description": "One graded question of the review, in question order.",
+        "required": ["questionId", "isCorrect", "selected", "correctAnswer", "explanation"],
+        "properties": {
+          "correctAnswer": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          },
+          "questionId": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SourceDto"
+              }
+            ]
+          }
+        }
       },
       "SendMessageRequest": {
         "type": "object",
@@ -1927,6 +2654,77 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SubjectDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "SubmitAnswerDto": {
+        "type": "object",
+        "required": ["questionId", "selected"],
+        "properties": {
+          "questionId": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubmitPracticeRequest": {
+        "type": "object",
+        "required": ["answers"],
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubmitAnswerDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "TopicMasteryDto": {
+        "type": "object",
+        "required": ["subjectId", "topic", "attempts", "correct", "masteryPercent"],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "correct": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "masteryPercent": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          }
+        }
+      },
+      "TopicMasteryListDto": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicMasteryDto"
             }
           },
           "nextCursor": {
