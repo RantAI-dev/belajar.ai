@@ -76,15 +76,32 @@ impl ApiError {
         self
     }
 
+    fn status(&self) -> StatusCode {
+        StatusCode::from_u16(self.code.status()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+
+    /// The standard body. Also the `data` of an SSE `error` event, so a failure after a stream
+    /// started carries the same `code` and `requestId` as a JSON error.
     #[must_use]
-    pub fn into_response(self, request_id: &str) -> Response {
-        let status =
-            StatusCode::from_u16(self.code.status()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
+    pub fn body(&self, request_id: &str) -> ErrorBody {
         // A 5xx never carries a caller-supplied sentence: the cause belongs in the log.
         let message = match &self.message {
-            Some(text) if !status.is_server_error() => text.as_str(),
+            Some(text) if !self.status().is_server_error() => text.as_str(),
             _ => self.code.message(),
         };
+        ErrorBody {
+            error: ErrorDetail {
+                code: self.code.as_str(),
+                message: message.to_owned(),
+                request_id: request_id.to_owned(),
+                errors: self.errors.clone(),
+            },
+        }
+    }
+
+    #[must_use]
+    pub fn into_response(self, request_id: &str) -> Response {
+        let status = self.status();
         let mut headers = HeaderMap::new();
         if let Ok(value) = HeaderValue::from_str(request_id) {
             headers.insert("x-request-id", value);
@@ -95,15 +112,7 @@ impl ApiError {
         if let Some(seconds) = self.retry_after_seconds {
             headers.insert(header::RETRY_AFTER, HeaderValue::from(seconds));
         }
-        let body = ErrorBody {
-            error: ErrorDetail {
-                code: self.code.as_str(),
-                message: message.to_owned(),
-                request_id: request_id.to_owned(),
-                errors: self.errors,
-            },
-        };
-        (status, headers, Json(body)).into_response()
+        (status, headers, Json(self.body(request_id))).into_response()
     }
 }
 
