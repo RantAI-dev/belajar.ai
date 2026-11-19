@@ -350,8 +350,7 @@ pub(crate) async fn post_message(
         Ok(history) => history,
         Err(err) => return store_errors::into_response(err, &id.0),
     };
-    // The first question names the conversation; a renamed one already has messages.
-    let title = history.is_empty().then(|| title_from_question(content));
+    let title = title_if_first(&conversation, &history, content);
     let now = state.clock.now();
     let user_message = match state
         .conversations
@@ -457,6 +456,17 @@ pub(crate) async fn list_messages(
     }
 }
 
+/// The first question of an ask conversation names it; a renamed one already has messages.
+/// A learn conversation keeps its chapter title: the lesson's `chapterTitle` is read from it.
+fn title_if_first(
+    conversation: &Conversation,
+    history: &[Message],
+    content: &str,
+) -> Option<String> {
+    (conversation.mode == ConversationMode::Ask && history.is_empty())
+        .then(|| title_from_question(content))
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, reason = "tests")]
 #[allow(clippy::indexing_slicing, reason = "tests")]
@@ -549,6 +559,22 @@ mod tests {
         // The cut lands on a character boundary, never inside one.
         let emoji = "é".repeat(61);
         assert_eq!(title_from_question(&emoji).chars().count(), 60);
+    }
+
+    #[test]
+    fn only_the_first_question_of_an_ask_conversation_names_it() {
+        let question = "Kenapa rel kereta api diberi celah?";
+        assert_eq!(
+            title_if_first(&ask_conversation(), &[], question).as_deref(),
+            Some(question)
+        );
+        let mut learn = ask_conversation();
+        learn.mode = ConversationMode::Learn;
+        assert_eq!(
+            title_if_first(&learn, &[], question),
+            None,
+            "a lesson keeps its chapter title"
+        );
     }
 
     #[test]

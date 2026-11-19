@@ -59,11 +59,17 @@ pub(crate) async fn chat(State(state): State<AppState>, Json(request): Json<Chat
 fn chat_frames(text: &str, sources: Value, grounded: Value, retrieval_score: Value) -> Vec<Bytes> {
     let words: Vec<&str> = text.split_whitespace().collect();
     let mut frames = Vec::new();
-    for piece in words.chunks(3) {
+    for (i, piece) in words.chunks(3).enumerate() {
+        // Like a real token stream, a chunk carries its own leading space: clients concatenate.
+        let content = if i == 0 {
+            piece.join(" ")
+        } else {
+            format!(" {}", piece.join(" "))
+        };
         frames.push(data_frame(&json!({
             "id": "fake-chat-1",
             "object": "chat.completion.chunk",
-            "choices": [{ "index": 0, "delta": { "content": piece.join(" ") }, "finish_reason": null }],
+            "choices": [{ "index": 0, "delta": { "content": content }, "finish_reason": null }],
         })));
     }
     frames.push(data_frame(&json!({
@@ -339,5 +345,21 @@ mod tests {
         assert!(last.contains("\"finish_reason\":\"stop\""));
         assert!(last.contains("\"grounded\":true"));
         assert!(String::from_utf8_lossy(frames.get(4).unwrap()).contains("[DONE]"));
+    }
+
+    #[test]
+    fn chat_chunks_concatenate_back_to_the_answer() {
+        let text = "Rel diberi celah supaya bisa memuai dengan aman.";
+        let joined: String = chat_frames(text, json!([]), json!(true), Value::Null)
+            .iter()
+            .filter_map(|frame| {
+                let line = String::from_utf8(frame.to_vec()).unwrap();
+                let json: Value = serde_json::from_str(line.strip_prefix("data: ")?.trim()).ok()?;
+                json.pointer("/choices/0/delta/content")?
+                    .as_str()
+                    .map(str::to_owned)
+            })
+            .collect();
+        assert_eq!(joined, text);
     }
 }
