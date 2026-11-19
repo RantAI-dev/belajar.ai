@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router";
 import { AppHeader, type NavKey } from "../ui";
-import { useDemo } from "./demo";
+import { useHeaderStats } from "./headerStats";
+import { useAuth } from "./session";
 
 const LINKS = { beranda: "/", tanya: "/tanya", belajar: "/belajar", latihan: "/latihan" } as const;
 
@@ -16,7 +17,8 @@ const navKeyOf = (path: string): NavKey | null => {
 /** Header, bottom tab bar on phones, and the page. */
 export function Shell() {
   const { pathname } = useLocation();
-  const demo = useDemo();
+  const { student } = useAuth();
+  const stats = useHeaderStats();
   const shownPath = useRef(pathname);
   useEffect(() => {
     if (shownPath.current === pathname) return;
@@ -34,9 +36,9 @@ export function Shell() {
       <AppHeader
         links={LINKS}
         current={navKeyOf(pathname)}
-        studentName={demo.nickname}
-        stars={demo.stars}
-        streakDays={demo.streakDays}
+        studentName={student?.nickname ?? ""}
+        stars={stats.stars}
+        streakDays={stats.streakDays}
         accountHref="/akun"
       />
       <main

@@ -8,8 +8,6 @@ import {
   useState,
 } from "react";
 import { AKUN_FIXTURE } from "../features/akun";
-import type { Grade } from "../features/auth";
-import { BERANDA_FIXTURE } from "../features/beranda";
 import { type Answers, LATIHAN_SET, type QuizSet } from "../features/latihan";
 import {
   TANYA_CONVERSATION,
@@ -17,19 +15,17 @@ import {
   TANYA_OFF_TOPIC,
   type TanyaMessage,
 } from "../features/tanya";
+import { useAuth } from "./session";
 import { takeWords, wordCount } from "./streamText";
 
 /**
- * Local stand-in for the server while the screens are presentational: the student, their stars,
- * conversations and practice sets, all in memory. A later slice replaces this with API calls.
+ * Local stand-in for the server while these screens are presentational: stars, conversations and
+ * practice sets, all in memory. The student comes from the session (session.tsx). A later slice
+ * replaces this with API calls.
  */
 type Demo = {
-  readonly nickname: string;
-  readonly username: string;
-  readonly grade: Grade;
   readonly stars: number;
   readonly streakDays: number;
-  readonly setProfile: (p: { nickname?: string; username?: string; grade?: Grade }) => void;
   readonly addStars: (n: number) => void;
   readonly conversations: Readonly<Record<string, readonly TanyaMessage[]>>;
   /** Adds the question and streams a canned answer. Returns the conversation id. */
@@ -45,9 +41,7 @@ const DemoContext = createContext<Demo | null>(null);
 const WORD_MS = 70;
 
 export function DemoProvider({ children }: { readonly children: ReactNode }) {
-  const [nickname, setNickname] = useState(BERANDA_FIXTURE.studentName);
-  const [username, setUsername] = useState(AKUN_FIXTURE.username);
-  const [grade, setGrade] = useState<Grade>(AKUN_FIXTURE.grade);
+  const grade = useAuth().student?.grade ?? AKUN_FIXTURE.grade;
   const [stars, setStars] = useState(AKUN_FIXTURE.stars);
   const [conversations, setConversations] = useState<Record<string, readonly TanyaMessage[]>>({
     "rel-kereta": TANYA_CONVERSATION,
@@ -55,12 +49,6 @@ export function DemoProvider({ children }: { readonly children: ReactNode }) {
   const [sets, setSets] = useState<Record<string, QuizSet>>({ [LATIHAN_SET.id]: LATIHAN_SET });
   const [answers, setAnswersState] = useState<Record<string, Answers>>({});
   const seq = useRef(0);
-
-  const setProfile = useCallback((p: { nickname?: string; username?: string; grade?: Grade }) => {
-    if (p.nickname !== undefined) setNickname(p.nickname);
-    if (p.username !== undefined) setUsername(p.username);
-    if (p.grade !== undefined) setGrade(p.grade);
-  }, []);
 
   const addStars = useCallback((n: number) => setStars((s) => s + n), []);
 
@@ -117,12 +105,8 @@ export function DemoProvider({ children }: { readonly children: ReactNode }) {
 
   const value = useMemo<Demo>(
     () => ({
-      nickname,
-      username,
-      grade,
       stars,
       streakDays: AKUN_FIXTURE.streakDays,
-      setProfile,
       addStars,
       conversations,
       ask,
@@ -131,31 +115,14 @@ export function DemoProvider({ children }: { readonly children: ReactNode }) {
       answers,
       setAnswers,
     }),
-    [
-      nickname,
-      username,
-      grade,
-      stars,
-      setProfile,
-      addStars,
-      conversations,
-      ask,
-      sets,
-      addSet,
-      answers,
-      setAnswers,
-    ],
+    [stars, addStars, conversations, ask, sets, addSet, answers, setAnswers],
   );
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
 }
 
 const FALLBACK: Demo = {
-  nickname: BERANDA_FIXTURE.studentName,
-  username: AKUN_FIXTURE.username,
-  grade: AKUN_FIXTURE.grade,
   stars: AKUN_FIXTURE.stars,
   streakDays: AKUN_FIXTURE.streakDays,
-  setProfile: () => {},
   addStars: () => {},
   conversations: {},
   ask: () => "",

@@ -8,6 +8,7 @@ export { ChoiceButton, type ChoiceState, choiceState, letterAt } from "./ChoiceB
 export { contrastRatio } from "./contrast";
 export { cx } from "./cx";
 export { SelectField, type SelectOption, TextField } from "./Field";
+export { FormAlert } from "./FormAlert";
 export { FunFactCard } from "./FunFactCard";
 export {
   ArrowLeftIcon,
