@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { LinkProvider } from "../ui";
-import { DemoProvider } from "./demo";
+import { HomeProvider } from "./home";
 import { RequireSession } from "./RequireSession";
 import { RouterLink } from "./RouterLink";
 import { AkunRoute } from "./routes/AkunRoute";
@@ -18,7 +18,7 @@ export function App() {
     <BrowserRouter>
       <LinkProvider component={RouterLink}>
         <AuthProvider>
-          <DemoProvider>
+          <HomeProvider>
             <Routes>
               <Route element={<RequireSession />}>
                 <Route path="/masuk" element={<LoginRoute />} />
@@ -38,7 +38,7 @@ export function App() {
                 </Route>
               </Route>
             </Routes>
-          </DemoProvider>
+          </HomeProvider>
         </AuthProvider>
       </LinkProvider>
     </BrowserRouter>

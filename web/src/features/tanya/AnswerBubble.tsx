@@ -50,7 +50,9 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
               {active !== undefined && (
                 <PagePreview
                   title={active.title}
-                  fullPageHref={active.fullPageHref}
+                  {...(active.fullPageHref !== undefined
+                    ? { fullPageHref: active.fullPageHref }
+                    : {})}
                   {...(active.imageUrl !== undefined ? { imageUrl: active.imageUrl } : {})}
                 />
               )}

@@ -6,8 +6,12 @@ export type BookSource = {
   readonly label: string;
   /** Long title for the preview, e.g. "IPA Kelas VII Semester 1 · Pemuaian · halaman 112". */
   readonly title: string;
+  /** The book's own title, e.g. "IPA Buku Siswa Kelas VII". */
+  readonly book: string;
+  /** The chapter or section, e.g. "Bab 5: Suhu, Kalor, dan Pemuaian". */
+  readonly section?: string;
   readonly imageUrl?: string;
-  readonly fullPageHref: string;
+  readonly fullPageHref?: string;
 };
 
 export type TanyaMessage =
@@ -26,14 +30,31 @@ export type TanyaMessage =
       readonly kind: "not-in-book";
       /** e.g. "Kelas 7", to say which books were searched. */
       readonly gradeLabel: string;
+    }
+  | {
+      readonly id: string;
+      /** The answer could not be fetched; `text` is the friendly sentence. */
+      readonly kind: "error";
+      readonly text: string;
     };
 
 export type FollowUp = { readonly id: string; readonly label: string };
 
 export type SubjectFilter = "semua" | string;
 
+/** One row of the "Percakapanmu" list. */
+export type ConversationSummary = {
+  readonly id: string;
+  readonly title: string;
+  readonly subjectId: string | null;
+  /** e.g. "19 Nov". */
+  readonly dateLabel: string;
+  readonly href: string;
+};
+
 export type TanyaView = {
-  readonly filter: SubjectFilter;
+  /** Null hides the chips: an existing conversation keeps the subject it started with. */
+  readonly filter: SubjectFilter | null;
   /** Subject ids offered as filter chips, after "Semua". */
   readonly filterSubjects: readonly string[];
   readonly messages: readonly TanyaMessage[];

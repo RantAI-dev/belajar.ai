@@ -1,6 +1,8 @@
-import { type FormEvent, useState } from "react";
-import { ChatBubble, cx, Mascot, SendIcon, subjectById, ToggleChip } from "../../ui";
-import { AnswerBubble } from "./AnswerBubble";
+import { ErrorState, LoadingState, Mascot, subjectById, ToggleChip } from "../../ui";
+import { Composer } from "./Composer";
+import { ConversationTitle, type ConversationTitleProps } from "./ConversationTitle";
+import { HistoryList, type HistoryView } from "./HistoryList";
+import { ChatThread } from "./Thread";
 import type { SubjectFilter, TanyaView } from "./types";
 
 export type TanyaScreenProps = {
@@ -8,13 +10,29 @@ export type TanyaScreenProps = {
   readonly onFilterChange: (filter: SubjectFilter) => void;
   readonly onSend: (question: string) => void;
   readonly onFollowUp: (followUpId: string) => void;
+  /** Inside a conversation: its name, rename and the way back to the list. */
+  readonly conversation?: ConversationTitleProps;
+  /** On a new conversation: the earlier ones. */
+  readonly history?: { readonly view: HistoryView; readonly onLoadMore: () => void };
+  /** The conversation's messages are still loading. */
+  readonly loading?: boolean;
+  /** The conversation could not be loaded. */
+  readonly loadError?: { readonly message: string; readonly onRetry: () => void };
 };
 
-function FilterChips({ view, onFilterChange }: Pick<TanyaScreenProps, "view" | "onFilterChange">) {
+function FilterChips({
+  filter,
+  subjects,
+  onFilterChange,
+}: {
+  readonly filter: SubjectFilter;
+  readonly subjects: readonly string[];
+  readonly onFilterChange: (filter: SubjectFilter) => void;
+}) {
   const all = { id: "semua", shortName: "Semua", color: "#0069a8", tint: "#e0f0fd" };
   const chips = [
     all,
-    ...view.filterSubjects.map((id) => subjectById(id) ?? undefined).filter((s) => s !== undefined),
+    ...subjects.map((id) => subjectById(id) ?? undefined).filter((s) => s !== undefined),
   ];
   return (
     <fieldset className="m-0 flex min-w-0 flex-wrap items-center gap-2 border-0 p-0">
@@ -24,7 +42,7 @@ function FilterChips({ view, onFilterChange }: Pick<TanyaScreenProps, "view" | "
       {chips.map((s) => (
         <ToggleChip
           key={s.id}
-          pressed={view.filter === s.id}
+          pressed={filter === s.id}
           onPressedChange={() => onFilterChange(s.id)}
           accent={{ color: s.color, tint: s.tint }}
         >
@@ -66,93 +84,57 @@ function EmptyState({
   );
 }
 
-export function TanyaScreen({ view, onFilterChange, onSend, onFollowUp }: TanyaScreenProps) {
-  const [draft, setDraft] = useState("");
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    const q = draft.trim();
-    if (q.length === 0 || view.busy) return;
-    onSend(q);
-    setDraft("");
-  };
+export function TanyaScreen(props: TanyaScreenProps) {
+  const { view, onFilterChange, onSend, onFollowUp, conversation, history } = props;
   const last = view.messages.at(-1);
   const showFollowUps =
     last?.kind === "answer" && last.status === "done" && view.followUps.length > 0;
-  return (
-    <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-[18px]">
-      <FilterChips view={view} onFilterChange={onFilterChange} />
-      {view.messages.length === 0 ? (
-        <EmptyState suggestions={view.suggestions} onSend={onSend} />
-      ) : (
+  const body = () => {
+    if (props.loadError !== undefined)
+      return <ErrorState message={props.loadError.message} onRetry={props.loadError.onRetry} />;
+    if (props.loading === true) return <LoadingState text="Sebentar, aku buka percakapanmu…" />;
+    if (view.messages.length === 0)
+      return (
         <>
-          <h1 className="sr-only">Percakapan Tanya</h1>
-          {view.messages.map((m) => {
-            if (m.kind === "question")
-              return (
-                <ChatBubble key={m.id} from="student">
-                  {m.text}
-                </ChatBubble>
-              );
-            if (m.kind === "answer") return <AnswerBubble key={m.id} answer={m} />;
-            return (
-              <ChatBubble key={m.id} from="mascot" mood="hmm" variant="ungrounded">
-                <span className="text-[17px] font-extrabold">
-                  Hmm, itu tidak ada di buku pelajaranmu.
-                </span>
-                <span className="text-[16px] font-semibold leading-relaxed text-ink-muted">
-                  Aku cuma menjawab dari buku {m.gradeLabel}, supaya jawabanku pasti benar. Coba
-                  tanya soal pelajaran, ya!
-                </span>
-              </ChatBubble>
-            );
-          })}
-          {showFollowUps && (
-            <div className="flex flex-wrap gap-2 sm:pl-[60px]">
-              {view.followUps.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => onFollowUp(f.id)}
-                  className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold text-primary hover:bg-primary-soft"
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+          <EmptyState suggestions={view.suggestions} onSend={onSend} />
+          {history !== undefined && (
+            <HistoryList view={history.view} onLoadMore={history.onLoadMore} />
           )}
         </>
+      );
+    return (
+      <>
+        {conversation === undefined && <h1 className="sr-only">Percakapan Tanya</h1>}
+        <ChatThread messages={view.messages} />
+        {showFollowUps && (
+          <div className="flex flex-wrap gap-2 sm:pl-[60px]">
+            {view.followUps.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => onFollowUp(f.id)}
+                className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold text-primary hover:bg-primary-soft"
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+  return (
+    <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-[18px]">
+      {conversation !== undefined && <ConversationTitle {...conversation} />}
+      {view.filter !== null && (
+        <FilterChips
+          filter={view.filter}
+          subjects={view.filterSubjects}
+          onFilterChange={onFilterChange}
+        />
       )}
-      <form
-        onSubmit={submit}
-        className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-auto bg-[linear-gradient(to_top,#f3f9ff_75%,rgb(243_249_255/0))] pt-3.5 pb-3 md:bottom-0 md:pb-[22px]"
-      >
-        <div className="ring-within flex items-center gap-2.5 rounded-[20px] border-2 border-line-sky bg-white py-2 pr-2 pl-4 shadow-[0_6px_20px_rgb(0_105_168/0.08)] sm:pl-5">
-          <label htmlFor="tanya-input" className="sr-only">
-            Pertanyaanmu
-          </label>
-          <input
-            id="tanya-input"
-            type="text"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Tulis pertanyaanmu di sini…"
-            className="min-h-[52px] min-w-0 flex-1 border-0 bg-transparent text-[18px] font-semibold placeholder:text-ink-faint focus-visible:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={view.busy}
-            className={cx(
-              "pressable inline-flex min-h-[52px] min-w-[52px] items-center justify-center gap-2 rounded-[14px] bg-primary px-4 text-[19px] font-extrabold text-white shadow-[0_4px_0_var(--color-primary-edge)] sm:px-[22px]",
-              view.busy
-                ? "cursor-not-allowed opacity-55"
-                : "cursor-pointer active:translate-y-[4px] active:shadow-none",
-            )}
-          >
-            <SendIcon size={20} />
-            <span className="max-sm:sr-only">Kirim</span>
-          </button>
-        </div>
-      </form>
+      {body()}
+      <Composer busy={view.busy || props.loading === true} onSend={onSend} />
     </div>
   );
 }

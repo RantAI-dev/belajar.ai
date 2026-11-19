@@ -207,7 +207,7 @@ export function ChapterMapScreen({
               )}
             </ol>
             <ButtonLink href={chapterHref(selected.id)} size="lg" block>
-              {selected.status === "done" ? "Ulangi bab ini" : "Mulai Belajar"}
+              {selected.status === "done" ? "Buka lagi bab ini" : "Mulai Belajar"}
             </ButtonLink>
           </aside>
         )}

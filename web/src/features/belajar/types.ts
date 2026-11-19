@@ -23,28 +23,5 @@ export type SubjectEntry = {
   readonly href: string;
 };
 
-export type SessionOption = { readonly id: string; readonly text: string };
-
-export type SessionQuestion = {
-  readonly id: string;
-  readonly prompt: string;
-  readonly options: readonly SessionOption[];
-  readonly answerId: string;
-  readonly explanation: string;
-};
-
-export type SessionSource = {
-  readonly label: string;
-  readonly title: string;
-  readonly fullPageHref: string;
-};
-
-export type SessionContent = {
-  readonly subjectId: string;
-  readonly chapterId: string;
-  readonly chapterTitle: string;
-  readonly explanation: readonly string[];
-  readonly source: SessionSource;
-  readonly check: SessionQuestion;
-  readonly quiz: readonly SessionQuestion[];
-};
+/** The guided session's steps; `done` once the quiz result is in. */
+export type LessonStep = "explain" | "check" | "quiz" | "done";

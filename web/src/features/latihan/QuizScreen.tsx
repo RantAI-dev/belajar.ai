@@ -11,7 +11,7 @@ import {
 import type { QuizQuestion } from "./types";
 
 export type QuizScreenProps = {
-  readonly chapterTitle: string;
+  readonly topic: string;
   readonly subjectId: string;
   readonly question: QuizQuestion;
   /** 0-based */
@@ -22,6 +22,10 @@ export type QuizScreenProps = {
   readonly onPrev: () => void;
   readonly onNext: () => void;
   readonly onFinish: () => void;
+  /** Every question has a choice. */
+  readonly canFinish: boolean;
+  readonly submitting: boolean;
+  readonly submitError: string | null;
 };
 
 const HINT: Record<QuizQuestion["kind"], string> = {
@@ -38,7 +42,7 @@ export function QuizScreen(p: QuizScreenProps) {
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
       <div className="flex flex-col gap-2">
         <span className="text-[15px] font-extrabold" style={{ color: subject?.ink ?? "#00598a" }}>
-          {subject?.name ?? "Latihan"} · {p.chapterTitle}
+          {subject?.name ?? "Latihan"} · {p.topic}
         </span>
         <div className="flex items-center gap-3">
           <ProgressBar
@@ -85,6 +89,11 @@ export function QuizScreen(p: QuizScreenProps) {
         </fieldset>
       </Card>
 
+      {p.submitError !== null && (
+        <p role="alert" className="m-0 text-[16px] font-bold text-oops-ink">
+          {p.submitError}
+        </p>
+      )}
       <div className="flex gap-3">
         {p.index > 0 && (
           <Button
@@ -101,7 +110,9 @@ export function QuizScreen(p: QuizScreenProps) {
             variant="success"
             size="lg"
             className="flex-1"
-            disabled={p.chosen.length === 0}
+            disabled={!p.canFinish}
+            loading={p.submitting}
+            loadingLabel="Aku periksa jawabanmu…"
             onClick={p.onFinish}
           >
             Selesai, lihat hasilku
