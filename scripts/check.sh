@@ -32,7 +32,8 @@ ts_full()  { (cd web && bun install --frozen-lockfile --silent && bun run typech
 ts_fast()  { (cd web && bunx biome check --staged --no-errors-on-unmatched); }
 
 rust_paths='^rust/'
-rust_full() { (cd rust && cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace); }
+# Database tests need Postgres: CI provides DATABASE_URL, locally scripts/dev-db.sh starts a container.
+rust_full() { (export DATABASE_URL="${DATABASE_URL:-$(scripts/dev-db.sh)}" && cd rust && cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace); }
 rust_fast() { (cd rust && cargo fmt --check); }
 # Split by crate once the workspace has several, for example:
 #   rust_server_paths='^rust/crates/server/'

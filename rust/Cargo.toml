@@ -9,16 +9,36 @@ publish = false
 
 [workspace.dependencies]
 belajar-core = { path = "crates/core" }
+belajar-ports = { path = "crates/ports" }
+belajar-store-pg = { path = "crates/store-pg" }
+belajar-upstream = { path = "crates/upstream" }
+belajar-fake-upstream = { path = "crates/fake-upstream" }
+# Versions chosen for known axum 0.8 compatibility. Each line says what it is for.
+argon2 = "0.5"                                   # password hashing (argon2id)
+async-trait = "0.1"                              # dyn-compatible async traits in ports
 axum = "0.8"
+axum-extra = { version = "0.10", features = ["cookie"] }  # session cookie jar
+base64 = "0.22"                                  # session token encoding
+bytes = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+eventsource-stream = "0.2"                       # parse the upstream's SSE
+futures = "0.3"
 http-body-util = "0.1"
+rand = "0.9"                                     # session tokens
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }  # upstream client
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal"] }
+sha2 = "0.10"                                    # session token hash at rest
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "uuid", "chrono", "json", "migrate", "macros"] }
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-stream = "0.1"
 tower = { version = "0.5", features = ["util"] }
-tower-http = { version = "0.6", features = ["fs"] }
+tower-http = { version = "0.6", features = ["fs", "limit"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-uuid = { version = "1", features = ["v7"] }
+utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }  # OpenAPI for the generated web contracts
+uuid = { version = "1", features = ["v7", "serde"] }
 
 # From the RantAI guidelines (stacks/rust/lints.toml). Members opt in with `[lints] workspace = true`.
 [workspace.lints.rust]
