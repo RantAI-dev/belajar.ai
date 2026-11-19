@@ -1,21 +1,18 @@
 export { BelajarHomeScreen } from "./BelajarHomeScreen";
 export { ChapterMapScreen, type ChapterMapScreenProps } from "./ChapterMapScreen";
-export { ChapterSessionScreen, type ChapterSessionScreenProps } from "./ChapterSessionScreen";
-export { BELAJAR_SESSION, BELAJAR_SUBJECTS, chaptersOf } from "./fixtures";
 export {
-  quizScore,
-  SESSION_STEPS,
-  type SessionAction,
-  type SessionState,
-  type SessionStep,
-  sessionReducer,
-  startSession,
-} from "./session";
+  type ChapterDto,
+  chapterNodes,
+  type LessonDto,
+  lessonStep,
+  subjectEntry,
+} from "./fromApi";
+export { type LessonResult, LessonScreen, type LessonScreenProps } from "./LessonScreen";
+export { explainPrompt, LESSON_STEPS, nextStep, QUIZ_TOTAL } from "./lesson";
 export type {
   ChapterMapView,
   ChapterNode,
   ChapterStatus,
-  SessionContent,
-  SessionQuestion,
+  LessonStep,
   SubjectEntry,
 } from "./types";

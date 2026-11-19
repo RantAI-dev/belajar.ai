@@ -1,16 +1,24 @@
 import { type CSSProperties, type FormEvent, useState } from "react";
 import { AppLink, Mascot, MissionCard, Stepper, SubjectCard, subjectById } from "../../ui";
+import { LESSON_STEPS } from "../belajar";
 import type { BerandaView, ContinueLesson } from "./types";
 
 export type BerandaScreenProps = {
   readonly view: BerandaView;
   readonly onAsk: (question: string) => void;
+  /** The quick question is on its way to Tanya. */
+  readonly asking?: boolean;
+  /** Why the quick question could not be sent. */
+  readonly askError?: string;
 };
 
 function ContinueCard({ lesson }: { readonly lesson: ContinueLesson }) {
   const subject = subjectById(lesson.subjectId);
   if (subject === undefined) return null;
-  const steps = Array.from({ length: lesson.totalSteps }, (_, i) => `Langkah ${i + 1}`);
+  const steps = Array.from(
+    { length: lesson.totalSteps },
+    (_, i) => LESSON_STEPS[i] ?? `Langkah ${i + 1}`,
+  );
   return (
     <AppLink
       href={lesson.href}
@@ -49,11 +57,11 @@ function ContinueCard({ lesson }: { readonly lesson: ContinueLesson }) {
   );
 }
 
-export function BerandaScreen({ view, onAsk }: BerandaScreenProps) {
+export function BerandaScreen({ view, onAsk, asking = false, askError }: BerandaScreenProps) {
   const [question, setQuestion] = useState("");
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (question.trim().length > 0) onAsk(question.trim());
+    if (question.trim().length > 0 && !asking) onAsk(question.trim());
   };
   return (
     <div className="flex flex-col gap-6">
@@ -84,11 +92,21 @@ export function BerandaScreen({ view, onAsk }: BerandaScreenProps) {
             />
             <button
               type="submit"
+              disabled={asking}
+              aria-busy={asking || undefined}
               className="pressable inline-flex min-h-14 cursor-pointer items-center gap-2 rounded-[16px] bg-sun px-[26px] text-[19px] font-extrabold text-sun-ink shadow-[0_4px_0_var(--color-sun-edge)] active:translate-y-[4px] active:shadow-none max-sm:w-full max-sm:justify-center"
             >
               Tanya
             </button>
           </form>
+          {askError !== undefined && (
+            <p
+              role="alert"
+              className="m-0 rounded-[12px] bg-white px-3.5 py-2 text-[16px] font-bold text-oops-ink"
+            >
+              {askError}
+            </p>
+          )}
           <p className="m-0 text-[15px] font-semibold text-[#cfe7fb]">
             Jawabanku selalu dari buku pelajaranmu, lengkap dengan halamannya.
           </p>

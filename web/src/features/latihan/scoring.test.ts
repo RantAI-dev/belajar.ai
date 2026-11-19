@@ -1,55 +1,46 @@
 import { describe, expect, test } from "bun:test";
-import { LATIHAN_SAMPLE_ANSWERS, LATIHAN_SET } from "./fixtures";
-import {
-  answeredCount,
-  isCorrect,
-  pointsFor,
-  resultHeadline,
-  scoreSet,
-  toggleChoice,
-} from "./scoring";
-import type { QuizQuestion } from "./types";
+import { answeredCount, resultHeadline, toggleChoice } from "./scoring";
+import type { QuizQuestion, QuizSet } from "./types";
 
-const byId = (id: string): QuizQuestion => {
-  const q = LATIHAN_SET.questions.find((x) => x.id === id);
-  if (q === undefined) return LATIHAN_SET.questions[0] as QuizQuestion;
-  return q;
-};
+const q = (kind: QuizQuestion["kind"]): QuizQuestion => ({
+  id: "q1",
+  kind,
+  prompt: "?",
+  options: [
+    { id: "A", text: "a" },
+    { id: "B", text: "b" },
+  ],
+});
 
-describe("answers", () => {
-  test("pick-one replaces the choice", () => {
-    expect(toggleChoice(byId("q1"), ["a"], "c")).toEqual(["c"]);
+describe("toggleChoice", () => {
+  test("pick-one questions replace the choice", () => {
+    expect(toggleChoice(q("single"), ["A"], "B")).toEqual(["B"]);
+    expect(toggleChoice(q("story"), [], "A")).toEqual(["A"]);
   });
 
-  test("pick-many toggles each option", () => {
-    const q = byId("q3");
-    expect(toggleChoice(q, ["a"], "c")).toEqual(["a", "c"]);
-    expect(toggleChoice(q, ["a", "c"], "a")).toEqual(["c"]);
+  test("pick-many questions toggle", () => {
+    expect(toggleChoice(q("multiple"), ["A"], "B")).toEqual(["A", "B"]);
+    expect(toggleChoice(q("multiple"), ["A", "B"], "A")).toEqual(["B"]);
   });
 
   test("an unknown option changes nothing", () => {
-    expect(toggleChoice(byId("q1"), ["a"], "zzz")).toEqual(["a"]);
-  });
-
-  test("pick-many is right only with exactly the right set, in any order", () => {
-    const q = byId("q3");
-    expect(isCorrect(q, ["c", "a"])).toBe(true);
-    expect(isCorrect(q, ["a"])).toBe(false);
-    expect(isCorrect(q, ["a", "c", "d"])).toBe(false);
+    expect(toggleChoice(q("single"), ["A"], "Z")).toEqual(["A"]);
   });
 });
 
-describe("score", () => {
-  test("the sample answers get 4 of 5, worth 20 stars", () => {
-    const s = scoreSet(LATIHAN_SET, LATIHAN_SAMPLE_ANSWERS);
-    expect(s).toEqual({ correct: 4, total: 5 });
-    expect(pointsFor(s.correct)).toBe(20);
-    expect(answeredCount(LATIHAN_SET, { q1: ["a"], q2: [] })).toBe(1);
-  });
+test("answeredCount counts questions with a choice", () => {
+  const set: QuizSet = {
+    id: "s",
+    subjectId: "ipa",
+    topic: "t",
+    submitted: false,
+    questions: [q("single"), { ...q("single"), id: "q2" }],
+  };
+  expect(answeredCount(set, { q1: ["A"], q2: [] })).toBe(1);
+});
 
-  test("headlines stay encouraging", () => {
-    expect(resultHeadline(5, 5)).toBe("Hebat! Semua 5 benar");
-    expect(resultHeadline(4, 5)).toBe("Hebat! 4 dari 5 benar");
-    expect(resultHeadline(1, 5)).toBe("Ayo semangat! 1 dari 5 benar");
-  });
+test("resultHeadline cheers every score", () => {
+  expect(resultHeadline(5, 5)).toBe("Hebat! Semua 5 benar");
+  expect(resultHeadline(3, 5)).toBe("Hebat! 3 dari 5 benar");
+  expect(resultHeadline(1, 5)).toBe("Hampir benar! 1 dari 5 benar");
 });

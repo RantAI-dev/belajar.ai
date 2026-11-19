@@ -1,6 +1,12 @@
 // Server-sent events over POST: EventSource only does GET, so the answer streams are read with
 // fetch. Each feature validates its own `data` shape; this module only frames events.
-import type { FetchLike, Operation, PathsWith, RequestBody } from "./client";
+import {
+  buildUrl,
+  type FetchLike,
+  type Operation,
+  type PathsWith,
+  type RequestBody,
+} from "./client";
 import { ERROR_CODES } from "./error-codes";
 import {
   type ApiProblem,
@@ -89,6 +95,8 @@ export type StreamEnd = "ended" | "aborted";
 export type StreamOptions = {
   readonly onEvent: (e: SseEvent) => void;
   readonly signal?: AbortSignal;
+  /** Values for `{name}` segments in the path. */
+  readonly pathParams?: Readonly<Record<string, string>>;
   readonly fetch?: FetchLike;
 };
 
@@ -111,7 +119,7 @@ export async function postStream<P extends PathsWith<"post">>(
   };
   let res: Response;
   try {
-    res = await fetchImpl(path, {
+    res = await fetchImpl(buildUrl(path, { pathParams: options.pathParams ?? {} }), {
       method: "POST",
       credentials: "same-origin",
       headers: { accept: "text/event-stream", "content-type": "application/json" },

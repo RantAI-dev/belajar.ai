@@ -31,6 +31,7 @@ export { progressPercent } from "./progress";
 export { clampRating, type Rating, starsForScore } from "./rating";
 export { PagePreview, SourceChip } from "./Source";
 export { StarCount, StarRating } from "./Stars";
+export { ErrorState, LoadingState } from "./Status";
 export { Stepper } from "./Stepper";
 export { StreakBadge } from "./StreakBadge";
 export { SubjectCard } from "./SubjectCard";

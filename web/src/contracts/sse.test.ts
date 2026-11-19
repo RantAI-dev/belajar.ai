@@ -221,4 +221,21 @@ describe("postStream", () => {
     setSessionExpiredListener(null);
     expect(expired).toBe(1);
   });
+
+  test("fills the path's {id} segments", async () => {
+    let url = "";
+    await postStream(
+      "/v1/conversations/{id}/messages",
+      { content: "Halo" },
+      {
+        pathParams: { id: "c 1" },
+        onEvent: () => {},
+        fetch: async (input) => {
+          url = input;
+          return new Response("");
+        },
+      },
+    );
+    expect(url).toBe("/v1/conversations/c%201/messages");
+  });
 });

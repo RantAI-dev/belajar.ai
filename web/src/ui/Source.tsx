@@ -36,7 +36,8 @@ export type PagePreviewProps = {
   readonly note?: string;
   /** A picture of the book page. Without one a sketch of a page stands in. */
   readonly imageUrl?: string;
-  readonly fullPageHref: string;
+  /** Without one there is no "open the full page" link. */
+  readonly fullPageHref?: string;
 };
 
 export function PagePreview({
@@ -69,15 +70,17 @@ export function PagePreview({
         <span className="text-[16px] font-extrabold">{title}</span>
         <span className="text-[15px] font-semibold text-ink-muted">{note}</span>
         {/* A plain link: the full page is a file, not an app route. */}
-        <a
-          href={fullPageHref}
-          target="_blank"
-          rel="noopener"
-          className="inline-flex min-h-12 items-center self-start rounded-[12px] border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold hover:bg-primary-soft"
-        >
-          Buka halaman penuh
-          <span className="sr-only"> (di tab baru)</span>
-        </a>
+        {fullPageHref !== undefined && (
+          <a
+            href={fullPageHref}
+            target="_blank"
+            rel="noopener"
+            className="inline-flex min-h-12 items-center self-start rounded-[12px] border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold hover:bg-primary-soft"
+          >
+            Buka halaman penuh
+            <span className="sr-only"> (di tab baru)</span>
+          </a>
+        )}
       </div>
     </div>
   );

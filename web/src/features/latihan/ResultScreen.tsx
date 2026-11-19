@@ -11,30 +11,29 @@ import {
   StarRating,
   starsForScore,
 } from "../../ui";
-import { isCorrect, pointsFor, resultHeadline, scoreSet } from "./scoring";
-import type { Answers, QuizQuestion, QuizSet } from "./types";
+import { resultHeadline } from "./scoring";
+import type { QuizResult, ReviewItem as Review } from "./types";
 
 export type ResultScreenProps = {
-  readonly set: QuizSet;
-  readonly answers: Answers;
-  readonly retryHref: string;
+  readonly result: QuizResult;
+  /** A fresh set on the same topic. */
+  readonly againHref: string;
   readonly studyHref: string;
 };
 
 function ReviewItem({
-  q,
+  item,
   no,
-  chosen,
   open,
   onToggle,
 }: {
-  readonly q: QuizQuestion;
+  readonly item: Review;
   readonly no: number;
-  readonly chosen: readonly string[];
   readonly open: boolean;
   readonly onToggle: () => void;
 }) {
-  const ok = isCorrect(q, chosen);
+  const q = item.question;
+  const ok = item.isCorrect;
   const panelId = `review-${q.id}`;
   return (
     <article
@@ -78,7 +77,7 @@ function ReviewItem({
                 letter={letterAt(i)}
                 text={o.text}
                 multiple={q.kind === "multiple"}
-                state={choiceState(o.id, chosen, q.answerIds)}
+                state={choiceState(o.id, item.chosen, item.correct)}
                 locked
               />
             ))}
@@ -92,16 +91,21 @@ function ReviewItem({
             >
               {ok ? "Benar!" : "Hampir benar!"}
             </span>
-            <p className="m-0 text-[16px] font-semibold leading-relaxed">{q.explanation}</p>
-            <a
-              href={q.source.href}
-              target="_blank"
-              rel="noopener"
-              className="inline-flex min-h-12 items-center self-start text-[15px] font-extrabold underline-offset-4 hover:underline"
-            >
-              {q.source.label}
-              <span className="sr-only"> (di tab baru)</span>
-            </a>
+            <p className="m-0 text-[16px] font-semibold leading-relaxed">{item.explanation}</p>
+            {item.source !== null &&
+              (item.source.href !== undefined ? (
+                <a
+                  href={item.source.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex min-h-12 items-center self-start text-[15px] font-extrabold underline-offset-4 hover:underline"
+                >
+                  {item.source.label}
+                  <span className="sr-only"> (di tab baru)</span>
+                </a>
+              ) : (
+                <span className="text-[15px] font-bold text-ink-muted">{item.source.label}</span>
+              ))}
           </div>
         </div>
       )}
@@ -109,9 +113,9 @@ function ReviewItem({
   );
 }
 
-export function ResultScreen({ set, answers, retryHref, studyHref }: ResultScreenProps) {
-  const { correct, total } = scoreSet(set, answers);
-  const firstWrong = set.questions.find((q) => !isCorrect(q, answers[q.id] ?? []))?.id;
+export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps) {
+  const { correct, total } = result;
+  const firstWrong = result.items.find((i) => !i.isCorrect)?.question.id;
   const [open, setOpen] = useState<ReadonlySet<string>>(
     new Set(firstWrong === undefined ? [] : [firstWrong]),
   );
@@ -145,17 +149,17 @@ export function ResultScreen({ set, answers, retryHref, studyHref }: ResultScree
           </h1>
           <StarRating value={starsForScore(correct, total)} size={40} emptyColor="#5fc596" />
           <span className="inline-flex min-h-9 items-center gap-1.5 self-start rounded-[12px] bg-white px-3.5 text-[16px] font-extrabold text-success-edge">
-            +{pointsFor(correct)} bintang untukmu
+            {result.starsEarned > 0
+              ? `+${result.starsEarned} bintang untukmu`
+              : "Ayo coba lagi untuk dapat bintang"}
           </span>
         </div>
       </section>
 
       <div className="flex flex-wrap gap-3">
-        {correct < total && (
-          <ButtonLink href={retryHref} size="lg" className="flex-1 basis-[220px]">
-            Coba lagi soal yang salah
-          </ButtonLink>
-        )}
+        <ButtonLink href={againHref} size="lg" className="flex-1 basis-[220px]">
+          {correct < total ? "Latihan lagi topik ini" : "Latihan soal baru"}
+        </ButtonLink>
         <ButtonLink href={studyHref} variant="secondary" size="lg" className="flex-1 basis-[220px]">
           Pelajari lagi bab ini
         </ButtonLink>
@@ -165,14 +169,13 @@ export function ResultScreen({ set, answers, retryHref, studyHref }: ResultScree
         <h2 id="review-title" className="m-0 font-display text-[24px] font-semibold">
           Yuk, lihat pembahasannya
         </h2>
-        {set.questions.map((q, i) => (
+        {result.items.map((item, i) => (
           <ReviewItem
-            key={q.id}
-            q={q}
+            key={item.question.id}
+            item={item}
             no={i + 1}
-            chosen={answers[q.id] ?? []}
-            open={open.has(q.id)}
-            onToggle={() => toggle(q.id)}
+            open={open.has(item.question.id)}
+            onToggle={() => toggle(item.question.id)}
           />
         ))}
       </section>
