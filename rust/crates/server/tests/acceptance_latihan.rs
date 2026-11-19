@@ -274,7 +274,7 @@ async fn submitting_grades_reveals_the_review_and_awards_stars(pool: PgPool) {
         let qid = item["questionId"].as_str().unwrap();
         let right = &key.iter().find(|(k, _)| k == qid).unwrap().1;
         assert_eq!(item["correctAnswer"], json!(right));
-        assert!(item["explanation"].as_str().unwrap().len() > 0);
+        assert!(!item["explanation"].as_str().unwrap().is_empty());
         assert!(item["selected"].is_array());
     }
 
