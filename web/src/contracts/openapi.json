@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "belajar.ai",
-    "description": "Accounts, profiles and sessions for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+    "description": "Accounts, profiles, sessions, subjects, guided lessons and the home screen for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     "license": {
       "name": ""
     },
@@ -258,6 +258,285 @@
         }
       }
     },
+    "/v1/home": {
+      "get": {
+        "tags": ["home"],
+        "summary": "`GET /v1/home`.",
+        "operationId": "get_home",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lessons": {
+      "post": {
+        "tags": ["lessons"],
+        "summary": "`POST /v1/lessons`: starts the chapter's lesson, or resumes the existing one unchanged.",
+        "operationId": "create_lesson",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The lesson already existed and is returned unchanged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The lesson was started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lessons/{id}": {
+      "get": {
+        "tags": ["lessons"],
+        "summary": "`GET /v1/lessons/{id}`.",
+        "operationId": "get_lesson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The lesson's id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["lessons"],
+        "summary": "`PATCH /v1/lessons/{id}`: moves the lesson's step. `done` is refused: only completing a quiz\nfinishes a lesson.",
+        "operationId": "patch_lesson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The lesson's id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchLessonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lessons/{id}/complete": {
+      "post": {
+        "tags": ["lessons"],
+        "summary": "`POST /v1/lessons/{id}/complete`: applies the guided session's quiz result, keeps the best\nstars and awards the star ledger rows for newly reached levels.",
+        "operationId": "complete_lesson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The lesson's id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteLessonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteLessonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/me": {
       "get": {
         "tags": ["me"],
@@ -348,10 +627,201 @@
           }
         }
       }
+    },
+    "/v1/subjects": {
+      "get": {
+        "tags": ["subjects"],
+        "summary": "`GET /v1/subjects`: the upstream's mapel for the student's grade, in our fixed order, under\nour ids. A mapel we do not know is left out.",
+        "operationId": "list_subjects",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/subjects/{subjectId}/chapters": {
+      "get": {
+        "tags": ["subjects"],
+        "summary": "`GET /v1/subjects/{subjectId}/chapters`: the chapter map, joined with the student's own\nprogress.",
+        "operationId": "list_chapters",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "description": "One of our subject ids",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaptersDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ChapterDto": {
+        "type": "object",
+        "description": "One chapter of a subject, with the student's own progress in it.",
+        "required": ["id", "number", "title", "stars", "step", "isCompleted", "lessonId"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "lessonId": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The student's lesson for this chapter, when they started one."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The best stars the student's quizzes earned in this chapter, 0 when none.",
+            "minimum": 0
+          },
+          "step": {
+            "type": ["string", "null"],
+            "description": "`null` before the student starts the chapter's lesson, else its current step."
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ChaptersDto": {
+        "type": "object",
+        "description": "The chapters list: `{ data, nextCursor }`, one complete page.",
+        "required": ["data", "nextCursor"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "Checks": {
         "type": "object",
         "required": ["postgres"],
@@ -360,6 +830,90 @@
             "type": "string"
           }
         }
+      },
+      "CompleteLessonRequest": {
+        "type": "object",
+        "required": ["quizCorrect", "quizTotal"],
+        "properties": {
+          "quizCorrect": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "quizTotal": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompleteLessonResponse": {
+        "type": "object",
+        "required": ["lesson", "starsEarned"],
+        "properties": {
+          "lesson": {
+            "$ref": "#/components/schemas/LessonDto"
+          },
+          "starsEarned": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "ContinueItemDto": {
+        "type": "object",
+        "description": "One unfinished lesson to continue, most recently updated first.",
+        "required": [
+          "lessonId",
+          "subjectId",
+          "chapterId",
+          "chapterTitle",
+          "step",
+          "stars",
+          "updatedAt"
+        ],
+        "properties": {
+          "chapterId": {
+            "type": "string"
+          },
+          "chapterTitle": {
+            "type": "string"
+          },
+          "lessonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "step": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateLessonRequest": {
+        "type": "object",
+        "required": ["subjectId", "chapterId"],
+        "properties": {
+          "chapterId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       },
       "ErrorBody": {
         "type": "object",
@@ -417,6 +971,94 @@
           }
         }
       },
+      "HomeDto": {
+        "type": "object",
+        "description": "The home screen, everything in one response.",
+        "required": ["nickname", "grade", "stars", "streakDays", "missions", "continueLearning"],
+        "properties": {
+          "continueLearning": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContinueItemDto"
+            }
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "missions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MissionDto"
+            }
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "streakDays": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "LessonDto": {
+        "type": "object",
+        "description": "One guided lesson, as every lesson response shows it.",
+        "required": [
+          "id",
+          "subjectId",
+          "chapterId",
+          "chapterTitle",
+          "conversationId",
+          "step",
+          "stars",
+          "completedAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "chapterId": {
+            "type": "string"
+          },
+          "chapterTitle": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "step": {
+            "type": "string",
+            "description": "`explain`, `check`, `quiz` or `done`."
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "LoginRequest": {
         "type": "object",
         "required": ["username", "password"],
@@ -435,6 +1077,39 @@
         "description": "`POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing.",
         "additionalProperties": false
       },
+      "MissionDto": {
+        "type": "object",
+        "description": "One daily mission, with today's progress.",
+        "required": ["kind", "title", "progress", "target", "isCompleted", "rewardStars"],
+        "properties": {
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string",
+            "description": "`ask`, `lesson` or `practice`."
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Capped at the target.",
+            "minimum": 0
+          },
+          "rewardStars": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "target": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
       "PasswordChangeRequest": {
         "type": "object",
         "required": ["currentPassword", "newPassword"],
@@ -443,6 +1118,17 @@
             "type": "string"
           },
           "newPassword": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PatchLessonRequest": {
+        "type": "object",
+        "description": "The body of `PATCH /v1/lessons/{id}`. `step` is a string so a bad value is a field error, not\na body parse error.",
+        "required": ["step"],
+        "properties": {
+          "step": {
             "type": "string"
           }
         },
@@ -526,6 +1212,44 @@
           },
           "username": {
             "type": "string"
+          }
+        }
+      },
+      "SubjectDto": {
+        "type": "object",
+        "description": "One subject, under our id, with the upstream's name passed back on later requests.",
+        "required": ["id", "name", "mapel", "documentCount"],
+        "properties": {
+          "documentCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string"
+          },
+          "mapel": {
+            "type": "string",
+            "description": "The upstream's own name for this subject (\"mapel\"), e.g. as sent on chat requests."
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SubjectsDto": {
+        "type": "object",
+        "description": "The subjects list: `{ data, nextCursor }`, one complete page.",
+        "required": ["data", "nextCursor"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
           }
         }
       }

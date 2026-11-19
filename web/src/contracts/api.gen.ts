@@ -120,6 +120,81 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/home": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** `GET /v1/home`. */
+    get: operations["get_home"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/lessons": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** `POST /v1/lessons`: starts the chapter's lesson, or resumes the existing one unchanged. */
+    post: operations["create_lesson"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/lessons/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** `GET /v1/lessons/{id}`. */
+    get: operations["get_lesson"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * `PATCH /v1/lessons/{id}`: moves the lesson's step. `done` is refused: only completing a quiz
+     *     finishes a lesson.
+     */
+    patch: operations["patch_lesson"];
+    trace?: never;
+  };
+  "/v1/lessons/{id}/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * `POST /v1/lessons/{id}/complete`: applies the guided session's quiz result, keeps the best
+     *     stars and awards the star ledger rows for newly reached levels.
+     */
+    post: operations["complete_lesson"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/me": {
     parameters: {
       query?: never;
@@ -155,12 +230,105 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/subjects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * `GET /v1/subjects`: the upstream's mapel for the student's grade, in our fixed order, under
+     *     our ids. A mapel we do not know is left out.
+     */
+    get: operations["list_subjects"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/subjects/{subjectId}/chapters": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * `GET /v1/subjects/{subjectId}/chapters`: the chapter map, joined with the student's own
+     *     progress.
+     */
+    get: operations["list_chapters"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** @description One chapter of a subject, with the student's own progress in it. */
+    ChapterDto: {
+      id: string;
+      isCompleted: boolean;
+      /**
+       * Format: uuid
+       * @description The student's lesson for this chapter, when they started one.
+       */
+      lessonId: string | null;
+      /** Format: int32 */
+      number: number;
+      /**
+       * Format: int32
+       * @description The best stars the student's quizzes earned in this chapter, 0 when none.
+       */
+      stars: number;
+      /** @description `null` before the student starts the chapter's lesson, else its current step. */
+      step: string | null;
+      title: string;
+    };
+    /** @description The chapters list: `{ data, nextCursor }`, one complete page. */
+    ChaptersDto: {
+      data: components["schemas"]["ChapterDto"][];
+      nextCursor: string | null;
+    };
     Checks: {
       postgres: string;
+    };
+    CompleteLessonRequest: {
+      /** Format: int64 */
+      quizCorrect: number;
+      /** Format: int64 */
+      quizTotal: number;
+    };
+    CompleteLessonResponse: {
+      lesson: components["schemas"]["LessonDto"];
+      /** Format: int32 */
+      starsEarned: number;
+    };
+    /** @description One unfinished lesson to continue, most recently updated first. */
+    ContinueItemDto: {
+      chapterId: string;
+      chapterTitle: string;
+      /** Format: uuid */
+      lessonId: string;
+      /** Format: int32 */
+      stars: number;
+      step: string;
+      subjectId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    CreateLessonRequest: {
+      chapterId: string;
+      subjectId: string;
     };
     ErrorBody: {
       error: components["schemas"]["ErrorDetail"];
@@ -184,15 +352,68 @@ export interface components {
     Health: {
       status: string;
     };
+    /** @description The home screen, everything in one response. */
+    HomeDto: {
+      continueLearning: components["schemas"]["ContinueItemDto"][];
+      /** Format: int32 */
+      grade: number;
+      missions: components["schemas"]["MissionDto"][];
+      nickname: string;
+      /** Format: int32 */
+      stars: number;
+      /** Format: int32 */
+      streakDays: number;
+    };
+    /** @description One guided lesson, as every lesson response shows it. */
+    LessonDto: {
+      chapterId: string;
+      chapterTitle: string;
+      /** Format: date-time */
+      completedAt: string | null;
+      /** Format: uuid */
+      conversationId: string;
+      /** Format: uuid */
+      id: string;
+      /** Format: int32 */
+      stars: number;
+      /** @description `explain`, `check`, `quiz` or `done`. */
+      step: string;
+      subjectId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
     LoginRequest: {
       password: string;
       username: string;
     };
     /** @description `POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing. */
     LogoutRequest: Record<string, never>;
+    /** @description One daily mission, with today's progress. */
+    MissionDto: {
+      isCompleted: boolean;
+      /** @description `ask`, `lesson` or `practice`. */
+      kind: string;
+      /**
+       * Format: int32
+       * @description Capped at the target.
+       */
+      progress: number;
+      /** Format: int32 */
+      rewardStars: number;
+      /** Format: int32 */
+      target: number;
+      title: string;
+    };
     PasswordChangeRequest: {
       currentPassword: string;
       newPassword: string;
+    };
+    /**
+     * @description The body of `PATCH /v1/lessons/{id}`. `step` is a string so a bad value is a field error, not
+     *     a body parse error.
+     */
+    PatchLessonRequest: {
+      step: string;
     };
     PatchMeRequest: {
       /** Format: int32 */
@@ -221,6 +442,20 @@ export interface components {
       id: string;
       nickname: string;
       username: string;
+    };
+    /** @description One subject, under our id, with the upstream's name passed back on later requests. */
+    SubjectDto: {
+      /** Format: int32 */
+      documentCount: number;
+      id: string;
+      /** @description The upstream's own name for this subject ("mapel"), e.g. as sent on chat requests. */
+      mapel: string;
+      name: string;
+    };
+    /** @description The subjects list: `{ data, nextCursor }`, one complete page. */
+    SubjectsDto: {
+      data: components["schemas"]["SubjectDto"][];
+      nextCursor: string | null;
     };
   };
   responses: never;
@@ -464,6 +699,220 @@ export interface operations {
       };
     };
   };
+  get_home: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HomeDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  create_lesson: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateLessonRequest"];
+      };
+    };
+    responses: {
+      /** @description The lesson already existed and is returned unchanged */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LessonDto"];
+        };
+      };
+      /** @description The lesson was started */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LessonDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_lesson: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The lesson's id */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LessonDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  patch_lesson: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The lesson's id */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PatchLessonRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LessonDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  complete_lesson: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The lesson's id */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompleteLessonRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompleteLessonResponse"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
   get_me: {
     parameters: {
       query?: never;
@@ -547,6 +996,119 @@ export interface operations {
         };
         content: {
           "application/json": unknown;
+        };
+      };
+    };
+  };
+  list_subjects: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SubjectsDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  list_chapters: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description One of our subject ids */
+        subjectId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChaptersDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
         };
       };
     };

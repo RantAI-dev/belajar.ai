@@ -1,13 +1,16 @@
 pub(crate) mod auth;
 pub(crate) mod health;
+pub(crate) mod home;
+pub(crate) mod lessons;
 pub(crate) mod me;
 pub(crate) mod openapi;
 pub(crate) mod root;
+pub(crate) mod subjects;
 
 use axum::Router;
 use axum::extract::Extension;
 use axum::response::Response;
-use axum::routing::get;
+use axum::routing::{get, post};
 
 use crate::RequestId;
 use crate::api_error::ApiError;
@@ -19,6 +22,18 @@ pub fn v1() -> Router<AppState> {
         .route("/health", get(health::v1_health))
         .route("/openapi.json", get(openapi::openapi_json))
         .route("/me", get(me::get_me).patch(me::patch_me))
+        .route("/subjects", get(subjects::list_subjects))
+        .route(
+            "/subjects/{subjectId}/chapters",
+            get(subjects::list_chapters),
+        )
+        .route("/home", get(home::get_home))
+        .route("/lessons", post(lessons::create_lesson))
+        .route(
+            "/lessons/{id}",
+            get(lessons::get_lesson).patch(lessons::patch_lesson),
+        )
+        .route("/lessons/{id}/complete", post(lessons::complete_lesson))
         .merge(auth::routes())
         .fallback(not_found)
 }
