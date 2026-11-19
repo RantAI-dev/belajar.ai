@@ -1,0 +1,17 @@
+# One regex per line. scripts/guard-diff.sh blocks a worker's diff that touches a match.
+# These are the files that define "done" or "allowed". Changing one is the owner's decision.
+^\.agents/protected-paths$
+^scripts/(check|guard-diff|ratchet|merge-lane|backlog|tracker-lark|file-size|error-codes)\.sh$
+^\.agents/ratchet\.(tsv|lock)$
+^\.agents/size-(baseline\.tsv|exempt)$
+^\.agents/risky-paths$
+^docs/conventions\.md$
+^\.github/
+^\.githooks/
+^tests/contract/
+# This repo's own: lint, type-check and boundary rules, and the workspace manifest that carries the
+# Rust lints and every dependency (a new dependency is the owner's decision).
+^web/(biome\.json|tsconfig\.json)$
+^web/scripts/check-boundaries\.ts$
+^rust/Cargo\.toml$
+# Migrations become protected once applied anywhere: add ^rust/migrations/ with the first one.
