@@ -203,10 +203,12 @@ impl Upstream for HttpUpstream {
     async fn page(&self, page_url: &str) -> Result<PageImage, UpstreamError> {
         // The URL came from the upstream's own sources, but we still refuse to be pointed
         // somewhere else: it is stored data, not something the upstream signed for us just now.
-        if !page_url.starts_with(&self.base_url) {
-            return Err(UpstreamError::Protocol(format!(
-                "the page URL is not under the configured upstream: {page_url}"
-            )));
+        // Compare origins, not string prefixes: "http://up:8090.evil" starts with "http://up:8090".
+        // The URL is signed, so it is never put in an error (errors are logged).
+        if !same_origin(&self.base_url, page_url) {
+            return Err(UpstreamError::Protocol(
+                "the page URL is not under the configured upstream".into(),
+            ));
         }
         let response = self.execute(self.client.get(page_url)).await?;
         let content_type = response
@@ -225,6 +227,18 @@ impl Upstream for HttpUpstream {
             content_type,
             bytes,
         })
+    }
+}
+
+/// Whether `url` has the same scheme, host and port as `base`.
+fn same_origin(base: &str, url: &str) -> bool {
+    match (reqwest::Url::parse(base), reqwest::Url::parse(url)) {
+        (Ok(base), Ok(url)) => {
+            base.scheme() == url.scheme()
+                && base.host_str() == url.host_str()
+                && base.port_or_known_default() == url.port_or_known_default()
+        }
+        _ => false,
     }
 }
 
@@ -319,6 +333,23 @@ mod tests {
             panic!("a 404 maps to Failed: {error:?}");
         };
         assert!(detail.contains("nonsense"));
+    }
+
+    #[test]
+    fn page_urls_must_share_the_upstream_origin_not_just_a_prefix() {
+        let base = "http://127.0.0.1:8090";
+        assert!(same_origin(
+            base,
+            "http://127.0.0.1:8090/pages/d/1.svg?sig=x"
+        ));
+        assert!(!same_origin(base, "http://127.0.0.1:80901/pages/d/1.svg"));
+        assert!(!same_origin(
+            base,
+            "http://127.0.0.1:8090.evil.example/pages/d/1.svg"
+        ));
+        assert!(!same_origin(base, "https://127.0.0.1:8090/pages/d/1.svg"));
+        assert!(!same_origin(base, "http://other:8090/pages/d/1.svg"));
+        assert!(!same_origin(base, "not a url"));
     }
 
     #[test]
