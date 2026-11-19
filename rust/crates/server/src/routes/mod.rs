@@ -6,6 +6,9 @@ pub(crate) mod me;
 pub(crate) mod openapi;
 pub(crate) mod root;
 pub(crate) mod subjects;
+pub(crate) mod tanya;
+pub(crate) mod tanya_messages;
+pub(crate) mod tanya_pages;
 
 use axum::Router;
 use axum::extract::Extension;
@@ -34,6 +37,22 @@ pub fn v1() -> Router<AppState> {
             get(lessons::get_lesson).patch(lessons::patch_lesson),
         )
         .route("/lessons/{id}/complete", post(lessons::complete_lesson))
+        .route(
+            "/conversations",
+            get(tanya::list_conversations).post(tanya::create_conversation),
+        )
+        .route(
+            "/conversations/{id}",
+            get(tanya::get_conversation).patch(tanya::patch_conversation),
+        )
+        .route(
+            "/conversations/{id}/messages",
+            get(tanya_messages::list_messages).post(tanya_messages::post_message),
+        )
+        .route(
+            "/messages/{message_id}/sources/{number}/page",
+            get(tanya_pages::message_source_page),
+        )
         .merge(auth::routes())
         .fallback(not_found)
 }

@@ -17,14 +17,21 @@ use crate::routes::lessons::{
 use crate::routes::me::PatchMeRequest;
 use crate::routes::root::{Health as RootHealth, Ready};
 use crate::routes::subjects::{ChapterDto, ChaptersDto, SubjectDto, SubjectsDto};
-use crate::routes::{auth, health, home, lessons, me, openapi, root, subjects};
+use crate::routes::tanya::{
+    ConversationDto, ConversationListDto, ConversationModeDto, CreateConversationRequest,
+    MessageDto, MessageListDto, MessageRoleDto, RenameConversationRequest, SourceDto,
+};
+use crate::routes::tanya_messages::{DeltaData, SendMessageRequest};
+use crate::routes::{
+    auth, health, home, lessons, me, openapi, root, subjects, tanya, tanya_messages, tanya_pages,
+};
 
 #[derive(OpenApi)]
 #[openapi(
     info(
         title = "belajar.ai",
         version = env!("CARGO_PKG_VERSION"),
-        description = "Accounts, profiles, sessions, subjects, guided lessons and the home screen for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+        description = "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations and streamed answers for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     ),
     paths(
         auth::register,
@@ -40,6 +47,13 @@ use crate::routes::{auth, health, home, lessons, me, openapi, root, subjects};
         lessons::patch_lesson,
         lessons::complete_lesson,
         home::get_home,
+        tanya::create_conversation,
+        tanya::get_conversation,
+        tanya::patch_conversation,
+        tanya::list_conversations,
+        tanya_messages::post_message,
+        tanya_messages::list_messages,
+        tanya_pages::message_source_page,
         health::v1_health,
         root::health,
         root::ready,
@@ -65,6 +79,17 @@ use crate::routes::{auth, health, home, lessons, me, openapi, root, subjects};
             HomeDto,
             MissionDto,
             ContinueItemDto,
+            CreateConversationRequest,
+            RenameConversationRequest,
+            ConversationModeDto,
+            ConversationDto,
+            ConversationListDto,
+            MessageRoleDto,
+            MessageDto,
+            MessageListDto,
+            SourceDto,
+            SendMessageRequest,
+            DeltaData,
             ErrorBody,
             FieldError,
             RootHealth,

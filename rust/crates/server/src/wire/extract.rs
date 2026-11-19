@@ -3,8 +3,9 @@
 //! type, a missing or unknown field) is 400 `invalid_request`.
 
 use axum::Json;
-use axum::extract::FromRequest;
+use axum::extract::{FromRequest, FromRequestParts, Query};
 use axum::http::header;
+use axum::http::request::Parts;
 use axum::response::Response;
 use serde::de::DeserializeOwned;
 
@@ -43,6 +44,32 @@ where
         // From here every rejection is about the body's shape or content, not its transport.
         match Json::<T>::from_request(req, state).await {
             Ok(Json(value)) => Ok(ApiJson(value)),
+            Err(_rejection) => {
+                Err(ApiError::new(ErrorCode::InvalidRequest).into_response(&request_id.0))
+            }
+        }
+    }
+}
+
+/// The query counterpart of `ApiJson`: a rejection (a value the type cannot read, a repeated
+/// key) becomes the standard 400 `invalid_request` body instead of the framework's plain text.
+/// Field-level validation still happens in the handler, which knows the field names.
+pub struct ApiQuery<T>(pub T);
+
+impl<S, T> FromRequestParts<S> for ApiQuery<T>
+where
+    S: Send + Sync,
+    T: DeserializeOwned,
+{
+    type Rejection = Response;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        let request_id = parts
+            .extensions
+            .get::<RequestId>()
+            .map_or_else(|| RequestId(uuid::Uuid::now_v7().to_string()), Clone::clone);
+        match Query::<T>::from_request_parts(parts, _state).await {
+            Ok(Query(value)) => Ok(ApiQuery(value)),
             Err(_rejection) => {
                 Err(ApiError::new(ErrorCode::InvalidRequest).into_response(&request_id.0))
             }

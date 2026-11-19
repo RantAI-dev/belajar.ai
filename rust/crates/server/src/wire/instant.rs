@@ -9,6 +9,15 @@ pub fn to_wire(dt: &DateTime<Utc>) -> String {
     dt.to_rfc3339_opts(SecondsFormat::Millis, true)
 }
 
+/// The wire form back to an instant. `None` when the text is not one we issued, so a cursor that
+/// fails here becomes the caller's 400, never a 500.
+#[must_use]
+pub fn from_wire(text: &str) -> Option<DateTime<Utc>> {
+    DateTime::parse_from_rfc3339(text)
+        .ok()
+        .map(|dt| dt.with_timezone(&Utc))
+}
+
 pub fn serialize<S: Serializer>(dt: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error> {
     serializer.serialize_str(&to_wire(dt))
 }
