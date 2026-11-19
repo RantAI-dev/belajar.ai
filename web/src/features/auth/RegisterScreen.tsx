@@ -57,7 +57,7 @@ export function RegisterScreen({
           value={nickname}
           onValueChange={setNickname}
           autoComplete="nickname"
-          maxLength={30}
+          maxLength={40}
           {...errorProp(shown.nickname)}
         />
         <TextField

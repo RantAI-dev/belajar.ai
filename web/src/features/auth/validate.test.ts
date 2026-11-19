@@ -12,8 +12,15 @@ test("each missing or bad field gets its own message", () => {
   expect(Object.keys(e).sort()).toEqual(["grade", "nickname", "password", "username"]);
 });
 
-test("username allows lowercase, digits, dot and underscore only", () => {
+test("username follows the server's rule: 3-32 letters, digits, dot, underscore", () => {
   expect(validateRegister({ ...good, username: "rara.ayu_7" }).username).toBeUndefined();
-  expect(validateRegister({ ...good, username: "Rara" }).username).toBeDefined();
+  expect(validateRegister({ ...good, username: "Rara" }).username).toBeUndefined();
+  expect(validateRegister({ ...good, username: "r".repeat(32) }).username).toBeUndefined();
+  expect(validateRegister({ ...good, username: "r".repeat(33) }).username).toBeDefined();
   expect(validateRegister({ ...good, username: "ra ra" }).username).toBeDefined();
+});
+
+test("a nickname may be up to 40 characters", () => {
+  expect(validateRegister({ ...good, nickname: "n".repeat(40) }).nickname).toBeUndefined();
+  expect(validateRegister({ ...good, nickname: "n".repeat(41) }).nickname).toBeDefined();
 });
