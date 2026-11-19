@@ -13,6 +13,7 @@ base64.workspace = true
 belajar-core.workspace = true
 belajar-ports.workspace = true
 belajar-store-pg.workspace = true
+belajar-upstream.workspace = true
 chrono.workspace = true
 rand.workspace = true
 serde.workspace = true
@@ -26,6 +27,8 @@ utoipa.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
+belajar-fake-upstream.workspace = true
+futures.workspace = true
 http-body-util.workspace = true
 sqlx.workspace = true
 tower.workspace = true

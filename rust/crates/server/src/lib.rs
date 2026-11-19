@@ -15,6 +15,7 @@ mod routes;
 pub mod state;
 pub mod store_errors;
 pub mod tokens;
+pub mod upstream_errors;
 pub mod upstream_stub;
 pub mod wire;
 

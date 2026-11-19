@@ -2,3 +2,5 @@
 //! without a database, a clock or the network.
 
 pub mod grade;
+
+pub mod subject;
