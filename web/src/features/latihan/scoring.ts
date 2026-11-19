@@ -17,6 +17,6 @@ export const answeredCount = (set: QuizSet, answers: Answers): number =>
 /** The headline on the results screen. */
 export const resultHeadline = (correct: number, total: number): string => {
   if (total > 0 && correct === total) return `Hebat! Semua ${total} benar`;
-  if (correct * 2 >= total) return `Hebat! ${correct} dari ${total} benar`;
-  return `Hampir benar! ${correct} dari ${total} benar`;
+  if (correct * 2 >= total) return `Hampir benar! ${correct} dari ${total} benar`;
+  return `Ayo coba lagi! ${correct} dari ${total} benar`;
 };

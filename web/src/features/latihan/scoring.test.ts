@@ -41,6 +41,6 @@ test("answeredCount counts questions with a choice", () => {
 
 test("resultHeadline cheers every score", () => {
   expect(resultHeadline(5, 5)).toBe("Hebat! Semua 5 benar");
-  expect(resultHeadline(3, 5)).toBe("Hebat! 3 dari 5 benar");
-  expect(resultHeadline(1, 5)).toBe("Hampir benar! 1 dari 5 benar");
+  expect(resultHeadline(3, 5)).toBe("Hampir benar! 3 dari 5 benar");
+  expect(resultHeadline(1, 5)).toBe("Ayo coba lagi! 1 dari 5 benar");
 });
