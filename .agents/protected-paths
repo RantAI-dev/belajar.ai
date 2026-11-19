@@ -16,8 +16,9 @@
 ^rust/Cargo\.toml$
 # A migration is never edited once merged. New migrations are allowed (risky lane).
 ^rust/migrations/0001_init\.sql$
-# The ports are the contract between slices; the lead changes them.
-^rust/crates/ports/src/(lib|clock|upstream)\.rs$
+# The upstream seam and the clock are the contract between slices; the lead changes them. Slices
+# add their own store trait file and its `pub mod` line in lib.rs.
+^rust/crates/ports/src/(clock|upstream)\.rs$
 # Acceptance tests the lead writes before a slice starts. They define done for that slice.
 ^rust/crates/[a-z0-9-]+/tests/acceptance_[a-z0-9_]+\.rs$
-^web/src/acceptance/
+^web/src/.+\.acceptance\.test\.tsx?$

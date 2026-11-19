@@ -19,7 +19,7 @@ student's accounts, history and progress in its own database.
 Dependencies point down this list; nothing imports from a line above it.
 
 - `rust/crates/core/` — domain rules with no I/O (grades, progress, streaks). Depends on no other crate here.
-- `rust/crates/ports/` — traits the server depends on: `Upstream`, `Clock`, and one store trait per slice. Contract: the lead changes `lib.rs`, `clock.rs`, `upstream.rs`.
+- `rust/crates/ports/` — traits the server depends on: `Upstream`, `Clock`, and one store trait per slice. Contract: the lead changes `clock.rs` and `upstream.rs`.
 - `rust/crates/store-pg/` — Postgres implementations of the store traits (sqlx). Schema: `rust/migrations/`.
 - `rust/crates/upstream/` — the HTTP+SSE client for the upstream API. Its wire JSON lives in one module.
 - `rust/crates/fake-upstream/` — an in-repo fake of the upstream for dev, tests and the demo.
