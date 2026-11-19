@@ -80,18 +80,17 @@ function Progress({ view, startHref }: Pick<LatihanSetupScreenProps, "view" | "s
           </div>
           {total <= 5 && (
             <div aria-hidden="true" className="flex gap-2">
-              {Array.from({ length: total }, (_, i) => (
+              {Array.from({ length: total }, (_, i) => i + 1).map((slot) => (
                 <span
-                  // biome-ignore lint/suspicious/noArrayIndexKey: reason = slots are positions, not items
-                  key={i}
+                  key={slot}
                   className={cx(
                     "flex min-h-[52px] flex-1 items-center justify-center rounded-chip border-2 font-display text-[20px] font-semibold",
-                    i < ready
+                    slot <= ready
                       ? "border-success bg-success-soft text-success-edge"
                       : "border-line-strong bg-page text-ink-faint",
                   )}
                 >
-                  {i < ready ? <CheckIcon size={22} /> : i + 1}
+                  {slot <= ready ? <CheckIcon size={22} /> : slot}
                 </span>
               ))}
             </div>

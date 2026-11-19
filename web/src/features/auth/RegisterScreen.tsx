@@ -20,7 +20,8 @@ export type RegisterScreenProps = {
   readonly serverErrors?: RegisterErrors;
 };
 
-const only = (message: string | undefined) => (message === undefined ? {} : { error: message });
+const errorProp = (message: string | undefined) =>
+  message === undefined ? {} : { error: message };
 
 export function RegisterScreen({
   onSubmit,
@@ -53,7 +54,7 @@ export function RegisterScreen({
           onValueChange={setNickname}
           autoComplete="nickname"
           maxLength={30}
-          {...only(shown.nickname)}
+          {...errorProp(shown.nickname)}
         />
         <TextField
           label="Nama pengguna"
@@ -62,7 +63,7 @@ export function RegisterScreen({
           onValueChange={setUsername}
           autoComplete="username"
           autoCapitalize="none"
-          {...only(shown.username)}
+          {...errorProp(shown.username)}
         />
         <TextField
           label="Kata sandi"
@@ -71,9 +72,9 @@ export function RegisterScreen({
           value={password}
           onValueChange={setPassword}
           autoComplete="new-password"
-          {...only(shown.password)}
+          {...errorProp(shown.password)}
         />
-        <GradePicker value={grade} onChange={setGrade} {...only(shown.grade)} />
+        <GradePicker value={grade} onChange={setGrade} {...errorProp(shown.grade)} />
         <Button
           type="submit"
           size="lg"

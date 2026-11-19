@@ -9,20 +9,20 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
   const streaming = answer.status === "streaming";
   const active = answer.sources.find((s) => s.id === openSource);
   const hasText = answer.parts.some((p) => p.text.length > 0);
+  // Parts are an ordered split of one answer; position plus text is a stable key.
+  const parts = answer.parts.map((p, i) => ({ ...p, key: `${i}:${p.text}` }));
   return (
     <ChatBubble from="mascot" mood={streaming ? "thinking" : "happy"} streaming={streaming}>
       {hasText ? (
         <>
           <p className="m-0 text-[18px] font-semibold leading-[1.65]">
-            {answer.parts.map((p, i) =>
+            {parts.map((p) =>
               p.emphasis === true ? (
-                // biome-ignore lint/suspicious/noArrayIndexKey: reason = parts are a fixed, ordered split of one answer
-                <strong key={i} className="text-primary">
+                <strong key={p.key} className="text-primary">
                   {p.text}
                 </strong>
               ) : (
-                // biome-ignore lint/suspicious/noArrayIndexKey: reason = parts are a fixed, ordered split of one answer
-                <span key={i}>{p.text}</span>
+                <span key={p.key}>{p.text}</span>
               ),
             )}
           </p>
