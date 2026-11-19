@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* RantAI Lakehouse colour tokens (design-system/tokens/colors.css) plus the per-subject palette. */
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", sans-serif;
+
+  --color-primary: #0069a8;
+  --color-primary-strong: #00598a;
+  --color-brand-sky: #5cb6f9;
+  --color-brand-navy: #050a30;
+  --color-ink: #10233a;
+  --color-ink-muted: #3d5470;
+  --color-page: #f3f9ff;
+  --color-line: #e2eefa;
+
+  --color-subject-ipa: #388ca1;
+  --color-subject-mtk: #517fbb;
+  --color-subject-en: #574399;
+  --color-subject-bi: #bb5153;
+  --color-subject-ips: #bb7851;
+  --color-subject-inf: #32836a;
+  --color-subject-pp: #0069a8;
+  --color-subject-pai: #2f7d5b;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
