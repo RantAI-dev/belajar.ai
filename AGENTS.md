@@ -19,6 +19,10 @@ student's accounts, history and progress in its own database.
 Dependencies point down this list; nothing imports from a line above it.
 
 - `rust/crates/core/` — domain rules with no I/O (grades, progress, streaks). Depends on no other crate here.
+- `rust/crates/ports/` — traits the server depends on: `Upstream`, `Clock`, and one store trait per slice. Contract: the lead changes `lib.rs`, `clock.rs`, `upstream.rs`.
+- `rust/crates/store-pg/` — Postgres implementations of the store traits (sqlx). Schema: `rust/migrations/`.
+- `rust/crates/upstream/` — the HTTP+SSE client for the upstream API. Its wire JSON lives in one module.
+- `rust/crates/fake-upstream/` — an in-repo fake of the upstream for dev, tests and the demo.
 - `rust/crates/server/` — axum: `/v1` routes, middleware, the static web app, `main.rs`. Handlers stay thin.
 - `web/src/contracts/` — types that cross the API boundary, `Result`, the error-body parser. Imports nothing else.
 - `web/src/ui/` — design tokens and shared components. Imports only contracts.
@@ -40,6 +44,13 @@ Dependencies point down this list; nothing imports from a line above it.
 4. A source file stays under 600 lines, 1,000 for Rust (`scripts/file-size.sh`).
 5. Error codes come only from `.agents/error-codes.tsv`; the generated files must be current
    (`scripts/error-codes.sh`).
+
+## Database
+
+- Postgres only in a container: `scripts/dev-db.sh` starts it and prints `DATABASE_URL`; the gate calls it.
+- Tests that touch the database use `#[sqlx::test(migrations = "../../migrations")]` (a fresh database each).
+- Runtime-checked queries only (`sqlx::query_as::<_, T>(...)`): no `query!` macros, so building needs no database.
+- Every query on a student's rows filters by `student_id`. Another student's row answers 404, like a missing one.
 
 ## Conventions
 
