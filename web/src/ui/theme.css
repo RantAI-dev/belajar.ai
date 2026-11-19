@@ -1,32 +1,177 @@
 @import "tailwindcss";
 
-/* RantAI Lakehouse colour tokens (design-system/tokens/colors.css) plus the per-subject palette. */
+/* RantAI Lakehouse colour tokens plus the kid-friendly palette from the owner's mockup. */
 @theme {
   --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
   --font-display: "Fredoka", "Nunito", sans-serif;
 
   --color-primary: #0069a8;
   --color-primary-strong: #00598a;
+  --color-primary-edge: #004a78;
+  --color-primary-soft: #e0f0fd;
   --color-brand-sky: #5cb6f9;
   --color-brand-navy: #050a30;
   --color-ink: #10233a;
   --color-ink-muted: #3d5470;
+  --color-ink-faint: #55697f;
   --color-page: #f3f9ff;
   --color-line: #e2eefa;
+  --color-line-strong: #d5e3f0;
+  --color-line-sky: #c4dcf2;
 
+  --color-success: #22a06b;
+  --color-success-edge: #157a50;
+  --color-success-soft: #eafaf2;
+  --color-oops: #e8833a;
+  --color-oops-ink: #a3501a;
+  --color-oops-soft: #fff4ea;
+  --color-oops-line: #f6c89f;
+  --color-warm: #fff8d6;
+  --color-warm-ink: #5c4400;
+  --color-warm-line: #ffe58a;
+  --color-warm-icon: #b07d00;
+  --color-star: #f5b301;
+  --color-star-ink: #7a5a00;
+  --color-star-empty: #d5e3f0;
+  --color-sun: #ffd23f;
+  --color-sun-edge: #d9a800;
+  --color-sun-ink: #3b2a00;
+  --color-streak: #f08c1a;
+  --color-streak-soft: #fff4e5;
+  --color-streak-ink: #8a4b0f;
+
+  /* Kept for older references; the subject palette proper lives in subjects.ts. */
   --color-subject-ipa: #388ca1;
   --color-subject-mtk: #517fbb;
   --color-subject-en: #574399;
+  --color-subject-bing: #574399;
   --color-subject-bi: #bb5153;
+  --color-subject-bind: #bb5153;
   --color-subject-ips: #bb7851;
   --color-subject-inf: #32836a;
   --color-subject-pp: #0069a8;
   --color-subject-pai: #2f7d5b;
+
+  --radius-chip: 14px;
+  --radius-btn: 18px;
+  --radius-card: 24px;
+  --radius-panel: 28px;
 }
 
-body {
-  margin: 0;
-  background: var(--color-page);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+:root {
+  --focus: #0069a8;
+}
+
+/* Base styles sit in the base layer so Tailwind utilities on an element always win. */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+}
+
+/* For a control drawn by its wrapper (a hidden radio, a borderless input): ring the wrapper. */
+.ring-within:has(:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Sections painted in a strong colour switch the focus ring to yellow so it stays visible. */
+.on-dark {
+  --focus: #ffd23f;
+}
+
+.pressable {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.15s ease;
+}
+
+.tile {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  box-shadow: 0 4px 0 var(--edge);
+}
+.tile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 9px 0 var(--edge);
+}
+.tile:hover .wiggle,
+.tile:focus-visible .wiggle {
+  animation: wiggle 0.55s ease;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: rotate(8deg) scale(1.1);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.bob {
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+@keyframes dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: dot 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reason = reduced motion must beat every component's own motion */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reason = reduced motion must beat every component's own motion */
+    transition: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reason = reduced motion must beat every component's own motion */
+    scroll-behavior: auto !important;
+  }
+  .tile:hover {
+    transform: none;
+  }
 }

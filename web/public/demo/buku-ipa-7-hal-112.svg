@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-label="Contoh halaman buku IPA Kelas 7, halaman 112: Pemuaian">
+  <rect width="600" height="800" fill="#ffffff"/>
+  <rect x="0" y="0" width="600" height="64" fill="#388ca1"/>
+  <text x="40" y="42" font-family="Nunito, sans-serif" font-size="24" font-weight="800" fill="#ffffff">Bab 3 · Suhu, Kalor, dan Pemuaian</text>
+  <text x="40" y="130" font-family="Nunito, sans-serif" font-size="34" font-weight="800" fill="#10233a">C. Pemuaian</text>
+  <g font-family="Nunito, sans-serif" font-size="19" fill="#10233a">
+    <text x="40" y="180">Hampir semua benda akan bertambah besar jika</text>
+    <text x="40" y="208">dipanaskan. Peristiwa ini disebut pemuaian.</text>
+    <rect x="34" y="226" width="532" height="62" rx="6" fill="#ffe28a"/>
+    <text x="40" y="250">Rel kereta api diberi celah pada sambungannya agar</text>
+    <text x="40" y="278">saat memuai di siang hari rel tidak melengkung.</text>
+    <text x="40" y="320">Pemuaian terjadi pada zat padat, cair, dan gas.</text>
+    <text x="40" y="348">Pemuaian paling besar terjadi pada gas.</text>
+  </g>
+  <rect x="40" y="380" width="520" height="250" rx="16" fill="#e6f5f7"/>
+  <g stroke="#1f5f6e" stroke-width="10" stroke-linecap="round">
+    <path d="M70 540h200"/><path d="M300 540h200"/>
+  </g>
+  <path d="M270 520v40M300 520v40" stroke="#bb5153" stroke-width="4" stroke-dasharray="6 6"/>
+  <text x="300" y="600" text-anchor="middle" font-family="Nunito, sans-serif" font-size="18" font-weight="700" fill="#1f5f6e">Gambar 3.7 Celah pada sambungan rel</text>
+  <text x="300" y="770" text-anchor="middle" font-family="Nunito, sans-serif" font-size="18" fill="#55697f">112</text>
+</svg>
