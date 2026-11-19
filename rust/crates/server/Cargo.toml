@@ -15,6 +15,9 @@ belajar-ports.workspace = true
 belajar-store-pg.workspace = true
 belajar-upstream.workspace = true
 chrono.workspace = true
+# axum's `Sse` is generic over `futures`' Stream trait, which axum does not re-export, so the
+# answer-stream translation has to name it; 0.3 is already a workspace dependency.
+futures.workspace = true
 rand.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -28,7 +31,6 @@ uuid.workspace = true
 
 [dev-dependencies]
 belajar-fake-upstream.workspace = true
-futures.workspace = true
 http-body-util.workspace = true
 sqlx.workspace = true
 tower.workspace = true

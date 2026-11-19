@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "belajar.ai",
-    "description": "Accounts, profiles, sessions, subjects, guided lessons and the home screen for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+    "description": "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations and streamed answers for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     "license": {
       "name": ""
     },
@@ -229,6 +229,419 @@
           },
           "409": {
             "description": "The username is already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations": {
+      "get": {
+        "tags": ["tanya"],
+        "summary": "The student's conversations, newest activity first.",
+        "operationId": "list_conversations",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "description": "`ask` or `learn`; both when absent",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Default 20, at most 50",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The nextCursor of a previous page",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["tanya"],
+        "summary": "Starts a conversation, optionally about one subject.",
+        "operationId": "create_conversation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{id}": {
+      "get": {
+        "tags": ["tanya"],
+        "summary": "One conversation.",
+        "operationId": "get_conversation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["tanya"],
+        "summary": "Renames a conversation. A later message never overwrites the new title.",
+        "operationId": "patch_conversation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameConversationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The renamed conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{id}/messages": {
+      "get": {
+        "tags": ["tanya_messages"],
+        "summary": "The conversation's stored messages, oldest first.",
+        "operationId": "list_messages",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Default 50, at most 100",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The nextCursor of a previous page",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["tanya_messages"],
+        "summary": "Asks a question. The answer streams in as `text/event-stream`.",
+        "operationId": "post_message",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "SSE events: `message` (the stored question), `delta` per answer piece, then `done` (the stored answer) — or one last `error` with the standard error body",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -613,6 +1026,94 @@
         }
       }
     },
+    "/v1/messages/{messageId}/sources/{number}/page": {
+      "get": {
+        "tags": ["tanya_pages"],
+        "summary": "The book page one source cites, with the upstream's own content type.",
+        "operationId": "message_source_page",
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "description": "The message the source belongs to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "number",
+            "in": "path",
+            "description": "The source's citation number",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The page image bytes",
+            "content": {
+              "image/*": {}
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/openapi.json": {
       "get": {
         "tags": ["openapi"],
@@ -902,6 +1403,69 @@
           }
         }
       },
+      "ConversationDto": {
+        "type": "object",
+        "description": "One conversation, as every conversation response shows it.",
+        "required": ["id", "mode", "title", "createdAt", "updatedAt"],
+        "properties": {
+          "chapterId": {
+            "type": ["string", "null"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ConversationModeDto"
+          },
+          "subjectId": {
+            "type": ["string", "null"],
+            "description": "Our subject id (\"ipa\", \"mtk\", ...) or `null` for \"all subjects\"."
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConversationListDto": {
+        "type": "object",
+        "description": "Every list response: rows plus the cursor the next page needs, `null` on the last page.",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ConversationModeDto": {
+        "type": "string",
+        "description": "`ask` is a Tanya conversation, `learn` a Belajar chapter session.",
+        "enum": ["ask", "learn"]
+      },
+      "CreateConversationRequest": {
+        "type": "object",
+        "properties": {
+          "subjectId": {
+            "type": ["string", "null"],
+            "description": "`null` for \"all subjects\"."
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateLessonRequest": {
         "type": "object",
         "required": ["subjectId", "chapterId"],
@@ -914,6 +1478,16 @@
           }
         },
         "additionalProperties": false
+      },
+      "DeltaData": {
+        "type": "object",
+        "description": "One piece of the answer as it streams in.",
+        "required": ["text"],
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        }
       },
       "ErrorBody": {
         "type": "object",
@@ -1077,6 +1651,61 @@
         "description": "`POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing.",
         "additionalProperties": false
       },
+      "MessageDto": {
+        "type": "object",
+        "description": "One stored message: the student's question or the assistant's answer.",
+        "required": ["id", "conversationId", "role", "content", "sources", "createdAt"],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isGrounded": {
+            "type": ["boolean", "null"],
+            "description": "`null` on user messages."
+          },
+          "role": {
+            "$ref": "#/components/schemas/MessageRoleDto"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceDto"
+            }
+          }
+        }
+      },
+      "MessageListDto": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDto"
+            }
+          },
+          "nextCursor": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "MessageRoleDto": {
+        "type": "string",
+        "description": "Who wrote a message.",
+        "enum": ["user", "assistant"]
+      },
       "MissionDto": {
         "type": "object",
         "description": "One daily mission, with today's progress.",
@@ -1188,6 +1817,58 @@
           }
         },
         "additionalProperties": false
+      },
+      "RenameConversationRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendMessageRequest": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "1–2000 characters, after trimming."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SourceDto": {
+        "type": "object",
+        "description": "One book passage an answer used. The upstream's `page_url` stays on our server; the browser\nfetches the page through `pagePreviewUrl` instead.",
+        "required": ["number", "title", "isCited"],
+        "properties": {
+          "isCited": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The citation number used in the answer text, e.g. `[1]`.",
+            "minimum": 0
+          },
+          "page": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "pagePreviewUrl": {
+            "type": ["string", "null"],
+            "description": "`/v1/messages/{messageId}/sources/{number}/page` when the page image exists, else `null`."
+          },
+          "section": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": "string"
+          }
+        }
       },
       "StudentDto": {
         "type": "object",

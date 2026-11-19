@@ -104,6 +104,60 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/conversations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The student's conversations, newest activity first. */
+    get: operations["list_conversations"];
+    put?: never;
+    /** Starts a conversation, optionally about one subject. */
+    post: operations["create_conversation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/conversations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** One conversation. */
+    get: operations["get_conversation"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Renames a conversation. A later message never overwrites the new title. */
+    patch: operations["patch_conversation"];
+    trace?: never;
+  };
+  "/v1/conversations/{id}/messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The conversation's stored messages, oldest first. */
+    get: operations["list_messages"];
+    put?: never;
+    /** Asks a question. The answer streams in as `text/event-stream`. */
+    post: operations["post_message"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/health": {
     parameters: {
       query?: never;
@@ -211,6 +265,23 @@ export interface paths {
     head?: never;
     /** Updates the nickname and/or the grade. `username` and friends are not editable here. */
     patch: operations["patch_me"];
+    trace?: never;
+  };
+  "/v1/messages/{messageId}/sources/{number}/page": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The book page one source cites, with the upstream's own content type. */
+    get: operations["message_source_page"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/v1/openapi.json": {
@@ -326,9 +397,41 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
+    /** @description One conversation, as every conversation response shows it. */
+    ConversationDto: {
+      chapterId?: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      mode: components["schemas"]["ConversationModeDto"];
+      /** @description Our subject id ("ipa", "mtk", ...) or `null` for "all subjects". */
+      subjectId?: string | null;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    /** @description Every list response: rows plus the cursor the next page needs, `null` on the last page. */
+    ConversationListDto: {
+      data: components["schemas"]["ConversationDto"][];
+      nextCursor?: string | null;
+    };
+    /**
+     * @description `ask` is a Tanya conversation, `learn` a Belajar chapter session.
+     * @enum {string}
+     */
+    ConversationModeDto: "ask" | "learn";
+    CreateConversationRequest: {
+      /** @description `null` for "all subjects". */
+      subjectId?: string | null;
+    };
     CreateLessonRequest: {
       chapterId: string;
       subjectId: string;
+    };
+    /** @description One piece of the answer as it streams in. */
+    DeltaData: {
+      text: string;
     };
     ErrorBody: {
       error: components["schemas"]["ErrorDetail"];
@@ -388,6 +491,29 @@ export interface components {
     };
     /** @description `POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing. */
     LogoutRequest: Record<string, never>;
+    /** @description One stored message: the student's question or the assistant's answer. */
+    MessageDto: {
+      content: string;
+      /** Format: uuid */
+      conversationId: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      /** @description `null` on user messages. */
+      isGrounded?: boolean | null;
+      role: components["schemas"]["MessageRoleDto"];
+      sources: components["schemas"]["SourceDto"][];
+    };
+    MessageListDto: {
+      data: components["schemas"]["MessageDto"][];
+      nextCursor?: string | null;
+    };
+    /**
+     * @description Who wrote a message.
+     * @enum {string}
+     */
+    MessageRoleDto: "user" | "assistant";
     /** @description One daily mission, with today's progress. */
     MissionDto: {
       isCompleted: boolean;
@@ -431,6 +557,31 @@ export interface components {
       nickname: string;
       password: string;
       username: string;
+    };
+    RenameConversationRequest: {
+      title: string;
+    };
+    SendMessageRequest: {
+      /** @description 1–2000 characters, after trimming. */
+      content: string;
+    };
+    /**
+     * @description One book passage an answer used. The upstream's `page_url` stays on our server; the browser
+     *     fetches the page through `pagePreviewUrl` instead.
+     */
+    SourceDto: {
+      isCited: boolean;
+      /**
+       * Format: int32
+       * @description The citation number used in the answer text, e.g. `[1]`.
+       */
+      number: number;
+      /** Format: int32 */
+      page?: number | null;
+      /** @description `/v1/messages/{messageId}/sources/{number}/page` when the page image exists, else `null`. */
+      pagePreviewUrl?: string | null;
+      section?: string | null;
+      title: string;
     };
     /** @description A whole student, as every auth and `/v1/me` response shows them. No password material, ever. */
     StudentDto: {
@@ -671,6 +822,303 @@ export interface operations {
       };
       /** @description The username is already taken */
       409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  list_conversations: {
+    parameters: {
+      query?: {
+        /** @description `ask` or `learn`; both when absent */
+        mode?: string;
+        /** @description Default 20, at most 50 */
+        limit?: number;
+        /** @description The nextCursor of a previous page */
+        cursor?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConversationListDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  create_conversation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateConversationRequest"];
+      };
+    };
+    responses: {
+      /** @description The new conversation */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConversationDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_conversation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The conversation */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConversationDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  patch_conversation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The conversation */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RenameConversationRequest"];
+      };
+    };
+    responses: {
+      /** @description The renamed conversation */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConversationDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  list_messages: {
+    parameters: {
+      query?: {
+        /** @description Default 50, at most 100 */
+        limit?: number;
+        /** @description The nextCursor of a previous page */
+        cursor?: string;
+      };
+      header?: never;
+      path: {
+        /** @description The conversation */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MessageListDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  post_message: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The conversation */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SendMessageRequest"];
+      };
+    };
+    responses: {
+      /** @description SSE events: `message` (the stored question), `delta` per answer piece, then `done` (the stored answer) — or one last `error` with the standard error body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "text/event-stream": unknown;
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
         headers: {
           [name: string]: unknown;
         };
@@ -971,6 +1419,71 @@ export interface operations {
         };
       };
       401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  message_source_page: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The message the source belongs to */
+        messageId: string;
+        /** @description The source's citation number */
+        number: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The page image bytes */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/*": unknown;
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
         headers: {
           [name: string]: unknown;
         };

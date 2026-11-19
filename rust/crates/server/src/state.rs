@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use belajar_ports::accounts::AccountStore;
 use belajar_ports::clock::Clock;
+use belajar_ports::conversations::ConversationStore;
 use belajar_ports::home::HomeStore;
 use belajar_ports::lessons::LessonStore;
 use belajar_ports::upstream::Upstream;
@@ -27,6 +28,7 @@ pub struct AppState {
     pub accounts: Arc<dyn AccountStore>,
     pub lessons: Arc<dyn LessonStore>,
     pub home: Arc<dyn HomeStore>,
+    pub conversations: Arc<dyn ConversationStore>,
     pub upstream: Arc<dyn Upstream>,
     pub clock: Arc<dyn Clock>,
     pub config: Config,
@@ -36,15 +38,14 @@ pub struct AppState {
 impl AppState {
     /// The one constructor: `app()` calls it, tests call it.
     pub fn new(config: Config, deps: Deps) -> Self {
-        // Three stores over one pool: `Arc::new` needs an owned `Db` per trait object.
-        let accounts: Arc<dyn AccountStore> = Arc::new(deps.db.clone());
-        let lessons: Arc<dyn LessonStore> = Arc::new(deps.db.clone());
-        let home: Arc<dyn HomeStore> = Arc::new(deps.db.clone());
+        // One Arc'd `Db` behind every store trait: the pool is shared, the traits are views of it.
+        let db = Arc::new(deps.db);
         Self {
-            db: deps.db,
-            accounts,
-            lessons,
-            home,
+            db: db.as_ref().clone(),
+            accounts: db.clone(),
+            conversations: db.clone(),
+            lessons: db.clone(),
+            home: db.clone(),
             upstream: deps.upstream,
             clock: deps.clock.clone(),
             config,
