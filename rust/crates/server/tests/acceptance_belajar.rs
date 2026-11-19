@@ -140,7 +140,7 @@ async fn a_lesson_opens_a_learn_conversation_and_resumes_on_the_second_start(poo
     assert_eq!(lesson["step"], "explain");
     assert_eq!(lesson["stars"], 0);
     assert!(lesson["completedAt"].is_null());
-    assert!(lesson["chapterTitle"].as_str().unwrap().len() > 0);
+    assert!(!lesson["chapterTitle"].as_str().unwrap().is_empty());
 
     let (mode, chapter, title): (String, Option<String>, String) =
         sqlx::query_as("SELECT mode, chapter_id, title FROM conversations WHERE id = $1::uuid")
@@ -269,7 +269,7 @@ async fn home_shows_stars_missions_and_what_to_continue(pool: PgPool) {
         assert_eq!(m["target"], 1);
         assert_eq!(m["isCompleted"], false);
         assert_eq!(m["rewardStars"], 10);
-        assert!(m["title"].as_str().unwrap().len() > 0);
+        assert!(!m["title"].as_str().unwrap().is_empty());
     }
     assert_eq!(empty.body["continueLearning"], json!([]));
 
