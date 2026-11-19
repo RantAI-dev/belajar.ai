@@ -15,6 +15,16 @@ use crate::routes::lessons::{
     PatchLessonRequest,
 };
 use crate::routes::me::PatchMeRequest;
+use crate::routes::practice::practice_dto::{
+    OptionDto, PracticeResultDto, PracticeSetDto, PracticeSetListDto, PracticeSetSummaryDto,
+    PracticeStatusDto, QuestionDto, QuestionKindDto, ResultItemDto, TopicMasteryDto,
+    TopicMasteryListDto,
+};
+use crate::routes::practice::practice_generate::{
+    GeneratePracticeRequest, ProgressEventDto, ReadyEventDto,
+};
+use crate::routes::practice::practice_submit::{SubmitAnswerDto, SubmitPracticeRequest};
+use crate::routes::practice::{practice_generate, practice_submit, practice_views};
 use crate::routes::root::{Health as RootHealth, Ready};
 use crate::routes::subjects::{ChapterDto, ChaptersDto, SubjectDto, SubjectsDto};
 use crate::routes::tanya::{
@@ -31,7 +41,7 @@ use crate::routes::{
     info(
         title = "belajar.ai",
         version = env!("CARGO_PKG_VERSION"),
-        description = "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations and streamed answers for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+        description = "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     ),
     paths(
         auth::register,
@@ -54,6 +64,12 @@ use crate::routes::{
         tanya_messages::post_message,
         tanya_messages::list_messages,
         tanya_pages::message_source_page,
+        practice_generate::create_practice_set,
+        practice_views::list_practice_sets,
+        practice_views::get_practice_set,
+        practice_submit::submit_practice_set,
+        practice_views::question_page,
+        practice_views::topic_mastery,
         health::v1_health,
         root::health,
         root::ready,
@@ -90,6 +106,22 @@ use crate::routes::{
             SourceDto,
             SendMessageRequest,
             DeltaData,
+            GeneratePracticeRequest,
+            ProgressEventDto,
+            ReadyEventDto,
+            PracticeSetDto,
+            PracticeSetSummaryDto,
+            PracticeSetListDto,
+            PracticeStatusDto,
+            QuestionDto,
+            QuestionKindDto,
+            OptionDto,
+            ResultItemDto,
+            PracticeResultDto,
+            SubmitPracticeRequest,
+            SubmitAnswerDto,
+            TopicMasteryDto,
+            TopicMasteryListDto,
             ErrorBody,
             FieldError,
             RootHealth,
