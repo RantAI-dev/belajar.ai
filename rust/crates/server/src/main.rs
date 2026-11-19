@@ -1,11 +1,13 @@
-use std::net::SocketAddr;
-use std::path::PathBuf;
+use std::process::ExitCode;
 
-use belajar_server::{Config, app};
+use belajar_ports::clock::SystemClock;
+use belajar_server::{Config, Deps, app, upstream_stub::UpstreamStub};
+use belajar_store_pg::Db;
+use std::sync::Arc;
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> ExitCode {
     tracing_subscriber::fmt()
         .json()
         .with_env_filter(
@@ -13,21 +15,50 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .init();
 
-    let addr: SocketAddr = std::env::var("BELAJAR_ADDR")
-        .unwrap_or_else(|_| "0.0.0.0:8080".to_owned())
-        .parse()?;
-    let config = Config {
-        web_dir: PathBuf::from(
-            std::env::var("BELAJAR_WEB_DIR").unwrap_or_else(|_| "web/dist".to_owned()),
-        ),
+    // The upstream slice replaces this stub with the real client; until then every upstream
+    // call answers 503 `unavailable`.
+    let config = match Config::from_env() {
+        Ok(config) => config,
+        Err(message) => {
+            eprintln!("belajar-server: {message}");
+            return ExitCode::FAILURE;
+        }
     };
+    let db = match Db::connect(&config.database_url).await {
+        Ok(db) => db,
+        Err(err) => {
+            tracing::error!(code = "startup", error = %err, "cannot connect to the database");
+            return ExitCode::FAILURE;
+        }
+    };
+    if let Err(err) = db.migrate().await {
+        tracing::error!(code = "startup", error = %err, "migrations failed");
+        return ExitCode::FAILURE;
+    }
+    let addr = config.addr;
+    let router = app(
+        config,
+        Deps {
+            db,
+            upstream: Arc::new(UpstreamStub),
+            clock: Arc::new(SystemClock),
+        },
+    );
 
-    let listener = tokio::net::TcpListener::bind(addr).await?;
+    let listener = match tokio::net::TcpListener::bind(addr).await {
+        Ok(listener) => listener,
+        Err(err) => {
+            tracing::error!(code = "startup", error = %err, %addr, "cannot listen");
+            return ExitCode::FAILURE;
+        }
+    };
     tracing::info!(%addr, "listening");
-    axum::serve(listener, app(&config))
-        .with_graceful_shutdown(async {
-            let _ = tokio::signal::ctrl_c().await;
-        })
-        .await?;
-    Ok(())
+    let serve = axum::serve(listener, router).with_graceful_shutdown(async {
+        let _ = tokio::signal::ctrl_c().await;
+    });
+    if let Err(err) = serve.await {
+        tracing::error!(code = "startup", error = %err, "server stopped");
+        return ExitCode::FAILURE;
+    }
+    ExitCode::SUCCESS
 }

@@ -12,7 +12,8 @@ student's accounts, history and progress in its own database.
 | Everything, before any handoff | `scripts/check.sh` (budget: 10 minutes) |
 | Only the parts your change can affect, while iterating | `scripts/check.sh --changed` (budget: 2 minutes) |
 | One test | `cd rust && cargo test -p belajar-server --test http unknown_api_path` or `cd web && bun test src/contracts/api-error.test.ts -t "standard"` |
-| Run it locally | `cd web && bun run build`, then `cd rust && BELAJAR_WEB_DIR=../web/dist cargo run -p belajar-server` (port 8080). For UI work, also `cd web && bun run dev` (proxies `/v1` to 8080). |
+| Regenerate the typed web contracts after a handler or DTO change | `scripts/gen-contracts.sh` (writes `web/src/contracts/openapi.json` and `api.gen.ts`; commit both) |
+| Run it locally | `cd web && bun run build`, then `cd rust && DATABASE_URL=… BELAJAR_WEB_DIR=../web/dist cargo run -p belajar-server --bin belajar-server` (port 8080; `DATABASE_URL` from `scripts/dev-db.sh`, demo student from `cargo run -p belajar-server --bin seed-demo`). For UI work, also `cd web && bun run dev` (proxies `/v1` to 8080). |
 
 ## Where code lives
 

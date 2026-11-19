@@ -1,0 +1,534 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "belajar.ai",
+    "description": "Accounts, profiles and sessions for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["root"],
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "tags": ["root"],
+        "operationId": "ready",
+        "responses": {
+          "200": {
+            "description": "Postgres answers"
+          },
+          "503": {
+            "description": "Postgres is down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Signs a student in. Unknown username and wrong password answer the same body.",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The student, with a fresh session cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown username or wrong password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many failed logins; see Retry-After",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Ends the caller's session.",
+        "operationId": "logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The session is gone; the cookie is cleared"
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/password": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Changes the password: the current session survives, every other one ends.",
+        "operationId": "change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The password is changed and other sessions are ended"
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The current password is wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Creates a student and signs them in.",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The student, signed in with a session cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The username is already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "tags": ["health"],
+        "operationId": "v1_health",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "tags": ["me"],
+        "summary": "The signed-in student.",
+        "operationId": "get_me",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["me"],
+        "summary": "Updates the nickname and/or the grade. `username` and friends are not editable here.",
+        "operationId": "patch_me",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchMeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The updated student",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "tags": ["openapi"],
+        "summary": "The OpenAPI document for this API.",
+        "operationId": "openapi_json",
+        "responses": {
+          "200": {
+            "description": "The OpenAPI document",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Checks": {
+        "type": "object",
+        "required": ["postgres"],
+        "properties": {
+          "postgres": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorBody": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        }
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "required": ["code", "message", "requestId"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      },
+      "FieldError": {
+        "type": "object",
+        "description": "One bad field, named by a JSON Pointer. The `code` vocabulary is the one the plan fixes:\n`required`, `too_short`, `too_long`, `invalid_format`, `out_of_range`.",
+        "required": ["field", "code", "message"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string",
+            "description": "A JSON Pointer into the body (`/items/0/quantity`), or the name of a query or path parameter."
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LogoutRequest": {
+        "type": "object",
+        "description": "`POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing.",
+        "additionalProperties": false
+      },
+      "PasswordChangeRequest": {
+        "type": "object",
+        "required": ["currentPassword", "newPassword"],
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PatchMeRequest": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "nickname": {
+            "type": ["string", "null"],
+            "description": "A `nickname` that is only whitespace is invalid, so `null` is the only \"no change\" form."
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ready": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "checks": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Checks"
+              }
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "password", "nickname", "grade"],
+        "properties": {
+          "grade": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentDto": {
+        "type": "object",
+        "description": "A whole student, as every auth and `/v1/me` response shows them. No password material, ever.",
+        "required": ["id", "username", "nickname", "grade", "createdAt"],
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
