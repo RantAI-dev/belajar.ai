@@ -19,5 +19,5 @@
 # The ports are the contract between slices; the lead changes them.
 ^rust/crates/ports/src/(lib|clock|upstream)\.rs$
 # Acceptance tests the lead writes before a slice starts. They define done for that slice.
-^rust/crates/server/tests/acceptance_[a-z0-9_]+\.rs$
+^rust/crates/[a-z0-9-]+/tests/acceptance_[a-z0-9_]+\.rs$
 ^web/src/acceptance/
