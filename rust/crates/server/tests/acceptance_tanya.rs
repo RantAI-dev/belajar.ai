@@ -158,7 +158,7 @@ async fn a_conversation_starts_empty_with_a_default_title(pool: PgPool) {
     assert_eq!(res.body["mode"], "ask");
     assert_eq!(res.body["subjectId"], "ipa");
     assert!(res.body["chapterId"].is_null());
-    assert!(res.body["title"].as_str().unwrap().len() > 0);
+    assert!(!res.body["title"].as_str().unwrap().is_empty());
     assert!(res.body["createdAt"].is_string() && res.body["updatedAt"].is_string());
 
     let all = w
