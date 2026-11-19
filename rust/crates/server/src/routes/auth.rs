@@ -296,6 +296,7 @@ pub(crate) async fn login(
     let record = match state.accounts.find_login_by_username(&username).await {
         Ok(Some(record)) => record,
         Ok(None) => {
+            passwords::verify_nothing(req.password.clone()).await;
             state.limiter.record_failure(&username);
             return unauthenticated(&id);
         }

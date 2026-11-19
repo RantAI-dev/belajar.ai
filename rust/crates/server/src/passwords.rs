@@ -24,6 +24,17 @@ pub async fn hash(password: String) -> Result<String, PasswordError> {
     .map_err(|e| PasswordError::Internal(e.to_string()))?
 }
 
+/// Spends the same argon2 work as a real check, for a username that does not exist, so the
+/// response time does not tell an attacker which usernames are taken.
+pub async fn verify_nothing(password: String) {
+    static DUMMY: tokio::sync::OnceCell<String> = tokio::sync::OnceCell::const_new();
+    let dummy = DUMMY
+        .get_or_init(|| async { hash("no-such-account".to_owned()).await.unwrap_or_default() })
+        .await
+        .clone();
+    let _ = verify(dummy, password).await;
+}
+
 /// Whether `password` matches the stored hash.
 pub async fn verify(hash: String, password: String) -> Result<bool, PasswordError> {
     tokio::task::spawn_blocking(move || {
@@ -42,6 +53,20 @@ pub async fn verify(hash: String, password: String) -> Result<bool, PasswordErro
 #[allow(clippy::unwrap_used, reason = "tests")]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn an_unknown_username_costs_a_real_argon2_check() {
+        // A real verify takes argon2 time; the dummy path must not be measurably cheaper.
+        let stored = hash("rahasia-123".to_owned()).await.unwrap();
+        verify_nothing("warm-up".to_owned()).await;
+        let start = std::time::Instant::now();
+        let _ = verify(stored, "salah-salah".to_owned()).await;
+        let real = start.elapsed();
+        let start = std::time::Instant::now();
+        verify_nothing("salah-salah".to_owned()).await;
+        let dummy = start.elapsed();
+        assert!(dummy * 3 >= real, "dummy {dummy:?} vs real {real:?}");
+    }
 
     #[tokio::test]
     async fn a_hashed_password_verifies_and_a_wrong_one_does_not() {
