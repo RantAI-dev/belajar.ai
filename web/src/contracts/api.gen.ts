@@ -301,6 +301,78 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/practice-sets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** This student's sets, newest first, paginated. */
+    get: operations["list_practice_sets"];
+    put?: never;
+    /** Generates a practice set, streaming the upstream's progress to the caller. */
+    post: operations["create_practice_set"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/practice-sets/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * One set, exactly as `POST /v1/practice-sets` delivered it in the `ready` event — the answer
+     *     key appears only in `result`, and only after the set is submitted.
+     */
+    get: operations["get_practice_set"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/practice-sets/{id}/questions/{questionId}/page": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The book page a cited answer used, only for the owner and only after submit. */
+    get: operations["question_page"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/practice-sets/{id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Grades a submitted set. The answer key is revealed here and nowhere before. */
+    post: operations["submit_practice_set"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/subjects": {
     parameters: {
       query?: never;
@@ -333,6 +405,23 @@ export interface paths {
      *     progress.
      */
     get: operations["list_chapters"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/topic-mastery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The student's mastery of every topic they have practised. */
+    get: operations["topic_mastery"];
     put?: never;
     post?: never;
     delete?: never;
@@ -452,6 +541,18 @@ export interface components {
       field: string;
       message: string;
     };
+    GeneratePracticeRequest: {
+      /** @description One of `mcq_normal`, `mcq_multiple_correct`, `mcq_story`, `mcq_mixed`. */
+      practiceType: string;
+      /** @description One of our eight subject ids, e.g. `ipa`. */
+      subjectId: string;
+      topic: string;
+      /**
+       * Format: int64
+       * @description 5, 10 or 15.
+       */
+      totalQuestions: number;
+    };
     Health: {
       status: string;
     };
@@ -530,6 +631,11 @@ export interface components {
       target: number;
       title: string;
     };
+    /** @description One answer option. */
+    OptionDto: {
+      label: string;
+      text: string;
+    };
     PasswordChangeRequest: {
       currentPassword: string;
       newPassword: string;
@@ -547,9 +653,87 @@ export interface components {
       /** @description A `nickname` that is only whitespace is invalid, so `null` is the only "no change" form. */
       nickname?: string | null;
     };
+    /** @description The review a submission returns, and what `GET /v1/practice-sets/{id}` keeps showing after. */
+    PracticeResultDto: {
+      /** Format: int32 */
+      correctCount: number;
+      items: components["schemas"]["ResultItemDto"][];
+      /** Format: int32 */
+      starsEarned: number;
+      /** Format: int32 */
+      totalCount: number;
+    };
+    /** @description One practice set. `result` is `null` until the student submits. */
+    PracticeSetDto: {
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      practiceType: string;
+      questions: components["schemas"]["QuestionDto"][];
+      result?: null | components["schemas"]["PracticeResultDto"];
+      status: components["schemas"]["PracticeStatusDto"];
+      subjectId: string;
+      topic: string;
+      /** Format: int32 */
+      totalQuestions: number;
+    };
+    PracticeSetListDto: {
+      data: components["schemas"]["PracticeSetSummaryDto"][];
+      nextCursor?: string | null;
+    };
+    /** @description One row of the list: nothing from the stored practice JSON. */
+    PracticeSetSummaryDto: {
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      practiceType: string;
+      /** Format: int32 */
+      scoreCorrect?: number | null;
+      status: components["schemas"]["PracticeStatusDto"];
+      subjectId: string;
+      topic: string;
+      /** Format: int32 */
+      totalQuestions: number;
+    };
+    /**
+     * @description A set's status: `ready` until it is submitted, `submitted` for ever after.
+     * @enum {string}
+     */
+    PracticeStatusDto: "ready" | "submitted";
+    /** @description One `progress` event of the generation stream. */
+    ProgressEventDto: {
+      /** Format: int32 */
+      delivered: number;
+      /** Format: int64 */
+      elapsedMs: number;
+      stage: string;
+      /** Format: int32 */
+      total: number;
+    };
+    /** @description One question, with nothing that reveals the answer. `number` is 1-based. */
+    QuestionDto: {
+      id: string;
+      kind: components["schemas"]["QuestionKindDto"];
+      /** Format: int32 */
+      number: number;
+      options: components["schemas"]["OptionDto"][];
+      stem: string;
+      story?: string | null;
+    };
+    /**
+     * @description One question's kind as the client sees it.
+     * @enum {string}
+     */
+    QuestionKindDto: "single" | "multiple" | "story";
     Ready: {
       checks?: null | components["schemas"]["Checks"];
       status: string;
+    };
+    /** @description The last event of a successful generation. */
+    ReadyEventDto: {
+      practiceSet: components["schemas"]["PracticeSetDto"];
     };
     RegisterRequest: {
       /** Format: int32 */
@@ -560,6 +744,15 @@ export interface components {
     };
     RenameConversationRequest: {
       title: string;
+    };
+    /** @description One graded question of the review, in question order. */
+    ResultItemDto: {
+      correctAnswer: string[];
+      explanation: string;
+      isCorrect: boolean;
+      questionId: string;
+      selected: string[];
+      source?: null | components["schemas"]["SourceDto"];
     };
     SendMessageRequest: {
       /** @description 1–2000 characters, after trimming. */
@@ -607,6 +800,27 @@ export interface components {
     SubjectsDto: {
       data: components["schemas"]["SubjectDto"][];
       nextCursor: string | null;
+    };
+    SubmitAnswerDto: {
+      questionId: string;
+      selected: string[];
+    };
+    SubmitPracticeRequest: {
+      answers: components["schemas"]["SubmitAnswerDto"][];
+    };
+    TopicMasteryDto: {
+      /** Format: int32 */
+      attempts: number;
+      /** Format: int32 */
+      correct: number;
+      /** Format: int32 */
+      masteryPercent: number;
+      subjectId: string;
+      topic: string;
+    };
+    TopicMasteryListDto: {
+      data: components["schemas"]["TopicMasteryDto"][];
+      nextCursor?: string | null;
     };
   };
   responses: never;
@@ -1513,6 +1727,298 @@ export interface operations {
       };
     };
   };
+  list_practice_sets: {
+    parameters: {
+      query?: {
+        /** @description Page size; default 20, at most 50, larger is lowered, 0 or less is invalid */
+        limit?: number;
+        /** @description The nextCursor of the previous page */
+        cursor?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PracticeSetListDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  create_practice_set: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GeneratePracticeRequest"];
+      };
+    };
+    responses: {
+      /** @description SSE stream: `progress` events, then one `ready` event with the set — or one `error` event with the standard error body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "text/event-stream": unknown;
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_practice_set: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The practice set */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PracticeSetDto"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  question_page: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The practice set */
+        id: string;
+        /** @description The question whose cited source has a page */
+        questionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The book page image, fetched server-side */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/svg+xml": unknown;
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description No such set or question, not submitted, or no page for it */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  submit_practice_set: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The practice set */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SubmitPracticeRequest"];
+      };
+    };
+    responses: {
+      /** @description The graded review: correct answers, explanations and sources */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PracticeResultDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description The set was already submitted */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
   list_subjects: {
     parameters: {
       query?: never;
@@ -1617,6 +2123,44 @@ export interface operations {
         };
       };
       504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  topic_mastery: {
+    parameters: {
+      query?: {
+        /** @description One of our subject ids; all of them when omitted */
+        subjectId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TopicMasteryListDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      401: {
         headers: {
           [name: string]: unknown;
         };

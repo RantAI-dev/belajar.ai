@@ -5,6 +5,7 @@ mod accounts;
 mod conversations;
 mod home;
 mod lessons;
+mod practice;
 
 use sqlx::postgres::PgPool;
 

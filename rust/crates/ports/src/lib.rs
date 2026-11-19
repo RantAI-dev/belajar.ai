@@ -7,6 +7,7 @@ pub mod clock;
 pub mod conversations;
 pub mod home;
 pub mod lessons;
+pub mod practice;
 pub mod store;
 pub mod upstream;
 
@@ -18,5 +19,9 @@ pub use conversations::{
 };
 pub use home::{ContinueItem, HomeData, HomeStore, MissionCounts, MissionKind};
 pub use lessons::{Lesson, LessonStep, LessonStore};
+pub use practice::{
+    GradedAnswer, NewPracticeSet, PracticeSetStatus, PracticeSetSummary, PracticeStore,
+    StoredPracticeAnswer, StoredPracticeSet, SubmitRecord, TopicMasteryEntry,
+};
 pub use store::StoreError;
 pub use upstream::Upstream;

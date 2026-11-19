@@ -4,6 +4,7 @@ pub(crate) mod home;
 pub(crate) mod lessons;
 pub(crate) mod me;
 pub(crate) mod openapi;
+pub(crate) mod practice;
 pub(crate) mod root;
 pub(crate) mod subjects;
 pub(crate) mod tanya;
@@ -54,6 +55,7 @@ pub fn v1() -> Router<AppState> {
             get(tanya_pages::message_source_page),
         )
         .merge(auth::routes())
+        .merge(practice::routes())
         .fallback(not_found)
 }
 
