@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { AppLink, Button, TextField } from "../../ui";
+import { AppLink, Button, FormAlert, TextField } from "../../ui";
 import { AuthFrame } from "./AuthFrame";
 
 export type LoginValues = { readonly username: string; readonly password: string };
@@ -27,14 +27,7 @@ export function LoginScreen({
   return (
     <AuthFrame title="Masuk" greeting="Halo lagi! Masuk dulu, yuk, lalu kita lanjut belajar.">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-        {error !== undefined && (
-          <p
-            role="alert"
-            className="m-0 rounded-[14px] bg-oops-soft px-4 py-3 text-[16px] font-bold text-oops-ink"
-          >
-            {error}
-          </p>
-        )}
+        {error !== undefined && <FormAlert tone="error">{error}</FormAlert>}
         <TextField
           label="Nama pengguna"
           value={username}

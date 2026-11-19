@@ -1,64 +1,66 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import {
-  LOGIN_ERROR,
-  LoginScreen,
-  PASSWORD_MIN,
-  type RegisterErrors,
-  RegisterScreen,
-  TAKEN_USERNAMES,
-} from "../../features/auth";
-import { useDemo } from "../demo";
+import { useLocation } from "react-router";
+import { loginMessage, registerMessage } from "../../contracts/messages";
+import { LoginScreen, type RegisterErrors, RegisterScreen } from "../../features/auth";
+import { useAuth } from "../session";
 
-const FAKE_WAIT_MS = 700;
+// After a successful sign-in the route guard (guard.ts) moves the student on, to `?ke=` or home.
+
+const REGISTER_FIELDS = ["nickname", "username", "password", "grade"] as const;
+
+const registerErrors = (fields: Partial<Record<string, string>>): RegisterErrors => {
+  const out: { -readonly [K in keyof RegisterErrors]: RegisterErrors[K] } = {};
+  for (const f of REGISTER_FIELDS) {
+    const hint = fields[f];
+    if (hint !== undefined) out[f] = hint;
+  }
+  return out;
+};
 
 export function LoginRoute() {
-  const navigate = useNavigate();
+  const { search } = useLocation();
+  const auth = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   return (
     <LoginScreen
-      registerHref="/daftar"
+      registerHref={`/daftar${search}`}
       submitting={submitting}
       {...(error !== undefined ? { error } : {})}
-      onSubmit={({ username, password }) => {
+      onSubmit={async (values) => {
         setSubmitting(true);
-        window.setTimeout(() => {
-          setSubmitting(false);
-          // The prototype accepts any username with a plausible password.
-          if (username.length === 0 || password.length < PASSWORD_MIN) setError(LOGIN_ERROR);
-          else navigate("/");
-        }, FAKE_WAIT_MS);
+        const r = await auth.login(values);
+        setSubmitting(false);
+        if (!r.ok) {
+          const m = loginMessage(r.error);
+          // The login form has no per-field hints: a field error reads as one sentence.
+          setError(m.form ?? Object.values(m.fields)[0]);
+        }
       }}
     />
   );
 }
 
 export function RegisterRoute() {
-  const navigate = useNavigate();
-  const demo = useDemo();
+  const { search } = useLocation();
+  const auth = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [serverErrors, setServerErrors] = useState<RegisterErrors>({});
+  const [error, setError] = useState<string | undefined>(undefined);
   return (
     <RegisterScreen
-      loginHref="/masuk"
+      loginHref={`/masuk${search}`}
       submitting={submitting}
       serverErrors={serverErrors}
-      onSubmit={(values) => {
+      {...(error !== undefined ? { error } : {})}
+      onSubmit={async (values) => {
         setSubmitting(true);
-        window.setTimeout(() => {
-          setSubmitting(false);
-          if (TAKEN_USERNAMES.includes(values.username)) {
-            setServerErrors({ username: "Nama pengguna ini sudah dipakai. Coba yang lain, ya." });
-            return;
-          }
-          demo.setProfile({
-            nickname: values.nickname,
-            username: values.username,
-            grade: values.grade,
-          });
-          navigate("/");
-        }, FAKE_WAIT_MS);
+        const r = await auth.register(values);
+        setSubmitting(false);
+        if (r.ok) return;
+        const m = registerMessage(r.error);
+        setServerErrors(registerErrors(m.fields));
+        setError(m.form ?? undefined);
       }}
     />
   );

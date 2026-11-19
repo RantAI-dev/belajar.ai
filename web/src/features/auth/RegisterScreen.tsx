@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { AppLink, Button, TextField } from "../../ui";
+import { AppLink, Button, FormAlert, TextField } from "../../ui";
 import { AuthFrame } from "./AuthFrame";
 import { GradePicker } from "./GradePicker";
 import type { Grade } from "./grades";
@@ -18,6 +18,8 @@ export type RegisterScreenProps = {
   readonly submitting?: boolean;
   /** Errors the server sent back, by field (e.g. the username is taken). */
   readonly serverErrors?: RegisterErrors;
+  /** A message for the whole form, e.g. no connection. */
+  readonly error?: string;
 };
 
 const errorProp = (message: string | undefined) =>
@@ -28,6 +30,7 @@ export function RegisterScreen({
   loginHref,
   submitting = false,
   serverErrors = {},
+  error,
 }: RegisterScreenProps) {
   const [nickname, setNickname] = useState("");
   const [username, setUsername] = useState("");
@@ -47,13 +50,14 @@ export function RegisterScreen({
   return (
     <AuthFrame title="Daftar" greeting="Hai! Aku teman belajarmu. Kenalan dulu, yuk!">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+        {error !== undefined && <FormAlert tone="error">{error}</FormAlert>}
         <TextField
           label="Nama panggilan"
           hint="Nama ini yang aku pakai untuk menyapamu."
           value={nickname}
           onValueChange={setNickname}
           autoComplete="nickname"
-          maxLength={30}
+          maxLength={40}
           {...errorProp(shown.nickname)}
         />
         <TextField
