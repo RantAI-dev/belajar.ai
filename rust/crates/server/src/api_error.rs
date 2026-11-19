@@ -6,10 +6,13 @@ use axum::Json;
 use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::error_codes::ErrorCode;
 
-#[derive(Debug, Clone, Serialize)]
+/// One bad field, named by a JSON Pointer. The `code` vocabulary is the one the plan fixes:
+/// `required`, `too_short`, `too_long`, `invalid_format`, `out_of_range`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct FieldError {
     /// A JSON Pointer into the body (`/items/0/quantity`), or the name of a query or path parameter.
     pub field: String,
@@ -25,19 +28,19 @@ pub struct ApiError {
     retry_after_seconds: Option<u64>,
 }
 
-#[derive(Serialize)]
-struct Body<'a> {
-    error: Inner<'a>,
+#[derive(Serialize, ToSchema)]
+pub struct ErrorBody {
+    pub error: ErrorDetail,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-struct Inner<'a> {
-    code: &'static str,
-    message: &'a str,
-    request_id: &'a str,
+pub struct ErrorDetail {
+    pub code: &'static str,
+    pub message: String,
+    pub request_id: String,
     #[serde(skip_serializing_if = "<[FieldError]>::is_empty")]
-    errors: &'a [FieldError],
+    pub errors: Vec<FieldError>,
 }
 
 impl ApiError {
@@ -92,12 +95,12 @@ impl ApiError {
         if let Some(seconds) = self.retry_after_seconds {
             headers.insert(header::RETRY_AFTER, HeaderValue::from(seconds));
         }
-        let body = Body {
-            error: Inner {
+        let body = ErrorBody {
+            error: ErrorDetail {
                 code: self.code.as_str(),
-                message,
-                request_id,
-                errors: &self.errors,
+                message: message.to_owned(),
+                request_id: request_id.to_owned(),
+                errors: self.errors,
             },
         };
         (status, headers, Json(body)).into_response()

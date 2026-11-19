@@ -25,7 +25,7 @@ block() { echo "BLOCK $1"; blocks=$((blocks + 1)); }
 warn()  { echo "WARN  $1"; warns=$((warns + 1)); }
 
 test_file='(\.|_)(test|spec)\.[a-z]+$|(^|/)tests?/|(^|/)test_[^/]+\.py$|_test\.(go|rs|py)$'
-test_decl='^\s*((test|it|describe)(\.each)?\(|#\[(tokio::)?test|def test_|func Test)'
+test_decl='^\s*((test|it|describe)(\.each)?\(|#\[((tokio|sqlx)::)?test|def test_|func Test)'
 skip_pat='\.(skip|only|todo)\(|\b(xit|xdescribe|xtest)\(|#\[ignore|@pytest\.mark\.(skip|xfail)|\bt\.Skip\('
 suppress_pat='(eslint|oxlint)-disable|biome-ignore|@ts-(ignore|expect-error|nocheck)|#!?\[allow\(|# *type: *ignore|# *noqa|\bas any\b|--no-verify'
 secret_pat='AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY|\bsk-[A-Za-z0-9_-]{24,}|\bghp_[A-Za-z0-9]{36}|\bxox[baprs]-[A-Za-z0-9-]{10,}'
