@@ -1,4 +1,4 @@
-import { subjectById } from "../../ui";
+import { cutOutsideMaths, subjectById } from "../../ui";
 import { subjectOfBook } from "./practiceLink";
 import type { AnswerPart, BookSource } from "./types";
 
@@ -177,7 +177,8 @@ export function keepCitesWithWords(segments: readonly CitationSegment[]): readon
     const glued: CitationSegment[] = [];
     const prev = out.at(-1);
     if (prev?.kind === "text") {
-      const [head, tail] = splitText(prev, prev.text.search(/\S*$/));
+      // The word before the pill, or the whole formula when the pill follows one.
+      const [head, tail] = splitText(prev, cutOutsideMaths(prev.text, prev.text.search(/\S*$/)));
       out.pop();
       if (head.text !== "") out.push(head);
       if (tail.text !== "") glued.push(tail);
