@@ -16,7 +16,11 @@ export const chapterNodes = (chapters: readonly ChapterDto[]): readonly ChapterN
   return sorted.map((c) => ({
     id: c.id,
     number: c.number,
+    bookNumber: c.bookNumber,
     title: c.title,
+    page: c.page,
+    documentTitle: c.documentTitle,
+    topics: c.topics.map((topic) => ({ title: topic.title, page: topic.page })),
     stars: Math.max(0, Math.min(3, c.stars)),
     status: c.isCompleted ? "done" : c.id === current?.id ? "current" : "todo",
   }));

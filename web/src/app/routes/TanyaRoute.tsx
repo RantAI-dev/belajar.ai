@@ -12,6 +12,7 @@ import {
   TANYA_EMPTY,
   TanyaScreen,
 } from "../../features/tanya";
+import { isSubjectId } from "../../ui";
 import { useChat } from "../chat";
 import { latihanHref } from "./latihanHref";
 import { NotFound } from "./NotFound";
@@ -62,7 +63,13 @@ type History = {
 
 function NewConversation() {
   const start = useStartConversation();
-  const [filter, setFilter] = useState<SubjectFilter>("semua");
+  const location = useLocation();
+  // The chapter map's empty state sends students here with their subject preselected.
+  const subjectFromUrl = new URLSearchParams(location.search).get("subject");
+  // It only seeds the filter chip: what the chip shows is what is sent, and the student can change it.
+  const [filter, setFilter] = useState<SubjectFilter>(
+    subjectFromUrl !== null && isSubjectId(subjectFromUrl) ? subjectFromUrl : "semua",
+  );
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<History>({

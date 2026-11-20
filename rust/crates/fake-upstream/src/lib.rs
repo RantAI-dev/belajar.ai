@@ -5,6 +5,7 @@
 //! on a free port). The `belajar-fake-upstream` binary serves the same router with JSON logging.
 
 mod bank;
+mod chapters;
 mod data;
 mod handlers;
 
@@ -49,6 +50,7 @@ pub fn router(config: FakeConfig, base_url: String) -> Router {
     };
     let api = Router::new()
         .route("/api/v1/mapel", get(handlers::mapel))
+        .route("/api/v1/mapel/chapters", get(chapters::chapters))
         .route("/api/v1/chat/completions", post(handlers::chat))
         .route(
             "/api/v1/practice/generate",

@@ -46,7 +46,12 @@ impl Upstream for ChapterStub {
             .map(|number| Chapter {
                 id: format!("bab-{number}"),
                 number,
+                book_number: number,
                 title: format!("Bab {number}: IPA"),
+                page: Some(number * 10),
+                document_id: "dok-ipa".into(),
+                document_title: "IPA Kelas VII".into(),
+                topics: Vec::new(),
             })
             .collect())
     }
