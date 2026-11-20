@@ -40,8 +40,10 @@ export {
   MasteryMeter,
 } from "./MasteryBadge";
 export { type Mission, MissionCard } from "./MissionCard";
+export { isMathReady, loadMath } from "./math";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";
+export { MermaidDiagram, RichText, type RichTextProps } from "./RichText";
 export { clampRating, type Rating, starsForScore } from "./rating";
 export { PagePreview, SourceChip } from "./Source";
 export { StarCount, StarRating } from "./Stars";
@@ -52,3 +54,4 @@ export { SubjectCard } from "./SubjectCard";
 export { SubjectIcon } from "./SubjectIcon";
 export { isSubjectId, SUBJECTS, type Subject, type SubjectId, subjectById } from "./subjects";
 export { ToggleChip } from "./ToggleChip";
+export { cutOutsideMaths, type Segment, tokenize } from "./tokenize";
