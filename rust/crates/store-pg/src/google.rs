@@ -5,7 +5,8 @@ use async_trait::async_trait;
 use belajar_core::theme::ThemePreference;
 use belajar_ports::accounts::StudentAccount;
 use belajar_ports::google::{
-    GoogleAttempt, GoogleSignInStore, NewGoogleStudent, PendingGoogleSignup,
+    GoogleAttempt, GoogleLinkResult, GoogleSignInStore, LinkTarget, NewGoogleStudent,
+    PendingGoogleSignup,
 };
 use belajar_ports::store::StoreError;
 use chrono::{DateTime, Utc};
@@ -44,8 +45,9 @@ impl GoogleSignInStore for Db {
             .map_err(map_db_err)?;
         sqlx::query(
             "INSERT INTO google_sign_in_attempts \
-             (id, browser_token_hash, state, nonce, code_verifier, expires_at) \
-             VALUES ($1, $2, $3, $4, $5, $6)",
+             (id, browser_token_hash, state, nonce, code_verifier, expires_at, \
+              link_student_id, link_session_id) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         )
         .bind(Uuid::now_v7())
         .bind(browser_token_hash)
@@ -53,6 +55,8 @@ impl GoogleSignInStore for Db {
         .bind(&attempt.nonce)
         .bind(&attempt.code_verifier)
         .bind(expires_at)
+        .bind(attempt.link.map(|link| link.student_id))
+        .bind(attempt.link.map(|link| link.session_id))
         .execute(&self.pool)
         .await
         .map_err(map_db_err)?;
@@ -66,7 +70,7 @@ impl GoogleSignInStore for Db {
     ) -> Result<Option<GoogleAttempt>, StoreError> {
         let row = sqlx::query(
             "DELETE FROM google_sign_in_attempts WHERE browser_token_hash = $1 \
-             RETURNING state, nonce, code_verifier, expires_at",
+             RETURNING state, nonce, code_verifier, expires_at, link_student_id, link_session_id",
         )
         .bind(browser_token_hash)
         .fetch_optional(&self.pool)
@@ -77,10 +81,20 @@ impl GoogleSignInStore for Db {
         if expires_at <= now {
             return Ok(None);
         }
+        let link_student: Option<Uuid> = row.try_get("link_student_id").map_err(map_db_err)?;
+        let link_session: Option<Uuid> = row.try_get("link_session_id").map_err(map_db_err)?;
+        // The table's CHECK keeps the two NULL together.
+        let link = link_student
+            .zip(link_session)
+            .map(|(student_id, session_id)| LinkTarget {
+                student_id,
+                session_id,
+            });
         Ok(Some(GoogleAttempt {
             state: row.try_get("state").map_err(map_db_err)?,
             nonce: row.try_get("nonce").map_err(map_db_err)?,
             code_verifier: row.try_get("code_verifier").map_err(map_db_err)?,
+            link,
         }))
     }
 
@@ -90,6 +104,36 @@ impl GoogleSignInStore for Db {
             .fetch_optional(&self.pool)
             .await
             .map_err(map_db_err)
+    }
+
+    async fn link_to_student(
+        &self,
+        student_id: Uuid,
+        subject: &str,
+        display_name: &str,
+    ) -> Result<GoogleLinkResult, StoreError> {
+        // Both unique indexes decide, so two tabs racing cannot both win: nothing is inserted when
+        // the Google account or this student is linked already.
+        let inserted = sqlx::query_scalar::<_, Uuid>(
+            "INSERT INTO google_identities (id, student_id, subject, display_name) \
+             VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING RETURNING id",
+        )
+        .bind(Uuid::now_v7())
+        .bind(student_id)
+        .bind(subject)
+        .bind(display_name)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(map_db_err)?;
+        if inserted.is_some() {
+            return Ok(GoogleLinkResult::Linked);
+        }
+        Ok(match self.find_student_by_subject(subject).await? {
+            // The Google account stays with the student who has it: never moved, never shared.
+            Some(owner) if owner != student_id => GoogleLinkResult::LinkedToAnother,
+            Some(_) => GoogleLinkResult::AlreadyLinked,
+            None => GoogleLinkResult::StudentHasAnother,
+        })
     }
 
     async fn save_pending_signup(
@@ -211,6 +255,8 @@ impl GoogleSignInStore for Db {
             // The column default: a new student follows the device until they choose in Akun.
             theme: ThemePreference::default(),
             created_at,
+            has_password: false,
+            is_google_linked: true,
         })
     }
 }

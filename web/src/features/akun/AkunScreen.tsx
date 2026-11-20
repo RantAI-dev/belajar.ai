@@ -1,8 +1,10 @@
 import { type FormEvent, useState } from "react";
-import type { FormMessage } from "../../contracts/messages";
+import { type FormMessage, MESSAGES } from "../../contracts/messages";
 import type { Result } from "../../contracts/result";
 import { Avatar, Button, Card, FormAlert, StarCount, StreakBadge, TextField } from "../../ui";
 import { type Grade, GradePicker, gradeLabel, PASSWORD_MIN } from "../auth";
+import { GoogleLinkSetting } from "./GoogleLinkSetting";
+import type { LinkNotice } from "./googleLink";
 import { ThemeSetting, type ThemeSettingProps } from "./ThemeSetting";
 import type { AkunView } from "./types";
 
@@ -15,6 +17,8 @@ export type AkunScreenProps = {
   readonly onChangePassword: (change: { current: string; next: string }) => Promise<AkunOutcome>;
   readonly onLogout: () => Promise<AkunOutcome>;
   readonly onThemeChange: ThemeSettingProps["onChange"];
+  /** What the Google callback said, from `?google=<outcome>`. */
+  readonly googleNotice?: LinkNotice | undefined;
 };
 
 export const PROFILE_SAVED = "Tersimpan! Profilmu sudah diperbarui.";
@@ -33,6 +37,7 @@ export function AkunScreen({
   onChangePassword,
   onLogout,
   onThemeChange,
+  googleNotice,
 }: AkunScreenProps) {
   const [nickname, setNickname] = useState(view.nickname);
   const [grade, setGrade] = useState<Grade>(view.grade);
@@ -142,46 +147,61 @@ export function AkunScreen({
 
       <ThemeSetting value={view.theme} onChange={onThemeChange} />
 
-      <Card
-        as="form"
-        onSubmit={changePassword}
-        aria-labelledby="sandi-title"
-        className="flex flex-col gap-4"
-      >
-        <h2 id="sandi-title" className="m-0 font-display text-[22px] font-semibold">
-          Ganti kata sandi
-        </h2>
-        {password.notice !== undefined && <FormAlert tone="success">{password.notice}</FormAlert>}
-        {formError(password) !== undefined && (
-          <FormAlert tone="error">{formError(password) ?? ""}</FormAlert>
-        )}
-        <TextField
-          label="Kata sandi sekarang"
-          type="password"
-          value={current}
-          onValueChange={setCurrent}
-          autoComplete="current-password"
-          {...errorProp(password.problem?.fields.currentPassword)}
-        />
-        <TextField
-          label="Kata sandi baru"
-          type="password"
-          value={next}
-          onValueChange={setNext}
-          autoComplete="new-password"
-          hint={`Minimal ${PASSWORD_MIN} karakter.`}
-          {...errorProp(password.problem?.fields.newPassword)}
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          className="self-start"
-          loading={busy === "password"}
-          loadingLabel="Mengganti…"
+      <GoogleLinkSetting
+        isLinked={view.isGoogleLinked}
+        isEnabled={view.isGoogleEnabled}
+        notice={googleNotice}
+      />
+
+      {view.hasPassword ? (
+        <Card
+          as="form"
+          onSubmit={changePassword}
+          aria-labelledby="sandi-title"
+          className="flex flex-col gap-4"
         >
-          Ganti kata sandi
-        </Button>
-      </Card>
+          <h2 id="sandi-title" className="m-0 font-display text-[22px] font-semibold">
+            Ganti kata sandi
+          </h2>
+          {password.notice !== undefined && <FormAlert tone="success">{password.notice}</FormAlert>}
+          {formError(password) !== undefined && (
+            <FormAlert tone="error">{formError(password) ?? ""}</FormAlert>
+          )}
+          <TextField
+            label="Kata sandi sekarang"
+            type="password"
+            value={current}
+            onValueChange={setCurrent}
+            autoComplete="current-password"
+            {...errorProp(password.problem?.fields.currentPassword)}
+          />
+          <TextField
+            label="Kata sandi baru"
+            type="password"
+            value={next}
+            onValueChange={setNext}
+            autoComplete="new-password"
+            hint={`Minimal ${PASSWORD_MIN} karakter.`}
+            {...errorProp(password.problem?.fields.newPassword)}
+          />
+          <Button
+            type="submit"
+            variant="secondary"
+            className="self-start"
+            loading={busy === "password"}
+            loadingLabel="Mengganti…"
+          >
+            Ganti kata sandi
+          </Button>
+        </Card>
+      ) : (
+        <Card as="section" aria-labelledby="sandi-title" className="flex flex-col gap-2">
+          <h2 id="sandi-title" className="m-0 font-display text-[22px] font-semibold">
+            Kata sandi
+          </h2>
+          <p className="m-0 text-[17px] font-bold">{MESSAGES.noPasswordWithGoogle}</p>
+        </Card>
+      )}
 
       <Card className="flex flex-col gap-3">
         {logoutProblem !== undefined && <FormAlert tone="error">{logoutProblem}</FormAlert>}

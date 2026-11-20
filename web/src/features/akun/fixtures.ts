@@ -7,4 +7,7 @@ export const AKUN_FIXTURE: AkunView = {
   stars: 120,
   streakDays: 5,
   theme: "system",
+  hasPassword: true,
+  isGoogleLinked: false,
+  isGoogleEnabled: true,
 };

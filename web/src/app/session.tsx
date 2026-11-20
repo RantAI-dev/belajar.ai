@@ -23,6 +23,8 @@ export type Student = {
   readonly grade: Grade;
   readonly theme: ThemePreference;
   readonly createdAt: string;
+  readonly hasPassword: boolean;
+  readonly isGoogleLinked: boolean;
 };
 
 /** The server keeps grades in 1–12; anything else is a broken answer, not a student. */

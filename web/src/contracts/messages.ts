@@ -6,6 +6,8 @@ export const MESSAGES = {
   wrongCredentials: "Nama pengguna atau kata sandi salah.",
   usernameTaken: "Nama pengguna ini sudah dipakai. Coba nama lain.",
   wrongCurrentPassword: "Kata sandi lama salah.",
+  /** Akun shows it instead of the password form, and for `password_not_set` if that ever comes. */
+  noPasswordWithGoogle: "Kamu masuk dengan Google, jadi tidak perlu kata sandi.",
   network: "Tidak bisa terhubung. Periksa internetmu, lalu coba lagi.",
   generic: "Ada yang tidak beres di pihak kami. Coba lagi sebentar lagi.",
   checkFields: "Ada isian yang perlu diperbaiki.",
@@ -119,4 +121,7 @@ export const registerMessage = (problem: ApiProblem): FormMessage =>
 export const profileMessage = (problem: ApiProblem): FormMessage => formMessage(problem, {});
 
 export const passwordChangeMessage = (problem: ApiProblem): FormMessage =>
-  formMessage(problem, { permission_denied: MESSAGES.wrongCurrentPassword });
+  formMessage(problem, {
+    permission_denied: MESSAGES.wrongCurrentPassword,
+    password_not_set: MESSAGES.noPasswordWithGoogle,
+  });

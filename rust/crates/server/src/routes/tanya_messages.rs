@@ -484,6 +484,8 @@ mod tests {
             grade: Grade::new(grade).unwrap(),
             theme: belajar_core::theme::ThemePreference::System,
             created_at: Utc.with_ymd_and_hms(2026, 11, 19, 8, 30, 0).unwrap(),
+            has_password: true,
+            is_google_linked: false,
         }
     }
 

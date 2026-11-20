@@ -1,5 +1,6 @@
 pub(crate) mod auth;
 pub(crate) mod google_auth;
+pub(crate) mod google_link;
 pub(crate) mod google_signup;
 pub(crate) mod health;
 pub(crate) mod home;

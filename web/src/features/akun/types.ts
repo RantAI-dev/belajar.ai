@@ -8,4 +8,9 @@ export type AkunView = {
   readonly stars: number;
   readonly streakDays: number;
   readonly theme: ThemePreference;
+  /** False for a student who signed up with Google: there is no password form then. */
+  readonly hasPassword: boolean;
+  readonly isGoogleLinked: boolean;
+  /** Whether the server has Google configured: "Hubungkan dengan Google" needs it. */
+  readonly isGoogleEnabled: boolean;
 };
