@@ -303,7 +303,6 @@ mod tests {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, reason = "tests")]
 mod cited_tests {
     use super::*;
 
@@ -317,12 +316,11 @@ mod cited_tests {
     #[test]
     fn a_source_is_cited_exactly_when_the_text_marks_its_number() {
         let json = sources_json(&[PAGE, PAGE, PAGE], "satu [1], dua [2].", "http://f");
-        let cited: Vec<bool> = json
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|s| s.get("cited").and_then(Value::as_bool).unwrap())
-            .collect();
-        assert_eq!(cited, vec![true, true, false]);
+        let cited: Option<Vec<Option<bool>>> = json.as_array().map(|all| {
+            all.iter()
+                .map(|s| s.get("cited").and_then(Value::as_bool))
+                .collect()
+        });
+        assert_eq!(cited, Some(vec![Some(true), Some(true), Some(false)]));
     }
 }
