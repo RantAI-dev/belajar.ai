@@ -1,4 +1,5 @@
 import type { Mission } from "../../ui";
+import type { HeroMood } from "./mascotMood";
 
 export type ContinueLesson = {
   readonly subjectId: string;
@@ -19,6 +20,8 @@ export type SubjectProgress = {
 
 export type BerandaView = {
   readonly studentName: string;
+  /** The hero mascot's face and line, from today's missions and the streak. */
+  readonly mood: HeroMood;
   readonly missions: readonly Mission[];
   readonly continueLesson: ContinueLesson | null;
   readonly subjects: readonly SubjectProgress[];

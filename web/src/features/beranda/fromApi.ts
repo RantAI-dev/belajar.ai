@@ -1,5 +1,6 @@
 import type { components } from "../../contracts/api.gen";
 import type { Mission } from "../../ui";
+import { heroMood } from "./mascotMood";
 import type { BerandaView, ContinueLesson, SubjectProgress } from "./types";
 
 export type HomeDto = components["schemas"]["HomeDto"];
@@ -39,11 +40,23 @@ export const missionsFromDto = (home: HomeDto): readonly Mission[] => {
   }));
 };
 
-export const berandaView = (home: HomeDto, subjects: readonly SubjectProgress[]): BerandaView => {
+export const berandaView = (
+  home: HomeDto,
+  subjects: readonly SubjectProgress[],
+  now: Date = new Date(),
+): BerandaView => {
   const lesson = home.continueLearning[0];
+  const missions = missionsFromDto(home);
   return {
     studentName: home.nickname,
-    missions: missionsFromDto(home),
+    mood: heroMood({
+      missionsDone: missions.filter((m) => m.done).length,
+      missionsTotal: missions.length,
+      streakDays: home.streakDays,
+      lastActivityAt: lesson?.updatedAt ?? null,
+      now,
+    }),
+    missions,
     continueLesson: lesson === undefined ? null : continueFromDto(lesson),
     subjects,
   };
