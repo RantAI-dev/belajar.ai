@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { AppLink, Button, FormAlert, TextField } from "../../ui";
+import { AppLink, Button, FormAlert, PasswordField, TextField } from "../../ui";
 import { AuthFrame } from "./AuthFrame";
 import { GoogleButton } from "./GoogleButton";
 import { GradePicker } from "./GradePicker";
@@ -52,7 +52,7 @@ export function RegisterScreen({
   const shown: RegisterErrors = { ...serverErrors, ...errors };
 
   return (
-    <AuthFrame title="Daftar" greeting="Hai! Aku teman belajarmu. Kenalan dulu, yuk!">
+    <AuthFrame title="Daftar" subtitle="Hai! Aku teman belajarmu. Kenalan dulu, yuk!">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         {error !== undefined && <FormAlert tone="error">{error}</FormAlert>}
         <TextField
@@ -73,9 +73,8 @@ export function RegisterScreen({
           autoCapitalize="none"
           {...errorProp(shown.username)}
         />
-        <TextField
+        <PasswordField
           label="Kata sandi"
-          type="password"
           hint={`Minimal ${PASSWORD_MIN} karakter. Jangan beri tahu teman, ya.`}
           value={password}
           onValueChange={setPassword}
@@ -94,7 +93,7 @@ export function RegisterScreen({
         </Button>
       </form>
       {googleHref !== undefined && <GoogleButton href={googleHref} label="Daftar dengan Google" />}
-      <p className="m-0 text-center text-[16px] font-bold text-ink-muted">
+      <p className="m-0 text-center text-[16px] font-semibold text-ink-muted">
         Sudah punya akun?{" "}
         <AppLink
           href={loginHref}
