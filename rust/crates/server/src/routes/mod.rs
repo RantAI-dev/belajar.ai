@@ -5,6 +5,8 @@ pub(crate) mod lessons;
 pub(crate) mod me;
 pub(crate) mod openapi;
 pub(crate) mod practice;
+pub(crate) mod progress;
+pub(crate) mod progress_dto;
 pub(crate) mod root;
 pub(crate) mod subjects;
 pub(crate) mod tanya;
@@ -32,6 +34,7 @@ pub fn v1() -> Router<AppState> {
             get(subjects::list_chapters),
         )
         .route("/home", get(home::get_home))
+        .route("/progress", get(progress::get_progress))
         .route("/lessons", post(lessons::create_lesson))
         .route(
             "/lessons/{id}",

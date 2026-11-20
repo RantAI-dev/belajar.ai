@@ -332,6 +332,9 @@ async fn topic_mastery_aggregates_by_subject_and_filters(pool: PgPool) {
     assert_eq!(data[0]["masteryPercent"], 80);
     assert_eq!(data[1]["subjectId"], "mtk");
     assert_eq!(data[1]["masteryPercent"], 100);
+    // The level is core's one rule: 80% over 5 answers is already "mastered".
+    assert_eq!(data[0]["level"], "mastered");
+    assert_eq!(data[1]["level"], "mastered");
     assert_eq!(all.body["nextCursor"], Value::Null);
 
     let filtered = app

@@ -10,6 +10,7 @@ export {
   setFromDto,
   submissionOf,
 } from "./fromApi";
+export { AUTOSTART_PARAM, latihanHref, shouldAutostart } from "./href";
 export { LatihanSetupScreen, type LatihanSetupScreenProps } from "./LatihanSetupScreen";
 export { QuizScreen, type QuizScreenProps } from "./QuizScreen";
 export { canSubmit, type QuizAction, type QuizState, quizReducer, startQuiz } from "./quiz";

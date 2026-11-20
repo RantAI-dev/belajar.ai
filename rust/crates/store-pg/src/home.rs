@@ -4,18 +4,17 @@
 //! rule. Mission rewards are inserted with `ON CONFLICT DO NOTHING` under the unique indexes, so
 //! the same home request twice awards them once.
 
-use std::collections::BTreeSet;
-
 use async_trait::async_trait;
 use belajar_core::streak::streak_days;
 use belajar_ports::home::{ContinueItem, HomeData, HomeStore, MissionCounts, MissionKind};
 use belajar_ports::lessons::LessonStep;
 use belajar_ports::store::StoreError;
 use chrono::{DateTime, NaiveDate, Utc};
-use sqlx::{Postgres, Row};
+use sqlx::Postgres;
 use uuid::Uuid;
 
 use crate::Db;
+use crate::activity::active_days;
 
 /// Stars for completing any daily mission. `smallint` in `daily_missions`, `integer` in the
 /// ledger, so each bind converts to its column's exact width.
@@ -164,29 +163,7 @@ impl HomeStore for Db {
         )?;
 
         // One date per day the student was active, for the streak.
-        let rows = sqlx::query(
-            "SELECT DISTINCT d FROM ( \
-                 SELECT (created_at AT TIME ZONE 'Asia/Jakarta')::date AS d FROM messages \
-                 WHERE student_id = $1 AND role = 'user' \
-                 UNION \
-                 SELECT (submitted_at AT TIME ZONE 'Asia/Jakarta')::date FROM practice_sets \
-                 WHERE student_id = $1 AND submitted_at IS NOT NULL \
-                 UNION \
-                 SELECT (created_at AT TIME ZONE 'Asia/Jakarta')::date FROM lesson_progress \
-                 WHERE student_id = $1 \
-                 UNION \
-                 SELECT (completed_at AT TIME ZONE 'Asia/Jakarta')::date FROM lesson_progress \
-                 WHERE student_id = $1 AND completed_at IS NOT NULL \
-             ) days",
-        )
-        .bind(student_id)
-        .fetch_all(tx.as_mut())
-        .await
-        .map_err(internal)?;
-        let active: BTreeSet<NaiveDate> = rows
-            .iter()
-            .map(|row| row.get::<NaiveDate, _>("d"))
-            .collect();
+        let active = active_days(tx.as_mut(), student_id).await?;
 
         let unfinished = sqlx::query_as::<Postgres, ContinueRow>(
             "SELECT lp.id, lp.subject_id, lp.chapter_id, lp.step, lp.stars, lp.updated_at, \
