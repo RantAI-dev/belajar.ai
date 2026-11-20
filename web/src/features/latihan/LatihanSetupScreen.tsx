@@ -87,7 +87,7 @@ function Progress({ view }: Pick<LatihanSetupScreenProps, "view">) {
                   className={cx(
                     "flex min-h-[52px] flex-1 items-center justify-center rounded-chip border-2 font-display text-[20px] font-semibold",
                     slot.done
-                      ? "border-success bg-success-soft text-success-edge"
+                      ? "border-success bg-success-soft text-success-ink"
                       : "border-line-strong bg-page text-ink-faint",
                   )}
                 >

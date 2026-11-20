@@ -14,3 +14,5 @@ pub mod stars;
 pub mod streak;
 
 pub mod subject;
+
+pub mod theme;

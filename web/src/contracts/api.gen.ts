@@ -263,7 +263,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Updates the nickname and/or the grade. `username` and friends are not editable here. */
+    /** Updates the nickname, the grade and/or the theme. `username` and friends are not editable here. */
     patch: operations["patch_me"];
     trace?: never;
   };
@@ -724,6 +724,7 @@ export interface components {
       grade?: number | null;
       /** @description A `nickname` that is only whitespace is invalid, so `null` is the only "no change" form. */
       nickname?: string | null;
+      theme?: null | components["schemas"]["ThemePreferenceDto"];
     };
     /** @description The headline numbers for one period ("Minggu ini" or "Semua"). */
     PeriodSummaryDto: {
@@ -939,6 +940,7 @@ export interface components {
       /** Format: uuid */
       id: string;
       nickname: string;
+      theme: components["schemas"]["ThemePreferenceDto"];
       username: string;
     };
     /** @description One subject, under our id, with the upstream's name passed back on later requests. */
@@ -982,6 +984,11 @@ export interface components {
     SubmitPracticeRequest: {
       answers: components["schemas"]["SubmitAnswerDto"][];
     };
+    /**
+     * @description The colour theme the student chose: `system` follows the device's light/dark setting.
+     * @enum {string}
+     */
+    ThemePreferenceDto: "system" | "light" | "dark";
     TopicMasteryDto: {
       /** Format: int32 */
       attempts: number;

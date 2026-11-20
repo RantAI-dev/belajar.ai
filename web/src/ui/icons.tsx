@@ -114,7 +114,7 @@ export const BulbIcon = ({ size = 26, className }: IconProps) => (
     height={size}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#b07d00"
+    style={{ stroke: "var(--color-warm-icon)" }}
     strokeWidth="2.2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -130,7 +130,7 @@ const STAR_PATH = "m12 2 3 6.6 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.2l1.5-7L2 9.4l7
 
 export const StarIcon = ({
   size = 18,
-  fill = "#f5b301",
+  fill = "var(--color-star)",
   stroke,
   className,
 }: IconProps & { readonly fill?: string; readonly stroke?: string }) => (
@@ -139,8 +139,7 @@ export const StarIcon = ({
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill={fill}
-    stroke={stroke ?? "none"}
+    style={{ fill, stroke: stroke ?? "none" }}
     strokeWidth={stroke === undefined ? 0 : 1}
     className={className}
   >
@@ -154,7 +153,7 @@ export const FlameIcon = ({ size = 18, className }: IconProps) => (
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill="#f08c1a"
+    style={{ fill: "var(--color-streak)" }}
     className={className}
   >
     <path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .3 2 1.5 3 2.5 3-1-3 0-6 0-9z" />

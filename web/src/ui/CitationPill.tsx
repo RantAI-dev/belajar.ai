@@ -1,12 +1,13 @@
 import { BookIcon } from "./icons";
 
-/** The source chips' teal. White text needs the darker shade (`CITE.strong`) to pass 4.5:1. */
+/** The source chips' teal, as theme tokens (theme.css; contrast checked in tokenPairs.ts). White
+ * text needs the darker shade (`CITE.strong`) to pass 4.5:1. */
 export const CITE = {
-  line: "#388ca1",
-  soft: "#e6f5f7",
-  strong: "#1f5f6e",
+  line: "var(--color-cite-line)",
+  soft: "var(--color-cite-soft)",
+  strong: "var(--color-cite-strong)",
   /** The yellow marker on a cited sentence, matching the highlight on the page image. */
-  marker: "#ffe58a",
+  marker: "var(--color-cite-marker)",
 } as const;
 
 export type CitationPillProps = {
@@ -29,7 +30,7 @@ export function CitationPill({ label, ariaLabel, pressed, onPress }: CitationPil
       className="relative mx-0.5 inline-flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border-2 px-2 py-px align-[0.1em] text-[13px] font-extrabold leading-[1.3] transition-colors motion-reduce:transition-none"
       style={
         pressed
-          ? { background: CITE.strong, borderColor: CITE.strong, color: "#ffffff" }
+          ? { background: CITE.strong, borderColor: CITE.strong, color: "var(--color-on-fill)" }
           : { background: CITE.soft, borderColor: CITE.line, color: "var(--color-ink)" }
       }
     >

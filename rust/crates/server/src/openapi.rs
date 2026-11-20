@@ -14,7 +14,7 @@ use crate::routes::lessons::{
     CompleteLessonRequest, CompleteLessonResponse, CreateLessonRequest, LessonDto,
     PatchLessonRequest,
 };
-use crate::routes::me::PatchMeRequest;
+use crate::routes::me::{PatchMeRequest, ThemePreferenceDto};
 use crate::routes::practice::practice_dto::{
     OptionDto, PracticeResultDto, PracticeSetDto, PracticeSetListDto, PracticeSetSummaryDto,
     PracticeStatusDto, QuestionDto, QuestionKindDto, ResultItemDto, TopicMasteryDto,
@@ -90,6 +90,7 @@ use crate::wire::mastery::{MasteryLevelDto, TrendDto};
             LogoutRequest,
             PasswordChangeRequest,
             PatchMeRequest,
+            ThemePreferenceDto,
             SubjectDto,
             SubjectsDto,
             ChapterDto,

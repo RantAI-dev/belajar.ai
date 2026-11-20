@@ -7,6 +7,7 @@ import {
   StarRating,
   SubjectIcon,
   subjectById,
+  subjectPaint,
 } from "../../ui";
 import type { ChapterMapView, ChapterNode } from "./types";
 
@@ -32,6 +33,7 @@ function SubjectSwitcher({
           const s = subjectById(id);
           if (s === undefined) return null;
           const on = id === view.subjectId;
+          const paint = subjectPaint(s);
           return (
             <li key={id}>
               <AppLink
@@ -39,11 +41,11 @@ function SubjectSwitcher({
                 aria-current={on ? "page" : undefined}
                 className="inline-flex min-h-14 items-center gap-2.5 rounded-btn border-[3px] py-0 pr-[18px] pl-2 text-[16px] font-extrabold text-ink"
                 style={{
-                  background: on ? s.tint : "#ffffff",
-                  borderColor: on ? s.color : "#d5e3f0",
+                  background: on ? paint.tint : "var(--color-surface)",
+                  borderColor: on ? paint.color : "var(--color-line-strong)",
                 }}
               >
-                <span className="flex size-10 items-center justify-center rounded-[12px] bg-white">
+                <span className="flex size-10 items-center justify-center rounded-[12px] bg-surface">
                   <SubjectIcon subjectId={id} size={30} />
                 </span>
                 {s.shortName}
@@ -83,7 +85,7 @@ function Node({
         onClick={onSelect}
         className={cx(
           "pressable inline-flex cursor-pointer items-center gap-3.5 rounded-full border-0 py-1.5 pr-[18px] pl-1.5 text-left text-ink",
-          selected ? "bg-white" : "bg-transparent hover:bg-white/60",
+          selected ? "bg-surface" : "bg-transparent hover:bg-surface/60",
         )}
         style={selected ? { boxShadow: `0 4px 0 ${edge}` } : undefined}
       >
@@ -95,11 +97,12 @@ function Node({
           )}
           style={
             done
-              ? { background: color, borderColor: color, color: "#ffffff" }
+              ? { background: color, borderColor: color, color: "var(--color-on-fill)" }
               : {
-                  background: "#ffffff",
-                  borderColor: selected || chapter.status === "current" ? color : "#d5e3f0",
-                  color: selected ? ink : "#55697f",
+                  background: "var(--color-surface)",
+                  borderColor:
+                    selected || chapter.status === "current" ? color : "var(--color-line-strong)",
+                  color: selected ? ink : "var(--color-ink-faint)",
                 }
           }
         >
@@ -108,7 +111,7 @@ function Node({
         <span className="flex flex-col gap-0.5">
           <span
             className="text-[13px] font-extrabold"
-            style={{ color: done || selected ? ink : "#55697f" }}
+            style={{ color: done || selected ? ink : "var(--color-ink-faint)" }}
           >
             BAB {chapter.number}
             {done ? <span className="sr-only"> (selesai)</span> : null}
@@ -130,6 +133,7 @@ export function ChapterMapScreen({
 }: ChapterMapScreenProps) {
   const subject = subjectById(view.subjectId);
   if (subject === undefined) return null;
+  const paint = subjectPaint(subject);
   const selected =
     view.chapters.find((c) => c.id === selectedChapterId) ??
     view.chapters.find((c) => c.status === "current") ??
@@ -141,13 +145,13 @@ export function ChapterMapScreen({
         <section
           aria-labelledby="peta-title"
           className="min-w-0 flex-1 basis-[480px] rounded-panel border-2 p-5 sm:p-6"
-          style={{ background: subject.tint, borderColor: subject.edge }}
+          style={{ background: paint.tint, borderColor: paint.edge }}
         >
           <div className="mb-5 flex items-center gap-3.5">
             <span
               aria-hidden="true"
-              className="flex size-[72px] shrink-0 items-center justify-center rounded-[22px] bg-white"
-              style={{ boxShadow: `0 4px 0 ${subject.edge}` }}
+              className="flex size-[72px] shrink-0 items-center justify-center rounded-[22px] bg-surface"
+              style={{ boxShadow: `0 4px 0 ${paint.edge}` }}
             >
               <SubjectIcon subjectId={subject.id} size={50} />
             </span>
@@ -164,9 +168,9 @@ export function ChapterMapScreen({
                 key={c.id}
                 chapter={c}
                 selected={c.id === selected?.id}
-                color={subject.color}
-                ink={subject.ink}
-                edge={subject.edge}
+                color={paint.color}
+                ink={paint.ink}
+                edge={paint.edge}
                 indent={INDENT[i % INDENT.length] ?? ""}
                 onSelect={() => onSelectChapter(c.id)}
               />
@@ -176,7 +180,7 @@ export function ChapterMapScreen({
         {selected !== undefined && (
           <aside
             aria-labelledby="start-title"
-            className="flex min-w-0 flex-1 basis-[320px] flex-col gap-4 rounded-panel border-2 border-line bg-white p-5 sm:p-6"
+            className="flex min-w-0 flex-1 basis-[320px] flex-col gap-4 rounded-panel border-2 border-line bg-surface p-5 sm:p-6"
           >
             <div className="flex items-start gap-3">
               <Mascot mood="happy" size={64} />
@@ -197,7 +201,7 @@ export function ChapterMapScreen({
                   <li key={label} className="flex items-center gap-2.5 text-[16px] font-bold">
                     <span
                       aria-hidden="true"
-                      className="flex size-[30px] items-center justify-center rounded-[10px] bg-primary-soft font-extrabold text-primary"
+                      className="flex size-[30px] items-center justify-center rounded-[10px] bg-primary-soft font-extrabold text-primary-ink"
                     >
                       {i + 1}
                     </span>

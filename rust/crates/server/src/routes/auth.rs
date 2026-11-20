@@ -21,6 +21,7 @@ use crate::cookies;
 use crate::current_student::CurrentStudent;
 use crate::error_codes::ErrorCode;
 use crate::passwords;
+use crate::routes::me::ThemePreferenceDto;
 use crate::state::AppState;
 use crate::store_errors;
 use crate::tokens;
@@ -35,6 +36,7 @@ pub struct StudentDto {
     pub username: String,
     pub nickname: String,
     pub grade: u8,
+    pub theme: ThemePreferenceDto,
     #[serde(with = "instant")]
     #[schema(format = DateTime)]
     pub created_at: DateTime<Utc>,
@@ -47,6 +49,7 @@ impl From<StudentAccount> for StudentDto {
             username: account.username,
             nickname: account.nickname,
             grade: account.grade.get(),
+            theme: account.theme.into(),
             created_at: account.created_at,
         }
     }

@@ -4,7 +4,7 @@ import { cx } from "./cx";
 export type CardTone = "white" | "warm" | "page";
 
 const TONE: Record<CardTone, string> = {
-  white: "bg-white border-2 border-line",
+  white: "bg-surface border-2 border-line",
   warm: "bg-warm border-2 border-warm-line",
   page: "bg-page border-2 border-line",
 };

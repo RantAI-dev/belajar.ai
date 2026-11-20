@@ -12,14 +12,14 @@ export function SourceChip({
   label,
   pressed,
   onPressedChange,
-  color = "#388ca1",
+  color = "var(--color-subject-ipa)",
 }: SourceChipProps) {
   return (
     <button
       type="button"
       aria-pressed={pressed}
       onClick={() => onPressedChange(!pressed)}
-      className={`pressable inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-chip border-2 px-3.5 text-left text-[15px] font-extrabold text-ink ${pressed ? "bg-[#e6f5f7]" : "border-line-strong bg-white hover:bg-page"}`}
+      className={`pressable inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-chip border-2 px-3.5 text-left text-[15px] font-extrabold text-ink ${pressed ? "bg-surface-alt" : "border-line-strong bg-surface hover:bg-page"}`}
       style={pressed ? { borderColor: color } : undefined}
     >
       <span style={{ color }}>
@@ -52,18 +52,18 @@ export function PagePreview({
         <img
           src={imageUrl}
           alt={`Halaman buku: ${title}`}
-          className="aspect-[3/4] w-[150px] rounded-[10px] border-2 border-line bg-white object-cover"
+          className="aspect-[3/4] w-[150px] rounded-[10px] border-2 border-line bg-paper object-cover"
         />
       ) : (
         <div
           aria-hidden="true"
-          className="flex aspect-[3/4] w-[150px] flex-col gap-1.5 rounded-[10px] border-2 border-line bg-white p-3"
+          className="flex aspect-[3/4] w-[150px] flex-col gap-1.5 rounded-[10px] border-2 border-line bg-paper p-3"
         >
-          <span className="h-2 w-[70%] rounded bg-[#dfe8f0]" />
-          <span className="h-1.5 w-[95%] rounded bg-[#e9eff4]" />
-          <span className="h-1.5 w-[90%] rounded bg-[#ffe28a]" />
-          <span className="h-1.5 w-[80%] rounded bg-[#ffe28a]" />
-          <span className="grow rounded-md bg-[#eef3f7]" />
+          <span className="h-2 w-[70%] rounded bg-paper-line" />
+          <span className="h-1.5 w-[95%] rounded bg-paper-line-soft" />
+          <span className="h-1.5 w-[90%] rounded bg-paper-mark" />
+          <span className="h-1.5 w-[80%] rounded bg-paper-mark" />
+          <span className="grow rounded-md bg-paper-fill" />
         </div>
       )}
       <div className="flex min-w-[180px] flex-1 flex-col gap-2">
@@ -75,7 +75,7 @@ export function PagePreview({
             href={fullPageHref}
             target="_blank"
             rel="noopener"
-            className="inline-flex min-h-12 items-center self-start rounded-[12px] border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold hover:bg-primary-soft"
+            className="inline-flex min-h-12 items-center self-start rounded-[12px] border-2 border-line-sky bg-surface px-4 text-[15px] font-extrabold hover:bg-primary-soft"
           >
             Buka halaman penuh
             <span className="sr-only"> (di tab baru)</span>

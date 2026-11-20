@@ -980,7 +980,7 @@
       },
       "patch": {
         "tags": ["me"],
-        "summary": "Updates the nickname and/or the grade. `username` and friends are not editable here.",
+        "summary": "Updates the nickname, the grade and/or the theme. `username` and friends are not editable here.",
         "operationId": "patch_me",
         "requestBody": {
           "content": {
@@ -2424,6 +2424,17 @@
           "nickname": {
             "type": ["string", "null"],
             "description": "A `nickname` that is only whitespace is invalid, so `null` is the only \"no change\" form."
+          },
+          "theme": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ThemePreferenceDto",
+                "description": "Read as text so a value outside the three gets a field error, not a bare 400."
+              }
+            ]
           }
         },
         "additionalProperties": false
@@ -2954,7 +2965,7 @@
       "StudentDto": {
         "type": "object",
         "description": "A whole student, as every auth and `/v1/me` response shows them. No password material, ever.",
-        "required": ["id", "username", "nickname", "grade", "createdAt"],
+        "required": ["id", "username", "nickname", "grade", "theme", "createdAt"],
         "properties": {
           "createdAt": {
             "type": "string",
@@ -2971,6 +2982,9 @@
           },
           "nickname": {
             "type": "string"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/ThemePreferenceDto"
           },
           "username": {
             "type": "string"
@@ -3109,6 +3123,11 @@
           }
         },
         "additionalProperties": false
+      },
+      "ThemePreferenceDto": {
+        "type": "string",
+        "description": "The colour theme the student chose: `system` follows the device's light/dark setting.",
+        "enum": ["system", "light", "dark"]
       },
       "TopicMasteryDto": {
         "type": "object",

@@ -15,7 +15,7 @@ export function FormAlert({
         "m-0 rounded-[14px] px-4 py-3 text-[16px]",
         tone === "error"
           ? "bg-oops-soft font-bold text-oops-ink"
-          : "bg-success-soft font-extrabold text-success-edge",
+          : "bg-success-soft font-extrabold text-success-ink",
       )}
     >
       {children}

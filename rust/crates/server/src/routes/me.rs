@@ -6,7 +6,8 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use belajar_core::grade::Grade;
-use serde::Deserialize;
+use belajar_core::theme::ThemePreference;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::RequestId;
@@ -16,6 +17,26 @@ use crate::routes::auth::StudentDto;
 use crate::state::AppState;
 use crate::store_errors;
 use crate::wire::extract::ApiJson;
+use crate::wire::fields::invalid_format;
+
+/// The colour theme the student chose: `system` follows the device's light/dark setting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum ThemePreferenceDto {
+    System,
+    Light,
+    Dark,
+}
+
+impl From<ThemePreference> for ThemePreferenceDto {
+    fn from(theme: ThemePreference) -> Self {
+        match theme {
+            ThemePreference::System => Self::System,
+            ThemePreference::Light => Self::Light,
+            ThemePreference::Dark => Self::Dark,
+        }
+    }
+}
 
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -23,6 +44,9 @@ pub struct PatchMeRequest {
     /// A `nickname` that is only whitespace is invalid, so `null` is the only "no change" form.
     pub nickname: Option<String>,
     pub grade: Option<u8>,
+    /// Read as text so a value outside the three gets a field error, not a bare 400.
+    #[schema(value_type = Option<ThemePreferenceDto>)]
+    pub theme: Option<String>,
 }
 
 /// The signed-in student.
@@ -45,7 +69,7 @@ pub(crate) async fn get_me(
     }
 }
 
-/// Updates the nickname and/or the grade. `username` and friends are not editable here.
+/// Updates the nickname, the grade and/or the theme. `username` and friends are not editable here.
 #[utoipa::path(
     patch,
     path = "/v1/me",
@@ -86,6 +110,14 @@ pub(crate) async fn patch_me(
             message: format!("Must be between {} and {}.", Grade::MIN, Grade::MAX),
         });
     }
+    let theme = match req.theme.as_deref().map(ThemePreference::parse) {
+        Some(None) => {
+            errors.push(invalid_format("/theme", "one of system, light, dark"));
+            None
+        }
+        Some(Some(theme)) => Some(theme),
+        None => None,
+    };
     if !errors.is_empty() {
         return ApiError::invalid(errors).into_response(&id.0);
     }
@@ -95,6 +127,7 @@ pub(crate) async fn patch_me(
             student.student_id,
             req.nickname.as_deref().map(str::trim),
             req.grade.and_then(|g| Grade::new(g).ok()),
+            theme,
         )
         .await
     {
@@ -123,6 +156,11 @@ mod tests {
         .expect("nickname and grade are the only editable fields");
         assert_eq!(parsed.nickname.as_deref(), Some("Budi Kecil"));
         assert_eq!(parsed.grade, Some(12));
+        assert_eq!(parsed.theme, None, "an absent theme is no change");
+
+        let parsed: PatchMeRequest =
+            serde_json::from_value(json!({ "theme": "dark" })).expect("the theme is editable");
+        assert_eq!(parsed.theme.as_deref(), Some("dark"));
 
         let parsed: PatchMeRequest = serde_json::from_value(json!({
             "nickname": null, "grade": null

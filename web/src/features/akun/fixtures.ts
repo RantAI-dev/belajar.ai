@@ -6,4 +6,5 @@ export const AKUN_FIXTURE: AkunView = {
   grade: 7,
   stars: 120,
   streakDays: 5,
+  theme: "system",
 };

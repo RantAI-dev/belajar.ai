@@ -3,6 +3,7 @@
 
 use async_trait::async_trait;
 use belajar_core::grade::Grade;
+use belajar_core::theme::ThemePreference;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
@@ -15,6 +16,7 @@ pub struct StudentAccount {
     pub username: String,
     pub nickname: String,
     pub grade: Grade,
+    pub theme: ThemePreference,
     pub created_at: DateTime<Utc>,
 }
 
@@ -87,11 +89,12 @@ pub trait AccountStore: Send + Sync {
     /// The student's profile for `GET /v1/me`.
     async fn get_student(&self, student_id: Uuid) -> Result<StudentAccount, StoreError>;
 
-    /// Updates the profile. `None` leaves that column alone.
+    /// Updates this student's own profile, in one statement. `None` leaves that column alone.
     async fn update_profile(
         &self,
         student_id: Uuid,
         nickname: Option<&str>,
         grade: Option<Grade>,
+        theme: Option<ThemePreference>,
     ) -> Result<StudentAccount, StoreError>;
 }

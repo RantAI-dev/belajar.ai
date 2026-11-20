@@ -52,7 +52,11 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
     const style = isMarked ? { background: CITE.marker } : undefined;
     const className = cx(isMarked && "rounded-[4px] [box-decoration-break:clone]");
     return s.emphasis ? (
-      <strong key={key} className={cx("text-primary", className)} style={style}>
+      <strong
+        key={key}
+        className={cx(isMarked ? "text-cite-marker-ink" : "text-primary-ink", className)}
+        style={style}
+      >
         <RichText text={s.text} streaming={streaming} />
       </strong>
     ) : (

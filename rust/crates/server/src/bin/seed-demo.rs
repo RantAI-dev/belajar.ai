@@ -58,7 +58,7 @@ async fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
             if let Err(err) = db
-                .update_profile(record.user_id, Some(NICKNAME), Some(grade))
+                .update_profile(record.user_id, Some(NICKNAME), Some(grade), None)
                 .await
             {
                 eprintln!("seed-demo: cannot update the profile: {err}");

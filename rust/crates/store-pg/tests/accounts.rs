@@ -2,6 +2,7 @@
 #![allow(clippy::expect_used, reason = "tests")]
 
 use belajar_core::grade::Grade;
+use belajar_core::theme::ThemePreference;
 use belajar_ports::accounts::AccountStore;
 use belajar_ports::store::StoreError;
 use belajar_store_pg::Db;
@@ -53,14 +54,14 @@ async fn a_missing_student_is_not_found_and_updates_keep_the_rest(pool: PgPool) 
         .unwrap();
 
     let updated = db
-        .update_profile(student.id, None, Some(Grade::new(4).unwrap()))
+        .update_profile(student.id, None, Some(Grade::new(4).unwrap()), None)
         .await
         .unwrap();
     assert_eq!(updated.nickname, "Siti", "nickname untouched");
     assert_eq!(updated.grade.get(), 4);
 
     let updated = db
-        .update_profile(student.id, Some("Sitii"), None)
+        .update_profile(student.id, Some("Sitii"), None, None)
         .await
         .unwrap();
     assert_eq!(updated.nickname, "Sitii");
@@ -122,4 +123,40 @@ async fn sessions_expire_and_the_current_one_survives_a_password_change(pool: Pg
 
     db.delete_session(student.id, a).await.unwrap();
     assert!(db.find_session(&[1, 2, 3], now).await.unwrap().is_none());
+}
+
+#[sqlx::test(migrations = "../../migrations")]
+async fn the_theme_starts_at_system_and_changes_only_for_its_own_student(pool: PgPool) {
+    let db = db(&pool).await;
+    let budi = db
+        .create_student("budi", "hash", "Budi", Grade::new(5).unwrap())
+        .await
+        .unwrap();
+    let siti = db
+        .create_student("siti", "hash", "Siti", Grade::new(5).unwrap())
+        .await
+        .unwrap();
+    assert_eq!(budi.theme, ThemePreference::System);
+    assert_eq!(
+        db.get_student(siti.id).await.unwrap().theme,
+        ThemePreference::System
+    );
+
+    let updated = db
+        .update_profile(budi.id, None, None, Some(ThemePreference::Dark))
+        .await
+        .unwrap();
+    assert_eq!(updated.theme, ThemePreference::Dark, "owner: changed");
+    assert_eq!(updated.nickname, "Budi", "nickname untouched");
+    assert_eq!(
+        db.get_student(siti.id).await.unwrap().theme,
+        ThemePreference::System,
+        "another student's theme is untouched"
+    );
+
+    let kept = db
+        .update_profile(budi.id, Some("Budi K"), None, None)
+        .await
+        .unwrap();
+    assert_eq!(kept.theme, ThemePreference::Dark, "None keeps the theme");
 }

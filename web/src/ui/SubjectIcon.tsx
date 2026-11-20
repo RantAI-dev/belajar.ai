@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { cx } from "./cx";
-import { subjectById } from "./subjects";
+import { paintFor, subjectById } from "./subjects";
 
-const SUN = "#ffd23f";
+const SUN = "var(--color-sun)";
 
 // Two-tone line icons on a 24px grid: strokes in the subject colour, fills in its light shade.
 function glyph(id: string, c: string, tint: string): ReactNode {
@@ -59,7 +59,10 @@ function glyph(id: string, c: string, tint: string): ReactNode {
       return (
         <>
           <path d="M2 5h7a3 3 0 0 1 3 3v12a2.5 2.5 0 0 0-2.5-2.5H2z" fill={tint} />
-          <path d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z" fill="#ffffff" />
+          <path
+            d="M22 5h-7a3 3 0 0 0-3 3v12a2.5 2.5 0 0 1 2.5-2.5H22z"
+            style={{ fill: "var(--color-snow)" }}
+          />
           <text
             x="17"
             y="13.6"
@@ -124,8 +127,9 @@ export type SubjectIconProps = {
 
 export function SubjectIcon({ subjectId, size = 42, framed = false, className }: SubjectIconProps) {
   const subject = subjectById(subjectId);
-  const color = subject?.color ?? "#0069a8";
-  const tint = subject?.edge ?? "#e0f0fd";
+  const paint = paintFor(subject?.id);
+  const color = paint.color;
+  const tint = paint.edge;
   const svg = (
     <svg
       aria-hidden="true"
@@ -147,7 +151,7 @@ export function SubjectIcon({ subjectId, size = 42, framed = false, className }:
   return (
     <span
       aria-hidden="true"
-      className={cx("wiggle flex shrink-0 items-center justify-center bg-white", className)}
+      className={cx("wiggle flex shrink-0 items-center justify-center bg-surface", className)}
       style={{ width: box, height: box, borderRadius: Math.round(box * 0.28) }}
     >
       {svg}
