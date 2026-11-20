@@ -12,6 +12,7 @@ import {
   TANYA_EMPTY,
   TanyaScreen,
 } from "../../features/tanya";
+import { isSubjectId } from "../../ui";
 import { useChat } from "../chat";
 import { latihanHref } from "./latihanHref";
 import { NotFound } from "./NotFound";
@@ -62,6 +63,11 @@ type History = {
 
 function NewConversation() {
   const start = useStartConversation();
+  const location = useLocation();
+  // The chapter map's empty state sends students here with their subject preselected.
+  const subjectFromUrl = new URLSearchParams(location.search).get("subject");
+  const preselected =
+    subjectFromUrl !== null && isSubjectId(subjectFromUrl) ? subjectFromUrl : null;
   const [filter, setFilter] = useState<SubjectFilter>("semua");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +106,7 @@ function NewConversation() {
   const send = async (question: string) => {
     if (sending) return;
     setSending(true);
-    const problem = await start(question, filter === "semua" ? null : filter);
+    const problem = await start(question, preselected ?? (filter === "semua" ? null : filter));
     setSending(false);
     setError(problem);
   };

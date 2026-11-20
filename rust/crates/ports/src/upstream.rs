@@ -49,14 +49,32 @@ pub struct Mapel {
     pub document_count: u32,
 }
 
-/// A chapter of a subject. The upstream has no endpoint for this yet; the client serves a built-in
-/// list until it does.
+/// A topic ("materi") listed inside a chapter, from the book's table of contents.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChapterTopic {
+    pub title: String,
+    /// 0-based page where the topic starts; `null` when the upstream has no page.
+    pub page: Option<u32>,
+}
+
+/// A chapter of a subject, as the upstream lists it in one of the subject's books.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Chapter {
-    /// Stable within its subject, e.g. "bab-3".
+    /// Stable within its subject. Positional (`bab-<n>`) so progress rows written against the old
+    /// built-in list keep joining to a chapter.
     pub id: String,
+    /// Position in the subject's chapter path, 1-based. Books share chapter numbers, so the path
+    /// is numbered sequentially while `book_number` keeps the number printed in the book.
     pub number: u32,
+    /// The upstream's chapter number within its own book (may repeat across books).
+    pub book_number: u32,
     pub title: String,
+    /// 0-based page where the chapter starts; `null` when the upstream has no page.
+    pub page: Option<u32>,
+    pub document_id: String,
+    pub document_title: String,
+    /// Empty when the book has no topics for this chapter.
+    pub topics: Vec<ChapterTopic>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -227,7 +245,7 @@ pub trait Upstream: Send + Sync {
     /// `GET /api/v1/mapel` with the grade's `Ask` key.
     async fn mapel(&self, grade: Grade) -> Result<Vec<Mapel>, UpstreamError>;
 
-    /// Chapters of one subject. Built-in list until the upstream ships the endpoint.
+    /// Chapters of one subject, in the upstream's order: grouped by book, then by chapter number.
     async fn chapters(&self, grade: Grade, mapel: &str) -> Result<Vec<Chapter>, UpstreamError>;
 
     /// `POST /api/v1/chat/completions`, streamed, `sources: "cited"`. The stream ends after

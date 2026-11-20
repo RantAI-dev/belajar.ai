@@ -6,9 +6,9 @@
 //! `page_url` snake_case); the tests pin those exact spellings.
 
 use belajar_ports::upstream::{
-    ChatEvent, ChatOutcome, ChatRequest, ChatRole, Mapel, PracticeAnswer, PracticeEvent,
-    PracticeOption, PracticeProgress, PracticeQuestion, PracticeRequest, PracticeSet,
-    PracticeStage, PracticeType, QuestionKind, QuestionScore, Source, UpstreamError,
+    Chapter, ChapterTopic, ChatEvent, ChatOutcome, ChatRequest, ChatRole, Mapel, PracticeAnswer,
+    PracticeEvent, PracticeOption, PracticeProgress, PracticeQuestion, PracticeRequest,
+    PracticeSet, PracticeStage, PracticeType, QuestionKind, QuestionScore, Source, UpstreamError,
 };
 use eventsource_stream::Event;
 use serde::{Deserialize, Serialize};
@@ -41,6 +41,63 @@ impl MapelResponseWire {
                 name: wire.mapel,
                 knowledge_base_id: wire.knowledge_base_id,
                 document_count: wire.document_count,
+            })
+            .collect()
+    }
+}
+
+// ===== chapters =====================================================================================================
+
+/// `GET /api/v1/mapel/chapters` response. `object` and `mapel` are not needed by the app, so serde
+/// ignores them along with any other field the upstream adds.
+#[derive(Debug, Deserialize)]
+pub(crate) struct ChaptersResponseWire {
+    #[serde(default)]
+    data: Vec<ChapterWire>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ChapterWire {
+    title: String,
+    number: u32,
+    page: Option<u32>,
+    #[allow(non_snake_case, reason = "the upstream's own field name on the wire")]
+    documentId: String,
+    #[allow(non_snake_case, reason = "the upstream's own field name on the wire")]
+    documentTitle: String,
+    #[serde(default)]
+    topics: Vec<TopicWire>,
+}
+
+#[derive(Debug, Deserialize)]
+struct TopicWire {
+    title: String,
+    page: Option<u32>,
+}
+
+impl ChaptersResponseWire {
+    pub(crate) fn into_chapters(self) -> Vec<Chapter> {
+        self.data
+            .into_iter()
+            .enumerate()
+            .map(|(index, wire)| Chapter {
+                // Books share chapter numbers, so a number alone is not unique. We keep the old
+                // positional `bab-<n>` shape so existing progress rows still find their chapter.
+                id: format!("bab-{}", index + 1),
+                number: (index + 1) as u32,
+                book_number: wire.number,
+                title: wire.title,
+                page: wire.page,
+                document_id: wire.documentId,
+                document_title: wire.documentTitle,
+                topics: wire
+                    .topics
+                    .into_iter()
+                    .map(|topic| ChapterTopic {
+                        title: topic.title,
+                        page: topic.page,
+                    })
+                    .collect(),
             })
             .collect()
     }
@@ -645,6 +702,97 @@ mod tests {
         )
         .unwrap();
         assert_eq!(wrapped.into_mapel()[0].document_count, 3);
+    }
+
+    const IPA_FIXTURE: &str = include_str!("../../../fixtures/chapters/IPA.json");
+    const MATEMATIKA_FIXTURE: &str = include_str!("../../../fixtures/chapters/Matematika.json");
+    const BING_FIXTURE: &str = include_str!("../../../fixtures/chapters/Bahasa-Inggris.json");
+
+    fn chapters_from(raw: &str) -> Vec<Chapter> {
+        serde_json::from_str::<ChaptersResponseWire>(raw)
+            .unwrap()
+            .into_chapters()
+    }
+
+    #[test]
+    fn every_recorded_fixture_parses_into_real_chapters() {
+        let cases = [
+            (
+                IPA_FIXTURE,
+                "IPA",
+                13,
+                "Sistem Organisasi Kehidupan Makhluk Hidup",
+            ),
+            (MATEMATIKA_FIXTURE, "Matematika", 14, "Bilangan"),
+            (
+                BING_FIXTURE,
+                "Bahasa Inggris",
+                8,
+                "Good morning. How are You?",
+            ),
+        ];
+        for (raw, mapel, count, first_title) in cases {
+            let chapters = chapters_from(raw);
+            assert_eq!(chapters.len(), count, "{mapel} chapter count");
+            assert_eq!(chapters[0].title, first_title, "{mapel} first title");
+            // The old built-in list could never produce a real book title.
+            assert_ne!(chapters[0].title, "Metode Ilmiah dan Pengukuran");
+            for (index, chapter) in chapters.iter().enumerate() {
+                assert_eq!(chapter.id, format!("bab-{}", index + 1));
+                assert!(!chapter.document_id.is_empty());
+                assert!(!chapter.document_title.is_empty());
+                assert!(chapter.number > 0);
+            }
+        }
+    }
+
+    #[test]
+    fn chapters_keep_the_upstreams_book_order_and_carry_topics_and_pages() {
+        let chapters = chapters_from(IPA_FIXTURE);
+        // The fixture has two books; their groups stay contiguous in upstream order.
+        let first_book = &chapters[0].document_title;
+        let (from_first_book, from_second_book) = chapters.split_at(6);
+        assert!(
+            from_first_book
+                .iter()
+                .all(|c| &c.document_title == first_book)
+        );
+        assert!(
+            from_second_book
+                .iter()
+                .all(|c| &c.document_title != first_book)
+        );
+        // Book numbers repeat across books; the path number and id stay sequential instead.
+        assert_eq!(chapters[0].book_number, chapters[6].book_number);
+        assert_eq!(chapters[6].number, 7);
+        assert_eq!(chapters[0].page, Some(6));
+        assert_eq!(
+            chapters[0].topics[0],
+            ChapterTopic {
+                title: "Sel sebagai Unit Struktural dan Fungsional Kehidupan".into(),
+                page: Some(9),
+            }
+        );
+        // Bahasa Inggris carries empty topic lists rather than omitting the field.
+        let bing = chapters_from(BING_FIXTURE);
+        assert!(bing.iter().all(|c| c.topics.is_empty()));
+    }
+
+    #[test]
+    fn a_chapter_with_no_topics_and_no_page_still_parses() {
+        let chapters = chapters_from(
+            r#"{"object":"list","mapel":"IPA","data":[{"title":"Tanpa halaman","number":1,"page":null,"documentId":"d","documentTitle":"Buku"}]}"#,
+        );
+        assert_eq!(chapters.len(), 1);
+        assert_eq!(chapters[0].page, None);
+        assert!(chapters[0].topics.is_empty());
+    }
+
+    #[test]
+    fn an_empty_chapters_response_is_an_empty_list() {
+        assert!(chapters_from(r#"{"object":"list","mapel":"IPA","data":[]}"#).is_empty());
+        // A missing `data` is treated the same way.
+        assert!(chapters_from(r#"{"object":"list","mapel":"IPA"}"#).is_empty());
     }
 
     #[test]

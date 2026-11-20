@@ -352,12 +352,22 @@ mod tests {
             Chapter {
                 id: "bab-1".into(),
                 number: 1,
+                book_number: 1,
                 title: "Satu".into(),
+                page: Some(1),
+                document_id: "dok".into(),
+                document_title: "Buku".into(),
+                topics: Vec::new(),
             },
             Chapter {
                 id: "bab-2".into(),
                 number: 2,
+                book_number: 2,
                 title: "Dua".into(),
+                page: None,
+                document_id: "dok".into(),
+                document_title: "Buku".into(),
+                topics: Vec::new(),
             },
         ];
         let lesson = Lesson {

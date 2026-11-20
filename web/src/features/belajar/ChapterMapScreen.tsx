@@ -17,10 +17,16 @@ export type ChapterMapScreenProps = {
   readonly onSelectChapter: (chapterId: string) => void;
   readonly subjectHref: (subjectId: string) => string;
   readonly chapterHref: (chapterId: string) => string;
+  /** Where a student can still ask freely when a subject has no chapters yet. */
+  readonly tanyaHref: (subjectId: string) => string;
 };
 
 // The path zig-zags like a board game: each node steps right, then back.
 const INDENT = ["sm:ml-0", "sm:ml-16", "sm:ml-32", "sm:ml-16"] as const;
+
+/** Upstream pages are 0-based; the book's printed page is one more. */
+const pageLabel = (page: number | null): string | null =>
+  page === null ? null : `hal. ${page + 1}`;
 
 function SubjectSwitcher({
   view,
@@ -66,6 +72,7 @@ function Node({
   edge,
   onSelect,
   indent,
+  showBook,
 }: {
   readonly chapter: ChapterNode;
   readonly selected: boolean;
@@ -74,6 +81,7 @@ function Node({
   readonly edge: string;
   readonly onSelect: () => void;
   readonly indent: string;
+  readonly showBook: boolean;
 }) {
   const done = chapter.status === "done";
   const size = selected ? "size-16" : "size-[52px]";
@@ -113,9 +121,14 @@ function Node({
             className="text-[13px] font-extrabold"
             style={{ color: done || selected ? ink : "var(--color-ink-faint)" }}
           >
-            BAB {chapter.number}
+            BAB {chapter.bookNumber}
             {done ? <span className="sr-only"> (selesai)</span> : null}
           </span>
+          {showBook && (
+            <span className="max-w-[230px] text-[12px] font-bold text-ink-muted">
+              {chapter.documentTitle}
+            </span>
+          )}
           <span className="text-[17px] font-extrabold leading-tight">{chapter.title}</span>
           <StarRating value={chapter.stars} />
         </span>
@@ -130,14 +143,46 @@ export function ChapterMapScreen({
   onSelectChapter,
   subjectHref,
   chapterHref,
+  tanyaHref,
 }: ChapterMapScreenProps) {
   const subject = subjectById(view.subjectId);
   if (subject === undefined) return null;
   const paint = subjectPaint(subject);
+  const showBook = new Set(view.chapters.map((c) => c.documentTitle)).size > 1;
   const selected =
     view.chapters.find((c) => c.id === selectedChapterId) ??
     view.chapters.find((c) => c.status === "current") ??
     view.chapters[0];
+
+  if (view.chapters.length === 0) {
+    return (
+      <div className="flex flex-col gap-5">
+        <SubjectSwitcher view={view} subjectHref={subjectHref} />
+        <section
+          aria-labelledby="empty-title"
+          className="flex flex-wrap items-center gap-6 rounded-panel border-2 border-line bg-surface p-6"
+        >
+          <Mascot mood="happy" size={110} />
+          <div className="flex min-w-0 flex-1 basis-[260px] flex-col gap-3">
+            <h1
+              id="empty-title"
+              className="m-0 font-display text-[26px] font-semibold leading-tight"
+            >
+              Daftar bab untuk mapel ini belum tersedia
+            </h1>
+            <p className="m-0 text-[17px] font-semibold text-ink-muted">
+              Buku untuk {subject.name} belum mengirim daftar babnya. Kamu tetap bisa belajar dengan
+              bertanya langsung lewat Tanya.
+            </p>
+            <ButtonLink href={tanyaHref(view.subjectId)} size="lg" className="self-start">
+              Mulai Tanya gratis
+            </ButtonLink>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <SubjectSwitcher view={view} subjectHref={subjectHref} />
@@ -172,6 +217,7 @@ export function ChapterMapScreen({
                 ink={paint.ink}
                 edge={paint.edge}
                 indent={INDENT[i % INDENT.length] ?? ""}
+                showBook={showBook}
                 onSelect={() => onSelectChapter(c.id)}
               />
             ))}
@@ -189,12 +235,45 @@ export function ChapterMapScreen({
                 pertanyaanku, ya.
               </div>
             </div>
-            <h2
-              id="start-title"
-              className="m-0 font-display text-[24px] font-semibold leading-tight"
-            >
-              Bab {selected.number}: {selected.title}
-            </h2>
+            <div>
+              <h2
+                id="start-title"
+                className="m-0 font-display text-[24px] font-semibold leading-tight"
+              >
+                Bab {selected.bookNumber}: {selected.title}
+              </h2>
+              {showBook && (
+                <p className="m-0 mt-1 text-[14px] font-bold text-ink-muted">
+                  {selected.documentTitle}
+                </p>
+              )}
+            </div>
+            {selected.topics.length > 0 && (
+              <section aria-labelledby="materi-title" className="flex flex-col gap-2">
+                <h3 id="materi-title" className="m-0 text-[16px] font-extrabold">
+                  Materi dalam bab ini
+                </h3>
+                <ol className="m-0 flex list-none flex-col gap-2 p-0">
+                  {selected.topics.map((topic) => (
+                    <li
+                      key={topic.title}
+                      className="flex items-start gap-2 text-[15px] font-semibold"
+                    >
+                      <span className="font-extrabold text-primary-ink">•</span>
+                      <span>
+                        {topic.title}
+                        {pageLabel(topic.page) !== null && (
+                          <span className="font-bold text-ink-muted">
+                            {" "}
+                            ({pageLabel(topic.page)})
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
             <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
               {["Penjelasan dari buku", "Pertanyaan cek paham", "Kuis kecil, dapat bintang"].map(
                 (label, i) => (

@@ -32,7 +32,7 @@ use crate::routes::progress_dto::{
     ProgressDto, RecentSessionDto, SessionKindDto, SubjectProgressDto, TopicProgressDto,
 };
 use crate::routes::root::{Health as RootHealth, Ready};
-use crate::routes::subjects::{ChapterDto, ChaptersDto, SubjectDto, SubjectsDto};
+use crate::routes::subjects::{ChapterDto, ChapterTopicDto, ChaptersDto, SubjectDto, SubjectsDto};
 use crate::routes::tanya::{
     ConversationDto, ConversationListDto, ConversationModeDto, CreateConversationRequest,
     MessageDto, MessageListDto, MessageRoleDto, RenameConversationRequest, SourceDto,
@@ -104,6 +104,7 @@ use crate::wire::mastery::{MasteryLevelDto, TrendDto};
             SubjectDto,
             SubjectsDto,
             ChapterDto,
+            ChapterTopicDto,
             ChaptersDto,
             CreateLessonRequest,
             PatchLessonRequest,
