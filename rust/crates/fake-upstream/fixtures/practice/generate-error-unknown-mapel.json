@@ -1,0 +1,7 @@
+{
+ "error": {
+  "message": "Unknown mapel \"Astrologi\" for this assistant. Call GET /api/v1/mapel for the list. Available: Agama Buddha, Agama Hindu, Agama Islam, Agama Katolik, Agama Khonghucu, Agama Kristen, Bahasa Indonesia, Bahasa Inggris, Informatika, IPA, IPS, Koding & Kecerdasan Artifisial, Matematika, Pendidikan Kepercayaan, Pendidikan Pancasila, PJOK, Prakarya, Seni Budaya",
+  "type": "invalid_request_error",
+  "code": "unknown_mapel"
+ }
+}

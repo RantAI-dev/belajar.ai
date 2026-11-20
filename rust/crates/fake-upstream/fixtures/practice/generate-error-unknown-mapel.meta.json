@@ -1,0 +1,13 @@
+{
+ "request": {
+  "path": "/api/v1/practice/generate",
+  "body": {
+   "mapel": "Astrologi",
+   "topic": "Pemuaian",
+   "practice_type": "mcq_normal",
+   "total_questions": 5
+  }
+ },
+ "status": 400,
+ "content_type": "application/json"
+}

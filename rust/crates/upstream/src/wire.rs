@@ -10,6 +10,8 @@ use belajar_ports::upstream::{
     PracticeOption, PracticeProgress, PracticeQuestion, PracticeRequest, PracticeSet,
     PracticeStage, PracticeType, QuestionKind, QuestionScore, Source, UpstreamError,
 };
+use std::collections::BTreeMap;
+
 use eventsource_stream::Event;
 use serde::{Deserialize, Serialize};
 
@@ -225,69 +227,93 @@ impl ProgressWire {
 
 // ===== practice set =================================================================================================
 
+// The real set, as recorded in `fake-upstream/fixtures/practice/`: a question is `question_id`,
+// `type` (`mcq_single` | `mcq_multi`), `question`, an optional `scenario` (story questions),
+// `options` as a map from letter to text, `answer_key` as one letter or a list, and `pembahasan`.
+// Fields we do not show (`materi`, `topic`, `report`, ...) stay in `raw` for grading.
+
 #[derive(Debug, Deserialize)]
 pub(crate) struct PracticeSetWire {
-    #[serde(default)]
     questions: Vec<QuestionWire>,
+    /// Older sets put one shared story on the set instead of a `scenario` per question.
+    story: Option<SharedStoryWire>,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct SharedStoryWire {
+    title: String,
+    text: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct QuestionWire {
-    id: String,
+    question_id: String,
     #[serde(rename = "type")]
     kind: String,
-    story: Option<String>,
     question: String,
-    #[serde(default)]
-    options: Vec<OptionWire>,
-    #[serde(default)]
-    answer: Vec<String>,
-    #[serde(default)]
-    explanation: String,
-    source: Option<SourceWire>,
+    scenario: Option<String>,
+    /// A `BTreeMap` puts the options in letter order, whatever order the object had.
+    options: BTreeMap<String, String>,
+    answer_key: AnswerKeyWire,
+    pembahasan: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct OptionWire {
-    label: String,
-    text: String,
+#[serde(untagged)]
+pub(crate) enum AnswerKeyWire {
+    One(String),
+    Many(Vec<String>),
+}
+
+impl AnswerKeyWire {
+    fn into_labels(self) -> Vec<String> {
+        match self {
+            Self::One(label) => vec![label],
+            Self::Many(labels) => labels,
+        }
+    }
 }
 
 impl PracticeSetWire {
     fn into_set(self, raw: serde_json::Value) -> Result<PracticeSet, String> {
+        let shared_story = self
+            .story
+            .map(|story| format!("{}\n\n{}", story.title, story.text));
         let questions = self
             .questions
             .into_iter()
-            .map(|wire| wire.into_question())
+            .map(|wire| wire.into_question(shared_story.as_deref()))
             .collect::<Result<Vec<_>, _>>()?;
         Ok(PracticeSet { questions, raw })
     }
 }
 
 impl QuestionWire {
-    fn into_question(self) -> Result<PracticeQuestion, String> {
-        let kind = match self.kind.as_str() {
-            "mcq_normal" => QuestionKind::Single,
-            "mcq_multiple_correct" => QuestionKind::Multiple,
-            "mcq_story" => QuestionKind::Story,
-            other => return Err(other.to_owned()),
+    fn into_question(self, shared_story: Option<&str>) -> Result<PracticeQuestion, String> {
+        let story = self
+            .scenario
+            .filter(|scenario| !scenario.trim().is_empty())
+            .or_else(|| shared_story.map(str::to_owned));
+        let kind = match (self.kind.as_str(), &story) {
+            ("mcq_multi", _) => QuestionKind::Multiple,
+            ("mcq_single", Some(_)) => QuestionKind::Story,
+            ("mcq_single", None) => QuestionKind::Single,
+            (other, _) => return Err(other.to_owned()),
         };
         Ok(PracticeQuestion {
-            id: self.id,
+            id: self.question_id,
             kind,
-            story: self.story,
+            story,
             stem: self.question,
             options: self
                 .options
                 .into_iter()
-                .map(|option| PracticeOption {
-                    label: option.label,
-                    text: option.text,
-                })
+                .map(|(label, text)| PracticeOption { label, text })
                 .collect(),
-            answer: self.answer,
-            explanation: self.explanation,
-            source: self.source.map(|wire| wire.into_source()),
+            answer: self.answer_key.into_labels(),
+            explanation: self.pembahasan,
+            // The practice API cites no page per question.
+            source: None,
         })
     }
 }
@@ -325,13 +351,8 @@ pub(crate) struct StreamErrorWire {
 #[derive(Debug, Serialize)]
 pub(crate) struct GradeBody {
     practice: serde_json::Value,
-    answers: Vec<GradeAnswerWire>,
-}
-
-#[derive(Debug, Serialize)]
-pub(crate) struct GradeAnswerWire {
-    question_id: String,
-    selected: Vec<String>,
+    /// `question_id` -> the letters picked; the real grade reads an object, not a list.
+    answers: BTreeMap<String, Vec<String>>,
 }
 
 impl GradeBody {
@@ -340,36 +361,33 @@ impl GradeBody {
             practice: set.raw.clone(),
             answers: answers
                 .iter()
-                .map(|answer| GradeAnswerWire {
-                    question_id: answer.question_id.clone(),
-                    selected: answer.selected.clone(),
-                })
+                .map(|answer| (answer.question_id.clone(), answer.selected.clone()))
                 .collect(),
         }
     }
 }
 
+/// Only the per-question verdicts are read: the server derives stars and mastery from them. The
+/// response also carries `score`, `materi` and `recommendations`, which we do not use.
 #[derive(Debug, Deserialize)]
 pub(crate) struct GradeResponseWire {
-    #[serde(default)]
-    results: Vec<QuestionScoreWire>,
+    questions: Vec<QuestionScoreWire>,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct QuestionScoreWire {
     question_id: String,
     correct: bool,
-    score: f64,
 }
 
 impl GradeResponseWire {
     pub(crate) fn into_scores(self) -> Vec<QuestionScore> {
-        self.results
+        self.questions
             .into_iter()
             .map(|wire| QuestionScore {
                 question_id: wire.question_id,
                 correct: wire.correct,
-                score: wire.score,
+                score: if wire.correct { 1.0 } else { 0.0 },
             })
             .collect()
     }
@@ -714,74 +732,122 @@ mod tests {
         assert_eq!(bad.into_progress().unwrap_err(), "dreaming");
     }
 
-    const RESULT: &str = r#"{"practice_id":"fake-1","practice_type":"mcq_normal","mapel":"IPA","topic":"Pemuaian","questions":[{"id":"q1","type":"mcq_normal","story":null,"question":"Alat untuk mengukur suhu adalah ...","options":[{"label":"A","text":"Termometer"},{"label":"B","text":"Barometer"}],"answer":["A"],"explanation":"Suhu diukur dengan termometer.","source":{"title":"IPA VII","section":"Bab 5","documentId":"kb-ipa-7","page":70,"number":1,"cited":true,"page_url":"http://u/p.svg"}}]}"#;
+    // Cut down from `fake-upstream/fixtures/practice/generate-mcq_mixed-json.json`.
+    const RESULT: &str = r#"{"practice_type":"mcq_mixed","topic":"Pemuaian","topics":["Pemuaian"],"total_questions":3,"materi_titles":["Koefisien Muai","Gaya Angkat","Pemuaian"],"questions":[{"question_id":"q1","type":"mcq_multi","materi":"Koefisien Muai","question":"Manakah dua pernyataan berikut yang benar? (pilih dua)","options":{"C":"Benda yang sulit memuai hampir tidak berubah","A":"Benda yang mudah memuai cepat berubah ukuran","B":"Pemuaian hanya diukur dengan mata","D":"Pemuaian hanya untuk keperluan ilmiah"},"answer_key":["A","C"],"pembahasan":"Jawaban yang benar adalah A dan C.","topic":"Pemuaian"},{"question_id":"q2","type":"mcq_single","materi":"Gaya Angkat","question":"Apa yang menyebabkan wadah tersebut bisa terbang?","scenario":"Sinta membuat model balon udara dari kertas bekas.","options":{"A":"Api lilin mendorong wadah","B":"Udara panas di dalam wadah memuai dan menjadi lebih ringan"},"answer_key":"B","pembahasan":"Jawaban yang benar adalah B.","topic":"Pemuaian"},{"question_id":"q3","type":"mcq_single","materi":"Pemuaian","question":"Bertambahnya ukuran benda karena kenaikan suhu disebut ...","options":{"A":"Pemuaian","B":"Penguapan"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A.","topic":"Pemuaian"}],"report":{"requested":5,"delivered":3,"adapter_calls":6,"checks_run":6,"seconds":8.4,"rejected":{"format":0,"key_unsupported":0,"twin_keys":0,"ambiguous":0,"ai_checker":1,"duplicate":0},"skipped_topics":[]}}"#;
+
+    fn result_set(data: &str) -> PracticeSet {
+        let SseStep::Finish(items) = practice_translate(event("result", data)) else {
+            panic!("the result event finishes the stream");
+        };
+        let Some(PracticeEvent::Result(set)) = items.into_iter().next() else {
+            panic!("the result item is a set");
+        };
+        set
+    }
 
     #[test]
     fn the_result_event_keeps_the_raw_set_and_converts_questions() {
-        let SseStep::Finish(items) = practice_translate(event("result", RESULT)) else {
-            panic!("the result event finishes the stream");
-        };
-        let PracticeEvent::Result(set) = &items[0] else {
-            panic!("the result item is a set");
-        };
-        assert_eq!(set.raw["practice_id"], serde_json::json!("fake-1"));
+        let set = result_set(RESULT);
+        assert_eq!(set.raw["report"]["delivered"], serde_json::json!(3));
         assert_eq!(set.raw["topic"], serde_json::json!("Pemuaian"));
-        let question = &set.questions[0];
-        assert_eq!(question.id, "q1");
-        assert_eq!(question.kind, QuestionKind::Single);
-        assert_eq!(question.story, None);
-        assert_eq!(question.stem, "Alat untuk mengukur suhu adalah ...");
-        assert_eq!(question.answer, vec!["A".to_owned()]);
-        assert_eq!(question.options[1].text, "Barometer");
-        let source = question.source.as_ref().unwrap();
-        assert_eq!(source.document_id, "kb-ipa-7");
-        assert_eq!(source.page_url.as_deref(), Some("http://u/p.svg"));
+
+        let multi = &set.questions[0];
+        assert_eq!(multi.id, "q1");
+        assert_eq!(multi.kind, QuestionKind::Multiple);
+        assert_eq!(multi.answer, vec!["A".to_owned(), "C".to_owned()]);
+        let labels: Vec<&str> = multi.options.iter().map(|o| o.label.as_str()).collect();
+        assert_eq!(labels, ["A", "B", "C", "D"], "options in letter order");
+        assert_eq!(
+            multi.options[2].text,
+            "Benda yang sulit memuai hampir tidak berubah"
+        );
+        assert_eq!(multi.explanation, "Jawaban yang benar adalah A dan C.");
+        assert_eq!(multi.source, None);
+
+        let story = &set.questions[1];
+        assert_eq!(story.kind, QuestionKind::Story);
+        assert_eq!(
+            story.story.as_deref(),
+            Some("Sinta membuat model balon udara dari kertas bekas.")
+        );
+        assert_eq!(story.answer, vec!["B".to_owned()]);
+
+        let single = &set.questions[2];
+        assert_eq!(single.kind, QuestionKind::Single);
+        assert_eq!(single.story, None);
+        assert_eq!(
+            single.stem,
+            "Bertambahnya ukuran benda karena kenaikan suhu disebut ..."
+        );
+    }
+
+    #[test]
+    fn a_legacy_shared_story_becomes_the_story_of_each_question() {
+        let legacy = RESULT.replacen(
+            r#""total_questions":3,"#,
+            r#""total_questions":3,"story":{"title":"Balon","text":"Sinta menerbangkan balon."},"#,
+            1,
+        );
+        let set = result_set(&legacy);
+        assert_eq!(set.questions[2].kind, QuestionKind::Story);
+        assert_eq!(
+            set.questions[2].story.as_deref(),
+            Some("Balon\n\nSinta menerbangkan balon.")
+        );
+        // A question's own scenario wins over the shared story.
+        assert_eq!(
+            set.questions[1].story.as_deref(),
+            Some("Sinta membuat model balon udara dari kertas bekas.")
+        );
     }
 
     #[test]
     fn an_unknown_question_type_or_stage_is_a_protocol_error() {
-        let broken = RESULT.replace("mcq_normal", "mcq_esai");
+        let broken = RESULT.replace("mcq_single", "mcq_esai");
         assert!(matches!(
             practice_translate(event("result", &broken)),
+            SseStep::Fail(UpstreamError::Protocol(_))
+        ));
+        // The shape belajar once assumed (options as a list) is not the real one.
+        let invented = RESULT.replace(
+            r#""options":{"A":"Pemuaian","B":"Penguapan"}"#,
+            r#""options":[{"label":"A","text":"Pemuaian"}]"#,
+        );
+        assert!(matches!(
+            practice_translate(event("result", &invented)),
             SseStep::Fail(UpstreamError::Protocol(_))
         ));
     }
 
     #[test]
-    fn the_grade_body_keeps_the_raw_set_and_the_answers() {
-        let raw: serde_json::Value = serde_json::from_str(RESULT).unwrap();
-        let set = PracticeSet {
-            questions: Vec::new(),
-            raw: raw.clone(),
-        };
+    fn the_grade_body_keeps_the_raw_set_and_sends_answers_as_an_object() {
+        let set = result_set(RESULT);
         let body = serde_json::to_value(GradeBody::from(
             &set,
             &[
                 PracticeAnswer {
-                    question_id: "q1".into(),
-                    selected: vec!["A".into()],
+                    question_id: "q2".into(),
+                    selected: vec!["B".into()],
                 },
                 PracticeAnswer {
-                    question_id: "q2".into(),
-                    selected: vec!["A".into(), "C".into()],
+                    question_id: "q1".into(),
+                    selected: vec!["C".into(), "A".into()],
                 },
             ],
         ))
         .unwrap();
-        assert_eq!(body["practice"], raw);
+        assert_eq!(body["practice"], set.raw);
         assert_eq!(
             body["answers"],
-            serde_json::json!([
-                {"question_id": "q1", "selected": ["A"]},
-                {"question_id": "q2", "selected": ["A", "C"]}
-            ])
+            serde_json::json!({ "q1": ["C", "A"], "q2": ["B"] })
         );
     }
 
     #[test]
-    fn grade_results_map_to_scores() {
+    fn grade_verdicts_map_to_scores() {
+        // Cut down from `fake-upstream/fixtures/practice/grade-mcq_multiple_correct.json`.
         let wire: GradeResponseWire = serde_json::from_str(
-            r#"{"results":[{"question_id":"q1","correct":true,"score":1.0},{"question_id":"q2","correct":false,"score":0.0}],"score":1.0}"#,
+            r#"{"score":{"correct":1,"total":2,"percentage":50},"questions":[{"question_id":"q1","materi":"Koefisien Muai","correct":true,"answered":true,"your_answer":["A","C"],"answer_key":["A","C"],"pembahasan":"..."},{"question_id":"q2","materi":"Perubahan Benda","correct":false,"answered":true,"your_answer":["A"],"answer_key":["C","D"],"pembahasan":"..."}],"materi":[],"recommendations":[]}"#,
         )
         .unwrap();
         assert_eq!(
@@ -799,5 +865,7 @@ mod tests {
                 },
             ]
         );
+        // The invented `results` list is not the real response.
+        assert!(serde_json::from_str::<GradeResponseWire>(r#"{"results":[]}"#).is_err());
     }
 }

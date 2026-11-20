@@ -1,0 +1,35 @@
+event: progress
+data: {"stage":"retrieval","delivered":0,"adapter_calls":0,"total":5,"elapsed_s":0}
+
+event: progress
+data: {"stage":"generating","delivered":0,"total":5,"adapter_calls":0,"elapsed_s":0}
+
+event: progress
+data: {"stage":"checking","delivered":0,"total":5,"adapter_calls":5,"elapsed_s":3.1}
+
+event: progress
+data: {"stage":"generating","delivered":0,"total":5,"adapter_calls":5,"elapsed_s":3.8}
+
+event: progress
+data: {"stage":"checking","delivered":0,"total":5,"adapter_calls":10,"elapsed_s":7}
+
+event: progress
+data: {"stage":"checking","delivered":1,"total":5,"adapter_calls":10,"elapsed_s":7.4}
+
+event: progress
+data: {"stage":"checking","delivered":2,"total":5,"adapter_calls":10,"elapsed_s":7.4}
+
+event: progress
+data: {"stage":"generating","delivered":2,"total":5,"adapter_calls":10,"elapsed_s":7.4}
+
+: ping
+
+event: progress
+data: {"stage":"checking","delivered":2,"total":5,"adapter_calls":13,"elapsed_s":10.5}
+
+event: progress
+data: {"stage":"labelling","delivered":2,"adapter_calls":13,"total":5,"elapsed_s":11.1}
+
+event: result
+data: {"practice_type":"mcq_multiple_correct","topic":"Pemuaian","topics":["Pemuaian"],"total_questions":2,"materi_titles":["Pemuaian Gas","Perubahan Benda"],"questions":[{"question_id":"q1","type":"mcq_multi","materi":"Pemuaian Gas","question":"Sifat pemuaian gas dapat dimanfaatkan untuk menerbangkan balon udara dan memompa ban sepeda. (pilih dua)","options":{"A":"membuat balon udara sederhana dengan memanfaatkan udara panas","B":"memompa ban sepeda tidak perlu terlalu kencang","C":"memanfaatkan pemuaian zat cair pada termometer ruangan","D":"membuat wadah kubah dari koran bekas"},"answer_key":["A","B"],"pembahasan":"Jawaban yang benar adalah A. membuat balon udara sederhana dengan memanfaatkan udara panas dan B. memompa ban sepeda tidak perlu terlalu kencang. Di buku tertulis: \"Sifat pemuaian gas dapat kita manfaatkan dalam kehidupan sehari-hari, misalnya untuk menerbangkan balon udara, memompa ban sepeda tidak perlu terlalu kencang dan jangan meletakkan balon di tempat yang panas.\"","topic":"Pemuaian"},{"question_id":"q2","type":"mcq_multi","materi":"Perubahan Benda","question":"Manakah dua hal berikut terkait perubahan benda? (pilih dua)","options":{"A":"Pemuaian terjadi pada zat padat","B":"Pemuaian adalah perubahan yang mudah diamati secara langsung","C":"Gelas menjadi retak karena pemuaian yang tidak merata","D":"Ukuran benda bertambah saat suhu benda naik"},"answer_key":["C","D"],"pembahasan":"Jawaban yang benar adalah C. Gelas menjadi retak karena pemuaian yang tidak merata dan D. Ukuran benda bertambah saat suhu benda naik. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\"","topic":"Pemuaian"}],"report":{"requested":5,"delivered":2,"adapter_calls":13,"checks_run":11,"seconds":11.6,"rejected":{"format":0,"key_unsupported":0,"twin_keys":0,"ambiguous":2,"ai_checker":9,"duplicate":0},"skipped_topics":[]}}
+

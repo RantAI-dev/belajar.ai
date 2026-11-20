@@ -167,7 +167,10 @@ fn sse_response(
                         subject_id: &generation.subject_id,
                         topic: &generation.topic,
                         practice_type: generation.practice_type,
-                        total_questions: generation.total_questions,
+                        // The upstream may deliver fewer than asked for (its checks drop
+                        // questions); the set counts what it holds.
+                        total_questions: u16::try_from(set.questions.len())
+                            .unwrap_or(generation.total_questions),
                         practice: &set,
                         created_at: now,
                     };

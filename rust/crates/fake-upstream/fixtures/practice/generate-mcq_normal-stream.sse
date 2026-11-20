@@ -1,0 +1,30 @@
+event: progress
+data: {"stage":"retrieval","delivered":0,"adapter_calls":0,"total":5,"elapsed_s":0}
+
+event: progress
+data: {"stage":"generating","delivered":0,"total":5,"adapter_calls":0,"elapsed_s":0}
+
+event: progress
+data: {"stage":"checking","delivered":0,"total":5,"adapter_calls":5,"elapsed_s":2.7}
+
+event: progress
+data: {"stage":"checking","delivered":1,"total":5,"adapter_calls":5,"elapsed_s":3}
+
+event: progress
+data: {"stage":"checking","delivered":2,"total":5,"adapter_calls":5,"elapsed_s":3}
+
+event: progress
+data: {"stage":"checking","delivered":3,"total":5,"adapter_calls":5,"elapsed_s":3}
+
+event: progress
+data: {"stage":"checking","delivered":4,"total":5,"adapter_calls":5,"elapsed_s":3}
+
+event: progress
+data: {"stage":"checking","delivered":5,"total":5,"adapter_calls":5,"elapsed_s":3}
+
+event: progress
+data: {"stage":"labelling","delivered":5,"adapter_calls":5,"total":5,"elapsed_s":3}
+
+event: result
+data: {"practice_type":"mcq_normal","topic":"Pemuaian","topics":["Pemuaian"],"total_questions":5,"materi_titles":["Pemuaian zat padat","Koefisien muai","Pemuaian benda","Hubungan muai","Penyebab pemuaian"],"questions":[{"question_id":"q1","type":"mcq_single","materi":"Pemuaian zat padat","question":"Apa yang terjadi pada zat padat ketika partikel-partikelnya bergerak makin cepat?","options":{"A":"Zat padat tersebut tetap ukurannya","B":"Zat padat tersebut berubah wujud","C":"Zat padat tersebut memuai","D":"Zat padat tersebut menyusut"},"answer_key":"C","pembahasan":"Jawaban yang benar adalah C. Zat padat tersebut memuai. Di buku tertulis: \"Jarak antara partikel makin besar, zat padat itu memuai, bertambah panjang, bertambah luas, dan akhirnya bertambah volumenya.\"","topic":"Pemuaian"},{"question_id":"q2","type":"mcq_single","materi":"Koefisien muai","question":"Berapakah koefisien muai luas lempengan baja?","options":{"A":"0,000022/oC","B":"Tiga kali koefisien muai panjang","C":"Sama dengan koefisien muai panjang","D":"Dua kali koefisien muai panjang"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A. 0,000022/oC. Di buku tertulis: \"Berdasarkan data dalam Tabel 7.1, maka lempengan baja memiliki koeisien muai luas sebesar 0,000022/oC.\"","topic":"Pemuaian"},{"question_id":"q3","type":"mcq_single","materi":"Pemuaian benda","question":"Peristiwa apa yang terjadi ketika suhu benda naik sehingga ukuran benda bertambah?","options":{"A":"Pemuaian","B":"Penyusutan","C":"Penguapan","D":"Pembekuan"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A. Pemuaian. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\"","topic":"Pemuaian"},{"question_id":"q4","type":"mcq_single","materi":"Hubungan muai","question":"Koeisien muai ruang dibandingkan dengan koeisien muai panjang adalah tiga kali lebih besar.","options":{"A":"Dua kali lebih besar","B":"Satu kali lebih besar","C":"Tiga kali lebih besar","D":"Sepuluh kali lebih besar"},"answer_key":"C","pembahasan":"Jawaban yang benar adalah C. Tiga kali lebih besar. Di buku tertulis: \"Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang.\"","topic":"Pemuaian"},{"question_id":"q5","type":"mcq_single","materi":"Penyebab pemuaian","question":"Apa yang menyebabkan suatu benda memuai?","options":{"A":"Perubahan suhu secara drastis","B":"Pengaruh kalor","C":"Perubahan bentuk benda","D":"Kondisi benda yang padat"},"answer_key":"B","pembahasan":"Jawaban yang benar adalah B. Pengaruh kalor. Di buku tertulis: \"Pemuaian adalah peristiwa memuai, di mana suatu benda ukurannya membesar, baik panjang, lebar, tinggi, luas, maupun volume yang dipengaruhi kalor.\"","topic":"Pemuaian"}],"report":{"requested":5,"delivered":5,"adapter_calls":5,"checks_run":5,"seconds":4.4,"rejected":{"format":0,"key_unsupported":0,"twin_keys":0,"ambiguous":0,"ai_checker":0,"duplicate":0},"skipped_topics":[]}}
+

@@ -1,0 +1,13 @@
+{
+ "request": {
+  "path": "/api/v1/practice/generate",
+  "body": {
+   "mapel": "IPA",
+   "topic": "Pemuaian",
+   "practice_type": "essay",
+   "total_questions": 5
+  }
+ },
+ "status": 400,
+ "content_type": "application/json"
+}

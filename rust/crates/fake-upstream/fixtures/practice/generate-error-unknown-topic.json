@@ -1,0 +1,7 @@
+{
+ "error": {
+  "message": "I don't know based on the available books.",
+  "type": "not_grounded",
+  "code": "topic_not_in_books"
+ }
+}
