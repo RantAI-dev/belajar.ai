@@ -25,13 +25,17 @@ pub(crate) fn source_json(source: &SeedSource, number: u32, cited: bool, base_ur
     })
 }
 
-/// The sources of an answer: the first cited, the second not.
-pub(crate) fn sources_json(sources: &[SeedSource], base_url: &str) -> Value {
+/// The sources of an answer. A source is cited when the answer text marks it `[n]`, like
+/// the real upstream; the others were retrieved but not used.
+pub(crate) fn sources_json(sources: &[SeedSource], text: &str, base_url: &str) -> Value {
     Value::Array(
         sources
             .iter()
-            .enumerate()
-            .map(|(index, source)| source_json(source, index as u32 + 1, index == 0, base_url))
+            .zip(1u32..)
+            .map(|(source, number)| {
+                let cited = text.contains(&format!("[{number}]"));
+                source_json(source, number, cited, base_url)
+            })
             .collect(),
     )
 }
@@ -295,5 +299,30 @@ mod tests {
             ]
         );
         assert!(MAPEL.iter().all(|(_, _, count)| *count > 0));
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, reason = "tests")]
+mod cited_tests {
+    use super::*;
+
+    const PAGE: SeedSource = SeedSource {
+        title: "IPA",
+        section: "Bab 5",
+        document_id: "kb-ipa-7",
+        page: 78,
+    };
+
+    #[test]
+    fn a_source_is_cited_exactly_when_the_text_marks_its_number() {
+        let json = sources_json(&[PAGE, PAGE, PAGE], "satu [1], dua [2].", "http://f");
+        let cited: Vec<bool> = json
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s.get("cited").and_then(Value::as_bool).unwrap())
+            .collect();
+        assert_eq!(cited, vec![true, true, false]);
     }
 }
