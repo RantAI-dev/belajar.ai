@@ -21,7 +21,7 @@ const LEGEND: ReadonlyArray<{ readonly level: MasteryLevel; readonly meaning: st
 function Legend() {
   return (
     <details className="rounded-[16px] border-2 border-line bg-page px-4 py-2.5">
-      <summary className="cursor-pointer text-[15px] font-extrabold text-primary">
+      <summary className="cursor-pointer text-[15px] font-extrabold text-primary-ink">
         Arti tingkat penguasaan
       </summary>
       <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
@@ -64,7 +64,7 @@ function SubjectDetails({ subject }: { readonly subject: SubjectBlock }) {
               · {subject.lessonsLabel}
             </span>
           </span>
-          <span aria-hidden="true" className="text-[15px] font-extrabold text-primary">
+          <span aria-hidden="true" className="text-[15px] font-extrabold text-primary-ink">
             <span className="group-open:hidden">Lihat</span>
             <span className="hidden group-open:inline">Tutup</span>
           </span>
