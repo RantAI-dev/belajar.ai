@@ -25,6 +25,10 @@ use crate::routes::practice::practice_generate::{
 };
 use crate::routes::practice::practice_submit::{SubmitAnswerDto, SubmitPracticeRequest};
 use crate::routes::practice::{practice_generate, practice_submit, practice_views};
+use crate::routes::progress_dto::{
+    ActivityDto, ActivityWindowDto, ChapterProgressDto, DayActivityDto, PeriodSummaryDto,
+    ProgressDto, RecentSessionDto, SessionKindDto, SubjectProgressDto, TopicProgressDto,
+};
 use crate::routes::root::{Health as RootHealth, Ready};
 use crate::routes::subjects::{ChapterDto, ChaptersDto, SubjectDto, SubjectsDto};
 use crate::routes::tanya::{
@@ -33,15 +37,17 @@ use crate::routes::tanya::{
 };
 use crate::routes::tanya_messages::{DeltaData, SendMessageRequest};
 use crate::routes::{
-    auth, health, home, lessons, me, openapi, root, subjects, tanya, tanya_messages, tanya_pages,
+    auth, health, home, lessons, me, openapi, progress, root, subjects, tanya, tanya_messages,
+    tanya_pages,
 };
+use crate::wire::mastery::{MasteryLevelDto, TrendDto};
 
 #[derive(OpenApi)]
 #[openapi(
     info(
         title = "belajar.ai",
         version = env!("CARGO_PKG_VERSION"),
-        description = "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+        description = "Accounts, profiles, sessions, subjects, guided lessons, the home screen, progress, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     ),
     paths(
         auth::register,
@@ -57,6 +63,7 @@ use crate::routes::{
         lessons::patch_lesson,
         lessons::complete_lesson,
         home::get_home,
+        progress::get_progress,
         tanya::create_conversation,
         tanya::get_conversation,
         tanya::patch_conversation,
@@ -122,6 +129,18 @@ use crate::routes::{
             SubmitAnswerDto,
             TopicMasteryDto,
             TopicMasteryListDto,
+            MasteryLevelDto,
+            TrendDto,
+            ProgressDto,
+            PeriodSummaryDto,
+            SubjectProgressDto,
+            TopicProgressDto,
+            ChapterProgressDto,
+            ActivityDto,
+            ActivityWindowDto,
+            DayActivityDto,
+            SessionKindDto,
+            RecentSessionDto,
             ErrorBody,
             FieldError,
             RootHealth,

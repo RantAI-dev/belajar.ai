@@ -5,3 +5,4 @@ pub mod cursor;
 pub mod extract;
 pub mod fields;
 pub mod instant;
+pub mod mastery;
