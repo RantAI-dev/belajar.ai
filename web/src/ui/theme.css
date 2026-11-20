@@ -2,7 +2,9 @@
 
 /* THEME CONTRACT: <html data-theme="light|dark">; every colour is a custom property here and its dark value is an override under [data-theme="dark"]. */
 
-/* RantAI Lakehouse colour tokens plus the kid-friendly palette from the owner's mockup. Every
+/* The kid-friendly palette, tuned to the logo and mascot (primary: the logo blue; accent: the cap's
+ * teal; yellow for stars and rewards; pink only in the mascot's blush, never for errors). Gradients
+ * belong to the mascot body and the logo mark alone; everything else is flat. Every
  * component colour comes from a token: theme.test.ts checks the pairs in tokenPairs.ts in both
  * themes, rawColours.test.ts fails on a colour literal anywhere else in src. `static` keeps every
  * token emitted, including those only read through var() from inline styles. */
@@ -10,40 +12,40 @@
   --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
   --font-display: "Fredoka", "Nunito", sans-serif;
 
-  --color-primary: #0069a8;
-  --color-primary-strong: #00598a;
-  --color-primary-edge: #004a78;
-  --color-primary-soft: #e0f0fd;
+  --color-primary: #2a62d8;
+  --color-primary-strong: #2253bd;
+  --color-primary-edge: #1a439e;
+  --color-primary-soft: #e6eeff;
   /* Text and links in the primary hue: primary itself in light, a lighter blue in dark. */
-  --color-primary-ink: #0069a8;
-  --color-brand-sky: #5cb6f9;
-  --color-brand-navy: #050a30;
+  --color-primary-ink: #2a5bcc;
+  --color-brand-sky: #38c4cf;
+  --color-brand-navy: #1d3a9c;
   /* Google's "G" on the sign-in button: fixed by Google's branding rules, the same in both themes. */
   --color-google-red: #ea4335;
   --color-google-blue: #4285f4;
   --color-google-yellow: #fbbc05;
   --color-google-green: #34a853;
-  --color-ink: #10233a;
-  --color-ink-muted: #3d5470;
-  --color-ink-faint: #55697f;
-  --color-page: #f3f9ff;
+  --color-ink: #141f45;
+  --color-ink-muted: #3c4a70;
+  --color-ink-faint: #535f80;
+  --color-page: #f5f7ff;
   /* Cards, inputs and panels drawn on the page. */
   --color-surface: #ffffff;
-  --color-surface-alt: #f6fafe;
+  --color-surface-alt: #f7f9ff;
   /* Text and marks on a strong fill (primary, success, a subject colour). */
   --color-on-fill: #ffffff;
   /* White in both themes: the mascot's eye and the paper of its book. */
   --color-snow: #ffffff;
-  --color-line: #e2eefa;
-  --color-line-strong: #d5e3f0;
-  --color-line-sky: #c4dcf2;
-  --color-line-dashed: #c4d6e8;
+  --color-line: #e3e9fb;
+  --color-line-strong: #d4dcf2;
+  --color-line-sky: #c2cff1;
+  --color-line-dashed: #c4cfed;
   --color-track: #ffffff;
 
   /* The big coloured panels (`.on-dark`): the Beranda greeting and the celebrations. */
-  --color-hero: #0069a8;
-  --color-hero-ink-soft: #cfe7fb;
-  --color-hero-glow: #1d7fbd;
+  --color-hero: #2a62d8;
+  --color-hero-ink-soft: #e8eeff;
+  --color-hero-glow: #3f74e3;
   --color-celebrate: #22a06b;
   --color-celebrate-glow: #2bb77c;
   --color-celebrate-star-empty: #5fc596;
@@ -63,22 +65,22 @@
   --color-warm-ink: #5c4400;
   --color-warm-line: #ffe58a;
   --color-warm-icon: #b07d00;
-  --color-star: #f5b301;
+  --color-star: #ffc83d;
   --color-star-ink: #7a5a00;
-  --color-star-empty: #d5e3f0;
-  --color-sun: #ffd23f;
-  --color-sun-edge: #d9a800;
+  --color-star-empty: #d4dcf2;
+  --color-sun: #ffc83d;
+  --color-sun-edge: #d9a21a;
   --color-sun-ink: #3b2a00;
   --color-streak: #f08c1a;
   --color-streak-soft: #fff4e5;
   --color-streak-ink: #8a4b0f;
 
   /* Inline citation pills and the marker on a cited sentence (CitationPill, AnswerBubble). */
-  --color-cite-line: #388ca1;
-  --color-cite-soft: #e6f5f7;
-  --color-cite-strong: #1f5f6e;
+  --color-cite-line: #1f9c97;
+  --color-cite-soft: #e3f7f6;
+  --color-cite-strong: #17706d;
   --color-cite-marker: #ffe58a;
-  --color-cite-marker-ink: #0069a8;
+  --color-cite-marker-ink: #2a5bcc;
 
   --radius-chip: 14px;
   --radius-btn: 18px;
@@ -90,7 +92,7 @@
  * subject values mirror subjects.ts; theme.test.ts keeps the two equal. */
 :root {
   color-scheme: light;
-  --focus: #0069a8;
+  --focus: #2a62d8;
 
   --color-subject-ipa: #388ca1;
   --color-subject-ipa-ink: #1f5f6e;
@@ -163,9 +165,9 @@
   --color-brand-pink: #ff8fb1;
   --color-brand-sparkle: #ffc83d;
   /* The "belajar.ai" wordmark: navy here, a light periwinkle in the dark theme. */
-  --color-brand-wordmark: #1d3a9c;
+  --color-brand-wordmark: var(--color-brand-navy);
 
-  --color-mascot-backdrop: #dbeefe;
+  --color-mascot-backdrop: #e3ecff;
   /* Drawn on the mascot's own body, so the same in both themes. */
   --color-mascot-arm: #4cc0d8;
   --color-mascot-cap: #27aaa6;
@@ -190,27 +192,27 @@
  * >= 3:1 on the surface. Unlayered, so it beats Tailwind's theme layer. */
 [data-theme="dark"] {
   color-scheme: dark;
-  --focus: #5cb6f9;
+  --focus: #7fa3ff;
 
-  --color-primary: #0076bc;
-  --color-primary-strong: #0069a8;
-  --color-primary-edge: #003a5f;
-  --color-primary-soft: #16324f;
-  --color-primary-ink: #7cc4fa;
-  --color-ink: #eaf2fb;
-  --color-ink-muted: #b6c8dc;
-  --color-ink-faint: #93a8bf;
-  --color-page: #0b1626;
-  --color-surface: #13233a;
-  --color-surface-alt: #1a2d47;
-  --color-line: #22374f;
-  --color-line-strong: #2d4560;
-  --color-line-sky: #3b5c80;
-  --color-line-dashed: #3b5c80;
-  --color-track: #0b1626;
+  --color-primary: #3a67d8;
+  --color-primary-strong: #3460cc;
+  --color-primary-edge: #1f3d8a;
+  --color-primary-soft: #1d2a5a;
+  --color-primary-ink: #9cb8ff;
+  --color-ink: #eaf0ff;
+  --color-ink-muted: #b8c3e2;
+  --color-ink-faint: #97a2c4;
+  --color-page: #0a0f22;
+  --color-surface: #131a33;
+  --color-surface-alt: #1a2242;
+  --color-line: #232c4f;
+  --color-line-strong: #2e3860;
+  --color-line-sky: #3c4a7c;
+  --color-line-dashed: #3c4a7c;
+  --color-track: #0a0f22;
 
-  --color-hero: #0d4a78;
-  --color-hero-glow: #1a64a0;
+  --color-hero: #2549a8;
+  --color-hero-glow: #3058bd;
   --color-celebrate: #1b8156;
   --color-celebrate-glow: #23996a;
   --color-celebrate-star-empty: #4fae84;
@@ -226,13 +228,13 @@
   --color-warm-line: #6a5618;
   --color-warm-icon: #f5c542;
   --color-star-ink: #ffd76a;
-  --color-star-empty: #34506f;
+  --color-star-empty: #333f6b;
   --color-streak-soft: #3a2611;
   --color-streak-ink: #ffbf75;
 
-  --color-cite-line: #4fa3b8;
-  --color-cite-soft: #1c2b2f;
-  --color-cite-strong: #317b8d;
+  --color-cite-line: #3fb3ad;
+  --color-cite-soft: #132c30;
+  --color-cite-strong: #1c7a76;
   --color-cite-marker: #5a4a12;
   --color-cite-marker-ink: #ffe9a8;
 
@@ -294,7 +296,7 @@
   --color-avatar-5-fg: #cbbcf5;
 
   --color-brand-wordmark: #dfe6ff;
-  --color-mascot-backdrop: #1d3a5c;
+  --color-mascot-backdrop: #1f2c5a;
   --color-mascot-accent: #a9b6ff;
   --color-mascot-shadow: #050c18;
 
