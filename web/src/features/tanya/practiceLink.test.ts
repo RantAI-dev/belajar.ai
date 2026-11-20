@@ -10,6 +10,7 @@ const answer = (section?: string): TanyaMessage => ({
   sources: [
     {
       id: "a-1",
+      number: 1,
       label: "[1]",
       title: "t",
       book: "IPA Buku Siswa Kelas VII",

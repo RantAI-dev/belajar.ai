@@ -5,6 +5,7 @@ export { APP_NAME } from "./brand";
 export { Card, type CardTone } from "./Card";
 export { ChatBubble, type ChatBubbleProps } from "./ChatBubble";
 export { ChoiceButton, type ChoiceState, choiceState, letterAt } from "./ChoiceButton";
+export { CITE, CitationPill, type CitationPillProps } from "./CitationPill";
 export { contrastRatio } from "./contrast";
 export { cx } from "./cx";
 export { SelectField, type SelectOption, TextField } from "./Field";

@@ -1,30 +1,58 @@
-import { useState } from "react";
-import { BulbIcon, ChatBubble, PagePreview, SourceChip } from "../../ui";
+import { useMemo, useState } from "react";
+import { BulbIcon, ChatBubble, CITE, CitationPill, PagePreview, SourceChip } from "../../ui";
+import { type CiteFocus, citationSegments, markedCite, pressCite } from "./citations";
 import type { TanyaMessage } from "./types";
 
 type Answer = Extract<TanyaMessage, { kind: "answer" }>;
 
 export function AnswerBubble({ answer }: { readonly answer: Answer }) {
-  const [openSource, setOpenSource] = useState<string | null>(answer.sources[0]?.id ?? null);
+  const [focus, setFocus] = useState<CiteFocus>({
+    sourceId: answer.sources[0]?.id ?? null,
+    citeId: null,
+  });
   const streaming = answer.status === "streaming";
-  const active = answer.sources.find((s) => s.id === openSource);
+  const allSources = answer.allSources ?? answer.sources;
+  const active = allSources.find((s) => s.id === focus.sourceId);
   const hasText = answer.parts.some((p) => p.text.length > 0);
-  // Parts are an ordered split of one answer; position plus text is a stable key.
-  const parts = answer.parts.map((p, i) => ({ ...p, key: `${i}:${p.text}` }));
+  const segments = useMemo(
+    () => citationSegments(answer.parts, allSources, streaming),
+    [answer.parts, allSources, streaming],
+  );
+  const marked = markedCite(segments, focus);
+  // Segments are an ordered split of one answer; position plus content is a stable key.
+  const keyed = segments.map((s, i) => ({
+    s,
+    key: `${i}:${s.kind === "text" ? s.text : s.id}`,
+  }));
   return (
     <ChatBubble from="mascot" mood={streaming ? "thinking" : "happy"} streaming={streaming}>
       {hasText ? (
         <>
           <p className="m-0 text-[18px] font-semibold leading-[1.65]">
-            {parts.map((p) =>
-              p.emphasis === true ? (
-                <strong key={p.key} className="text-primary">
-                  {p.text}
+            {keyed.map(({ s, key }) => {
+              if (s.kind === "cite")
+                return (
+                  <CitationPill
+                    key={key}
+                    label={s.label}
+                    ariaLabel={s.ariaLabel}
+                    pressed={s.sourceId === focus.sourceId}
+                    onPress={() => setFocus((f) => pressCite(segments, f, s))}
+                  />
+                );
+              const isMarked = marked !== null && s.sentenceOf.includes(marked);
+              const style = isMarked ? { background: CITE.marker } : undefined;
+              const className = isMarked ? "rounded-[4px] [box-decoration-break:clone]" : undefined;
+              return s.emphasis ? (
+                <strong key={key} className={`text-primary ${className ?? ""}`} style={style}>
+                  {s.text}
                 </strong>
               ) : (
-                <span key={p.key}>{p.text}</span>
-              ),
-            )}
+                <span key={key} className={className} style={style}>
+                  {s.text}
+                </span>
+              );
+            })}
           </p>
           {!streaming && answer.example !== undefined && (
             <div className="flex items-center gap-3 rounded-[16px] bg-warm px-3.5 py-3">
@@ -42,8 +70,8 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
                   <SourceChip
                     key={s.id}
                     label={s.label}
-                    pressed={s.id === openSource}
-                    onPressedChange={(on) => setOpenSource(on ? s.id : null)}
+                    pressed={s.id === focus.sourceId}
+                    onPressedChange={(on) => setFocus({ sourceId: on ? s.id : null, citeId: null })}
                   />
                 ))}
               </div>

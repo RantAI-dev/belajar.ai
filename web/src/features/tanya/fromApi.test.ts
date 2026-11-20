@@ -33,6 +33,8 @@ describe("sourceFromDto", () => {
   test("labels the chip with its number and page, and previews the same-origin page", () => {
     expect(sourceFromDto("m2", SOURCE)).toEqual({
       id: "m2-1",
+      number: 1,
+      page: 78,
       label: "[1] IPA Buku Siswa Kelas VII · hal. 78",
       title: "IPA Buku Siswa Kelas VII · Bab 5: Suhu, Kalor, dan Pemuaian · halaman 78",
       book: "IPA Buku Siswa Kelas VII",
@@ -44,7 +46,7 @@ describe("sourceFromDto", () => {
 
   test("a source without page or image has no preview link", () => {
     const s = sourceFromDto("m2", { number: 3, title: "Buku", isCited: true });
-    expect(s).toEqual({ id: "m2-3", label: "[3] Buku", title: "Buku", book: "Buku" });
+    expect(s).toEqual({ id: "m2-3", number: 3, label: "[3] Buku", title: "Buku", book: "Buku" });
   });
 });
 
@@ -65,6 +67,11 @@ describe("messageFromDto", () => {
     expect(m.status).toBe("done");
     expect(m.parts).toEqual([{ text: "Rel memuai [1]." }]);
     expect(m.sources.map((s) => s.id)).toEqual(["m2-1"]);
+  });
+
+  test("keeps every source, cited or not, for the inline [n] markers", () => {
+    const m = messageFromDto(answer(), "Kelas 7");
+    expect(m.kind === "answer" ? m.allSources?.map((s) => s.id) : []).toEqual(["m2-1", "m2-2"]);
   });
 
   test("an answer that cites none by number still shows the passages it used", () => {
