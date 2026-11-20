@@ -151,6 +151,52 @@ export function citationSegments(
   return out;
 }
 
+type Text = Extract<CitationSegment, { kind: "text" }>;
+
+/** Pills with the word before them and the punctuation after: one line never splits them. */
+export type CitationRun =
+  | CitationSegment
+  | { readonly kind: "nowrap"; readonly items: readonly CitationSegment[] };
+
+const splitText = (t: Text, at: number): readonly [Text, Text] => [
+  { ...t, text: t.text.slice(0, at) },
+  { ...t, text: t.text.slice(at) },
+];
+
+export function keepCitesWithWords(segments: readonly CitationSegment[]): readonly CitationRun[] {
+  const out: CitationRun[] = [];
+  let i = 0;
+  while (i < segments.length) {
+    const seg = segments[i];
+    if (seg === undefined) break;
+    if (seg.kind === "text") {
+      out.push(seg);
+      i++;
+      continue;
+    }
+    const glued: CitationSegment[] = [];
+    const prev = out.at(-1);
+    if (prev?.kind === "text") {
+      const [head, tail] = splitText(prev, prev.text.search(/\S*$/));
+      out.pop();
+      if (head.text !== "") out.push(head);
+      if (tail.text !== "") glued.push(tail);
+    }
+    for (let next = segments[i]; next?.kind === "cite"; next = segments[++i]) glued.push(next);
+    const after = segments[i];
+    if (after?.kind === "text") {
+      const [punct, rest] = splitText(after, after.text.match(/^[.,!?;:)]*/)?.[0].length ?? 0);
+      if (punct.text !== "") glued.push(punct);
+      if (rest.text !== "") out.push({ kind: "nowrap", items: glued }, rest);
+      else out.push({ kind: "nowrap", items: glued });
+      i++;
+    } else {
+      out.push({ kind: "nowrap", items: glued });
+    }
+  }
+  return out;
+}
+
 /** Which source preview is open, and which pill opened it (null when a chip did). */
 export type CiteFocus = { readonly sourceId: string | null; readonly citeId: string | null };
 

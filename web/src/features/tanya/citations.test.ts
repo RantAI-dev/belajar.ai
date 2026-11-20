@@ -3,6 +3,7 @@ import {
   type CitationSegment,
   type CiteSource,
   citationSegments,
+  keepCitesWithWords,
   markedCite,
   pressCite,
   shortBookName,
@@ -190,5 +191,36 @@ describe("cite focus", () => {
       sourceId: "s2",
       citeId: "cite-1",
     });
+  });
+});
+
+describe("keepCitesWithWords", () => {
+  test("glues the word before a pill and the period after it", () => {
+    const runs = keepCitesWithWords(segs("Rel memuai panas [1][2]. Lalu"));
+    expect(
+      runs.map((r) =>
+        r.kind === "nowrap" ? shown(r.items) : r.kind === "text" ? r.text : `‹${r.label}›`,
+      ),
+    ).toEqual(["Rel memuai ", "panas‹hal. 78›‹hal. 81›.", " Lalu"]);
+  });
+
+  test("keeps the sentence each piece belongs to", () => {
+    const runs = keepCitesWithWords(segs("Rel memuai [1]"));
+    expect(runs).toEqual([
+      { kind: "text", text: "Rel ", emphasis: false, sentenceOf: ["cite-0"] },
+      {
+        kind: "nowrap",
+        items: [
+          { kind: "text", text: "memuai", emphasis: false, sentenceOf: ["cite-0"] },
+          {
+            kind: "cite",
+            id: "cite-0",
+            sourceId: "s1",
+            label: "hal. 78",
+            ariaLabel: `Sumber: ${IPA}, halaman 78`,
+          },
+        ],
+      },
+    ]);
   });
 });
