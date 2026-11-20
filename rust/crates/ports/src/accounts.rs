@@ -45,13 +45,14 @@ pub trait AccountStore: Send + Sync {
     ) -> Result<StudentAccount, StoreError>;
 
     /// The user's row for a login attempt. `username` arrives already lowercased; `None` when no
-    /// such user exists.
+    /// such user exists, or when they have no password (signed up with Google).
     async fn find_login_by_username(
         &self,
         username: &str,
     ) -> Result<Option<LoginRecord>, StoreError>;
 
-    /// The user's current password hash (checked before a change).
+    /// The user's current password hash (checked before a change). `NotFound` when the student
+    /// has no password (signed up with Google).
     async fn password_hash(&self, student_id: Uuid) -> Result<String, StoreError>;
 
     /// Replaces the password hash.

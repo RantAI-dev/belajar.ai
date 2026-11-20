@@ -6,6 +6,7 @@ use std::sync::Arc;
 use belajar_ports::accounts::AccountStore;
 use belajar_ports::clock::Clock;
 use belajar_ports::conversations::ConversationStore;
+use belajar_ports::google::GoogleSignInStore;
 use belajar_ports::home::HomeStore;
 use belajar_ports::lessons::LessonStore;
 use belajar_ports::practice::PracticeStore;
@@ -13,6 +14,7 @@ use belajar_ports::upstream::Upstream;
 use belajar_store_pg::Db;
 
 use crate::config::Config;
+use crate::google::GoogleClient;
 use crate::login_limiter::LoginLimiter;
 
 /// What `app()` needs from the outside world. `Db` is one pool behind every store trait, so a later
@@ -31,6 +33,9 @@ pub struct AppState {
     pub home: Arc<dyn HomeStore>,
     pub conversations: Arc<dyn ConversationStore>,
     pub practice: Arc<dyn PracticeStore>,
+    pub google_sign_in: Arc<dyn GoogleSignInStore>,
+    /// `None` when Google sign-in is not configured: the web app hides the button.
+    pub google: Option<Arc<GoogleClient>>,
     pub upstream: Arc<dyn Upstream>,
     pub clock: Arc<dyn Clock>,
     pub config: Config,
@@ -42,6 +47,16 @@ impl AppState {
     pub fn new(config: Config, deps: Deps) -> Self {
         // One Arc'd `Db` behind every store trait: the pool is shared, the traits are views of it.
         let db = Arc::new(deps.db);
+        let google = config
+            .google
+            .clone()
+            .and_then(|google| match GoogleClient::new(google) {
+                Ok(client) => Some(Arc::new(client)),
+                Err(err) => {
+                    tracing::error!(code = "startup", error = %err, "google sign-in is off: its HTTP client failed to build");
+                    None
+                }
+            });
         Self {
             db: db.as_ref().clone(),
             accounts: db.clone(),
@@ -49,6 +64,8 @@ impl AppState {
             lessons: db.clone(),
             home: db.clone(),
             practice: db.clone(),
+            google_sign_in: db.clone(),
+            google,
             upstream: deps.upstream,
             clock: deps.clock.clone(),
             config,

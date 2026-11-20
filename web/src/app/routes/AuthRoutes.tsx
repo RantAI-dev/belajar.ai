@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { useLocation } from "react-router";
 import { loginMessage, registerMessage } from "../../contracts/messages";
-import { LoginScreen, type RegisterErrors, RegisterScreen } from "../../features/auth";
+import {
+  GOOGLE_START_HREF,
+  googleNotice,
+  LoginScreen,
+  type RegisterErrors,
+  RegisterScreen,
+} from "../../features/auth";
 import { useAuth } from "../session";
+import { useGoogleEnabled } from "../useGoogleEnabled";
 
 // After a successful sign-in the route guard (guard.ts) moves the student on, to `?ke=` or home.
 
@@ -17,13 +24,19 @@ const registerErrors = (fields: Partial<Record<string, string>>): RegisterErrors
   return out;
 };
 
+/** The Google button's prop: only when the server has Google sign-in configured. */
+const googleProp = (enabled: boolean) => (enabled ? { googleHref: GOOGLE_START_HREF } : {});
+
 export function LoginRoute() {
   const { search } = useLocation();
   const auth = useAuth();
+  const google = useGoogleEnabled();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  // `?google=cancelled|conflict|unavailable|failed` from the server's Google callback.
+  const [error, setError] = useState<string | undefined>(() => googleNotice(search));
   return (
     <LoginScreen
+      {...googleProp(google)}
       registerHref={`/daftar${search}`}
       submitting={submitting}
       {...(error !== undefined ? { error } : {})}
@@ -44,11 +57,13 @@ export function LoginRoute() {
 export function RegisterRoute() {
   const { search } = useLocation();
   const auth = useAuth();
+  const google = useGoogleEnabled();
   const [submitting, setSubmitting] = useState(false);
   const [serverErrors, setServerErrors] = useState<RegisterErrors>({});
   const [error, setError] = useState<string | undefined>(undefined);
   return (
     <RegisterScreen
+      {...googleProp(google)}
       loginHref={`/masuk${search}`}
       submitting={submitting}
       serverErrors={serverErrors}

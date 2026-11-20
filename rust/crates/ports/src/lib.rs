@@ -5,6 +5,7 @@
 pub mod accounts;
 pub mod clock;
 pub mod conversations;
+pub mod google;
 pub mod home;
 pub mod lessons;
 pub mod practice;
@@ -17,6 +18,7 @@ pub use conversations::{
     Conversation, ConversationMode, ConversationStore, Message, MessageRole, NewMessage, Page,
     PageCursor,
 };
+pub use google::{GoogleAttempt, GoogleSignInStore, NewGoogleStudent, PendingGoogleSignup};
 pub use home::{ContinueItem, HomeData, HomeStore, MissionCounts, MissionKind};
 pub use lessons::{Lesson, LessonStep, LessonStore};
 pub use practice::{

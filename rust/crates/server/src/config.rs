@@ -21,6 +21,110 @@ pub struct Config {
     pub upstream_keys: Option<String>,
     /// Time to wait for the upstream's first byte, and between stream events.
     pub upstream_timeout_ms: u64,
+    /// "Masuk dengan Google". `None` (the client id, secret and redirect URL all unset) hides it.
+    pub google: Option<GoogleConfig>,
+}
+
+/// Google sign-in. The endpoints default to Google's real ones; tests point them at a fake.
+#[derive(Debug, Clone)]
+pub struct GoogleConfig {
+    pub client_id: String,
+    pub client_secret: Secret,
+    /// Our callback, exactly as registered with Google: `https://<host>/v1/auth/google/callback`.
+    pub redirect_url: String,
+    pub auth_url: String,
+    pub token_url: String,
+    pub jwks_url: String,
+    /// The ID token's `iss`. The same host without `https://` is accepted too, as Google sends
+    /// either form.
+    pub issuer: String,
+    /// Time to wait for Google's token and key endpoints.
+    pub timeout_ms: u64,
+}
+
+pub const GOOGLE_AUTH_URL: &str = "https://accounts.google.com/o/oauth2/v2/auth";
+pub const GOOGLE_TOKEN_URL: &str = "https://oauth2.googleapis.com/token";
+pub const GOOGLE_JWKS_URL: &str = "https://www.googleapis.com/oauth2/v3/certs";
+pub const GOOGLE_ISSUER: &str = "https://accounts.google.com";
+
+/// A value that must never reach a log line: `Debug` prints a placeholder.
+#[derive(Clone, PartialEq, Eq)]
+pub struct Secret(String);
+
+impl Secret {
+    #[must_use]
+    pub const fn new(value: String) -> Self {
+        Self(value)
+    }
+
+    #[must_use]
+    pub fn expose(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::fmt::Debug for Secret {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Secret(..)")
+    }
+}
+
+impl GoogleConfig {
+    /// `Ok(None)` when none of the three required variables is set; an error naming the first
+    /// missing one when only some are.
+    fn from_env() -> Result<Option<Self>, String> {
+        const REQUIRED: [&str; 3] = [
+            "BELAJAR_GOOGLE_CLIENT_ID",
+            "BELAJAR_GOOGLE_CLIENT_SECRET",
+            "BELAJAR_GOOGLE_REDIRECT_URL",
+        ];
+        let [client_id, client_secret, redirect_url] = REQUIRED.map(optional);
+        let (Some(client_id), Some(client_secret), Some(redirect_url)) = (
+            client_id.clone(),
+            client_secret.clone(),
+            redirect_url.clone(),
+        ) else {
+            let set = [&client_id, &client_secret, &redirect_url];
+            if set.iter().all(|v| v.is_none()) {
+                return Ok(None);
+            }
+            let missing = REQUIRED
+                .iter()
+                .zip(set)
+                .find_map(|(name, value)| value.is_none().then_some(*name))
+                .unwrap_or("BELAJAR_GOOGLE_CLIENT_ID");
+            return Err(format!(
+                "{missing} is required when any BELAJAR_GOOGLE_* sign-in variable is set."
+            ));
+        };
+        let url = |name: &str, default: &str| {
+            let value = optional(name).unwrap_or_else(|| default.to_owned());
+            check_url(name, &value).map(|()| value)
+        };
+        check_url("BELAJAR_GOOGLE_REDIRECT_URL", &redirect_url)?;
+        Ok(Some(Self {
+            client_id,
+            client_secret: Secret::new(client_secret),
+            redirect_url,
+            auth_url: url("BELAJAR_GOOGLE_AUTH_URL", GOOGLE_AUTH_URL)?,
+            token_url: url("BELAJAR_GOOGLE_TOKEN_URL", GOOGLE_TOKEN_URL)?,
+            jwks_url: url("BELAJAR_GOOGLE_JWKS_URL", GOOGLE_JWKS_URL)?,
+            issuer: optional("BELAJAR_GOOGLE_ISSUER").unwrap_or_else(|| GOOGLE_ISSUER.to_owned()),
+            timeout_ms: std::env::var("BELAJAR_GOOGLE_TIMEOUT_MS")
+                .ok()
+                .map(|v| parse_u64("BELAJAR_GOOGLE_TIMEOUT_MS", &v))
+                .transpose()?
+                .unwrap_or(10_000),
+        }))
+    }
+}
+
+fn check_url(name: &str, value: &str) -> Result<(), String> {
+    if value.starts_with("https://") || value.starts_with("http://") {
+        Ok(())
+    } else {
+        Err(format!("{name} must be an http(s) URL, not {value:?}."))
+    }
 }
 
 impl Config {
@@ -46,6 +150,7 @@ impl Config {
                 .map(|v| parse_u64("BELAJAR_UPSTREAM_TIMEOUT_MS", &v))
                 .transpose()?
                 .unwrap_or(60_000),
+            google: GoogleConfig::from_env()?,
         })
     }
 }

@@ -25,13 +25,19 @@ pub fn cleared_cookie(secure: bool) -> String {
 /// The `belajar_session` token from a request's `Cookie` headers, if it is a non-empty one.
 #[must_use]
 pub fn token_from_headers(headers: &HeaderMap) -> Option<String> {
+    value_from_headers(headers, COOKIE_NAME)
+}
+
+/// The value of the cookie `name` from a request's `Cookie` headers, if it is a non-empty one.
+#[must_use]
+pub fn value_from_headers(headers: &HeaderMap, name: &str) -> Option<String> {
+    let prefix = format!("{name}=");
     for value in headers.get_all(header::COOKIE) {
         let Some(raw) = value.to_str().ok() else {
             continue;
         };
         for pair in raw.split(';') {
-            let pair = pair.trim();
-            if let Some(token) = pair.strip_prefix(&format!("{COOKIE_NAME}="))
+            if let Some(token) = pair.trim().strip_prefix(&prefix)
                 && !token.is_empty()
             {
                 return Some(token.to_owned());

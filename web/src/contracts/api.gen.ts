@@ -36,6 +36,78 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/auth/google": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Whether "Masuk dengan Google" is configured on this server. */
+    get: operations["google_status"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/auth/google/callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Google sends the browser back here. Signs an existing student in, or parks a new Google
+     *     account until the student picks a grade.
+     */
+    get: operations["google_callback"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/auth/google/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The Google account this browser is signing up with. */
+    get: operations["get_pending"];
+    put?: never;
+    /** Creates the student for this browser's pending Google account and signs them in. */
+    post: operations["complete"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/auth/google/start": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Starts a Google sign-in: a browser navigation, answered with a redirect to Google. */
+    get: operations["google_start"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/auth/login": {
     parameters: {
       query?: never;
@@ -462,6 +534,11 @@ export interface components {
     Checks: {
       postgres: string;
     };
+    CompleteGoogleSignupRequest: {
+      /** Format: int32 */
+      grade: number;
+      nickname: string;
+    };
     CompleteLessonRequest: {
       /** Format: int64 */
       quizCorrect: number;
@@ -552,6 +629,10 @@ export interface components {
        * @description 5, 10 or 15.
        */
       totalQuestions: number;
+    };
+    /** @description Whether the web app shows the "Masuk dengan Google" button. */
+    GoogleSignInDto: {
+      isEnabled: boolean;
     };
     Health: {
       status: string;
@@ -652,6 +733,11 @@ export interface components {
       grade?: number | null;
       /** @description A `nickname` that is only whitespace is invalid, so `null` is the only "no change" form. */
       nickname?: string | null;
+    };
+    /** @description A verified Google account waiting for its grade. */
+    PendingGoogleSignupDto: {
+      /** @description The Google profile name, cut to the nickname limit; empty when Google sent none. */
+      suggestedNickname: string;
     };
     /** @description The review a submission returns, and what `GET /v1/practice-sets/{id}` keeps showing after. */
     PracticeResultDto: {
@@ -873,6 +959,164 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Ready"];
+        };
+      };
+    };
+  };
+  google_status: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GoogleSignInDto"];
+        };
+      };
+    };
+  };
+  google_callback: {
+    parameters: {
+      query?: {
+        /** @description The authorization code */
+        code?: string;
+        /** @description Must equal the state this browser's attempt sent */
+        state?: string;
+        /** @description Set by Google when the student cancels */
+        error?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed` */
+      303: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `google_disabled`: Google sign-in is not configured */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_pending: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PendingGoogleSignupDto"];
+        };
+      };
+      /** @description No pending Google sign-up for this browser, or it expired (10 minutes); `google_disabled` when Google sign-in is off */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  complete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompleteGoogleSignupRequest"];
+      };
+    };
+    responses: {
+      /** @description The new student, signed in with a session cookie */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StudentDto"];
+        };
+      };
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description No pending Google sign-up for this browser, or it expired; `google_disabled` when Google sign-in is off */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description This Google account was linked to a student meanwhile (another tab finished first) */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  google_start: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description To Google's consent page, with a short-lived httpOnly cookie that binds the attempt to this browser */
+      303: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `google_disabled`: Google sign-in is not configured */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
         };
       };
     };

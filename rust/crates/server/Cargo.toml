@@ -18,7 +18,10 @@ chrono.workspace = true
 # axum's `Sse` is generic over `futures`' Stream trait, which axum does not re-export, so the
 # answer-stream translation has to name it; 0.3 is already a workspace dependency.
 futures.workspace = true
+jsonwebtoken.workspace = true
 rand.workspace = true
+# Google sign-in's token exchange and JWKS fetch (already the upstream crate's client).
+reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
@@ -32,6 +35,7 @@ uuid.workspace = true
 [dev-dependencies]
 belajar-fake-upstream.workspace = true
 http-body-util.workspace = true
+rsa.workspace = true
 sqlx.workspace = true
 tower.workspace = true
 

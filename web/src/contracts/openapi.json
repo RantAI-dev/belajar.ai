@@ -48,6 +48,184 @@
         }
       }
     },
+    "/v1/auth/google": {
+      "get": {
+        "tags": ["google_auth"],
+        "summary": "Whether \"Masuk dengan Google\" is configured on this server.",
+        "operationId": "google_status",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignInDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/google/callback": {
+      "get": {
+        "tags": ["google_auth"],
+        "summary": "Google sends the browser back here. Signs an existing student in, or parks a new Google\naccount until the student picks a grade.",
+        "operationId": "google_callback",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "The authorization code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Must equal the state this browser's attempt sent",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "description": "Set by Google when the student cancels",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed`"
+          },
+          "404": {
+            "description": "`google_disabled`: Google sign-in is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/google/signup": {
+      "get": {
+        "tags": ["google_signup"],
+        "summary": "The Google account this browser is signing up with.",
+        "operationId": "get_pending",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingGoogleSignupDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending Google sign-up for this browser, or it expired (10 minutes); `google_disabled` when Google sign-in is off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["google_signup"],
+        "summary": "Creates the student for this browser's pending Google account and signs them in.",
+        "operationId": "complete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteGoogleSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new student, signed in with a session cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No pending Google sign-up for this browser, or it expired; `google_disabled` when Google sign-in is off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "This Google account was linked to a student meanwhile (another tab finished first)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/google/start": {
+      "get": {
+        "tags": ["google_auth"],
+        "summary": "Starts a Google sign-in: a browser navigation, answered with a redirect to Google.",
+        "operationId": "google_start",
+        "responses": {
+          "303": {
+            "description": "To Google's consent page, with a short-lived httpOnly cookie that binds the attempt to this browser"
+          },
+          "404": {
+            "description": "`google_disabled`: Google sign-in is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/auth/login": {
       "post": {
         "tags": ["auth"],
@@ -1764,6 +1942,21 @@
           }
         }
       },
+      "CompleteGoogleSignupRequest": {
+        "type": "object",
+        "required": ["nickname", "grade"],
+        "properties": {
+          "grade": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "nickname": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "CompleteLessonRequest": {
         "type": "object",
         "required": ["quizCorrect", "quizTotal"],
@@ -1991,6 +2184,16 @@
           }
         },
         "additionalProperties": false
+      },
+      "GoogleSignInDto": {
+        "type": "object",
+        "description": "Whether the web app shows the \"Masuk dengan Google\" button.",
+        "required": ["isEnabled"],
+        "properties": {
+          "isEnabled": {
+            "type": "boolean"
+          }
+        }
       },
       "Health": {
         "type": "object",
@@ -2246,6 +2449,17 @@
           }
         },
         "additionalProperties": false
+      },
+      "PendingGoogleSignupDto": {
+        "type": "object",
+        "description": "A verified Google account waiting for its grade.",
+        "required": ["suggestedNickname"],
+        "properties": {
+          "suggestedNickname": {
+            "type": "string",
+            "description": "The Google profile name, cut to the nickname limit; empty when Google sent none."
+          }
+        }
       },
       "PracticeResultDto": {
         "type": "object",

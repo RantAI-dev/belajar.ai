@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from "react";
 import { AppLink, Button, FormAlert, TextField } from "../../ui";
 import { AuthFrame } from "./AuthFrame";
+import { GoogleButton } from "./GoogleButton";
 
 export type LoginValues = { readonly username: string; readonly password: string };
 
@@ -10,6 +11,8 @@ export type LoginScreenProps = {
   readonly submitting?: boolean;
   /** A message for the whole form, e.g. wrong username or password. */
   readonly error?: string;
+  /** "Masuk dengan Google" goes here; no button when Google sign-in is off. */
+  readonly googleHref?: string;
 };
 
 export function LoginScreen({
@@ -17,6 +20,7 @@ export function LoginScreen({
   registerHref,
   submitting = false,
   error,
+  googleHref,
 }: LoginScreenProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +52,7 @@ export function LoginScreen({
           Masuk
         </Button>
       </form>
+      {googleHref !== undefined && <GoogleButton href={googleHref} label="Masuk dengan Google" />}
       <p className="m-0 text-center text-[16px] font-bold text-ink-muted">
         Belum punya akun?{" "}
         <AppLink

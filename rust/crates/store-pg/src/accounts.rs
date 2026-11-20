@@ -118,11 +118,14 @@ impl AccountStore for Db {
         &self,
         username: &str,
     ) -> Result<Option<LoginRecord>, StoreError> {
-        let row = sqlx::query("SELECT id, password_hash FROM users WHERE username = $1")
-            .bind(username)
-            .fetch_optional(&self.pool)
-            .await
-            .map_err(map_db_err)?;
+        // A Google-only student has no password, so a username login never finds them.
+        let row = sqlx::query(
+            "SELECT id, password_hash FROM users WHERE username = $1 AND password_hash IS NOT NULL",
+        )
+        .bind(username)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(map_db_err)?;
         let record = row.map(|r| LoginRecord {
             user_id: r.get::<Uuid, _>("id"),
             password_hash: r.get::<String, _>("password_hash"),
@@ -131,12 +134,15 @@ impl AccountStore for Db {
     }
 
     async fn password_hash(&self, student_id: Uuid) -> Result<String, StoreError> {
-        let hash = sqlx::query_scalar::<_, String>("SELECT password_hash FROM users WHERE id = $1")
-            .bind(student_id)
-            .fetch_optional(&self.pool)
-            .await
-            .map_err(map_db_err)?;
-        map_option(hash)
+        let hash = sqlx::query_scalar::<_, Option<String>>(
+            "SELECT password_hash FROM users WHERE id = $1",
+        )
+        .bind(student_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(map_db_err)?;
+        // A Google-only student has no password: the same answer as no row.
+        map_option(hash.flatten())
     }
 
     async fn set_password_hash(

@@ -7,6 +7,7 @@ import { AkunRoute } from "./routes/AkunRoute";
 import { LoginRoute, RegisterRoute } from "./routes/AuthRoutes";
 import { BelajarHomeRoute, ChapterMapRoute, ChapterSessionRoute } from "./routes/BelajarRoutes";
 import { BerandaRoute } from "./routes/BerandaRoute";
+import { GoogleSignupRoute } from "./routes/GoogleSignupRoute";
 import { LatihanSetupRoute, QuizRoute, ResultRoute } from "./routes/LatihanRoutes";
 import { NotFound } from "./routes/NotFound";
 import { TanyaRoute } from "./routes/TanyaRoute";
@@ -23,6 +24,7 @@ export function App() {
               <Route element={<RequireSession />}>
                 <Route path="/masuk" element={<LoginRoute />} />
                 <Route path="/daftar" element={<RegisterRoute />} />
+                <Route path="/daftar/google" element={<GoogleSignupRoute />} />
                 <Route element={<Shell />}>
                   <Route index element={<BerandaRoute />} />
                   <Route path="tanya" element={<TanyaRoute />} />

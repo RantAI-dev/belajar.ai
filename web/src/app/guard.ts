@@ -1,7 +1,7 @@
 // Who may see which route. Pure, so the redirects are tested without a router.
 
 /** The only routes a signed-out visitor may see. */
-export const PUBLIC_PATHS: readonly string[] = ["/masuk", "/daftar"];
+export const PUBLIC_PATHS: readonly string[] = ["/masuk", "/daftar", "/daftar/google"];
 
 /** `/masuk?ke=/latihan` brings the student back to /latihan after signing in. */
 export const RETURN_PARAM = "ke";
