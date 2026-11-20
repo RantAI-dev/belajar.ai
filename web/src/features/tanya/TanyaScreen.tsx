@@ -1,4 +1,12 @@
-import { ErrorState, LoadingState, Mascot, paintFor, subjectById, ToggleChip } from "../../ui";
+import {
+  ErrorState,
+  LoadingState,
+  Mascot,
+  MascotIcon,
+  paintFor,
+  subjectById,
+  ToggleChip,
+} from "../../ui";
 import { Composer } from "./Composer";
 import { ConversationTitle, type ConversationTitleProps } from "./ConversationTitle";
 import { HistoryList, type HistoryView } from "./HistoryList";
@@ -53,6 +61,26 @@ function FilterChips({
   );
 }
 
+/** A ready-made question to send: the mascot with its light bulb marks it as a suggestion. */
+function IdeaChip({
+  onClick,
+  children,
+}: {
+  readonly onClick: () => void;
+  readonly children: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border-2 border-line-sky bg-surface pr-4 pl-2 text-[15px] font-extrabold text-primary-ink hover:bg-primary-soft"
+    >
+      <MascotIcon kind="idea" size={28} />
+      {children}
+    </button>
+  );
+}
+
 function EmptyState({
   suggestions,
   onSend,
@@ -62,7 +90,7 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center gap-4 py-6 text-center">
-      <Mascot mood="happy" size={120} animate />
+      <Mascot expression="idea" size={120} animate />
       <h1 className="m-0 font-display text-[28px] font-semibold">Mau tanya apa hari ini?</h1>
       <p className="m-0 max-w-[460px] text-[17px] font-semibold text-ink-muted">
         Tanya apa saja tentang pelajaranmu. Aku jawab dari bukumu, lengkap dengan halamannya.
@@ -70,13 +98,7 @@ function EmptyState({
       <ul className="m-0 flex list-none flex-wrap justify-center gap-2 p-0">
         {suggestions.map((s) => (
           <li key={s}>
-            <button
-              type="button"
-              onClick={() => onSend(s)}
-              className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-surface px-4 text-[15px] font-extrabold text-primary-ink hover:bg-primary-soft"
-            >
-              {s}
-            </button>
+            <IdeaChip onClick={() => onSend(s)}>{s}</IdeaChip>
           </li>
         ))}
       </ul>
@@ -109,14 +131,9 @@ export function TanyaScreen(props: TanyaScreenProps) {
         {showFollowUps && (
           <div className="flex flex-wrap gap-2 sm:pl-[60px]">
             {view.followUps.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => onFollowUp(f.id)}
-                className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-surface px-4 text-[15px] font-extrabold text-primary-ink hover:bg-primary-soft"
-              >
+              <IdeaChip key={f.id} onClick={() => onFollowUp(f.id)}>
                 {f.label}
-              </button>
+              </IdeaChip>
             ))}
           </div>
         )}
