@@ -6,19 +6,19 @@ import { BangIcon, CheckIcon } from "./icons";
 export type ChoiceState = "idle" | "selected" | "correct" | "wrong" | "missed";
 
 const LOOK: Record<ChoiceState, string> = {
-  idle: "border-line-strong bg-white hover:border-line-sky hover:bg-page",
+  idle: "border-line-strong bg-surface hover:border-line-sky hover:bg-page",
   selected: "border-primary bg-primary-soft",
   correct: "border-success bg-success-soft",
   wrong: "border-oops-line bg-oops-soft",
-  missed: "border-success border-dashed bg-white",
+  missed: "border-success border-dashed bg-surface",
 };
 
 const TAG: Record<ChoiceState, { readonly text: string; readonly className: string } | null> = {
   idle: null,
   selected: null,
-  correct: { text: "Jawaban benar", className: "text-success-edge" },
+  correct: { text: "Jawaban benar", className: "text-success-ink" },
   wrong: { text: "Pilihanmu", className: "text-oops-ink" },
-  missed: { text: "Jawaban benar", className: "text-success-edge" },
+  missed: { text: "Jawaban benar", className: "text-success-ink" },
 };
 
 export type ChoiceButtonProps = {
@@ -45,10 +45,10 @@ export function ChoiceButton({
   const marker = cx(
     "flex size-9 shrink-0 items-center justify-center border-[3px] font-display text-[18px] font-semibold",
     multiple ? "rounded-[10px]" : "rounded-full",
-    state === "selected" && "border-primary bg-primary text-white",
-    state === "correct" && "border-success bg-success text-white",
-    state === "wrong" && "border-oops bg-oops text-white",
-    (state === "idle" || state === "missed") && "border-line-strong bg-white text-ink-muted",
+    state === "selected" && "border-primary bg-primary text-on-fill",
+    state === "correct" && "border-success-solid bg-success-solid text-on-fill",
+    state === "wrong" && "border-oops-solid bg-oops-solid text-on-fill",
+    (state === "idle" || state === "missed") && "border-line-strong bg-surface text-ink-muted",
   );
   return (
     <button

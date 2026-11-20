@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
-/* RantAI Lakehouse colour tokens plus the kid-friendly palette from the owner's mockup. */
-@theme {
+/* THEME CONTRACT: <html data-theme="light|dark">; every colour is a custom property here and its dark value is an override under [data-theme="dark"]. */
+
+/* RantAI Lakehouse colour tokens plus the kid-friendly palette from the owner's mockup. Every
+ * component colour comes from a token: theme.test.ts checks the pairs in tokenPairs.ts in both
+ * themes, rawColours.test.ts fails on a colour literal anywhere else in src. `static` keeps every
+ * token emitted, including those only read through var() from inline styles. */
+@theme static {
   --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
   --font-display: "Fredoka", "Nunito", sans-serif;
 
@@ -9,23 +14,46 @@
   --color-primary-strong: #00598a;
   --color-primary-edge: #004a78;
   --color-primary-soft: #e0f0fd;
+  /* Text and links in the primary hue: primary itself in light, a lighter blue in dark. */
+  --color-primary-ink: #0069a8;
   --color-brand-sky: #5cb6f9;
   --color-brand-navy: #050a30;
   --color-ink: #10233a;
   --color-ink-muted: #3d5470;
   --color-ink-faint: #55697f;
   --color-page: #f3f9ff;
+  /* Cards, inputs and panels drawn on the page. */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6fafe;
+  /* Text and marks on a strong fill (primary, success, a subject colour). */
+  --color-on-fill: #ffffff;
+  /* White in both themes: the mascot's eye and the paper of its book. */
+  --color-snow: #ffffff;
   --color-line: #e2eefa;
   --color-line-strong: #d5e3f0;
   --color-line-sky: #c4dcf2;
+  --color-line-dashed: #c4d6e8;
+  --color-track: #ffffff;
+
+  /* The big coloured panels (`.on-dark`): the Beranda greeting and the celebrations. */
+  --color-hero: #0069a8;
+  --color-hero-ink-soft: #cfe7fb;
+  --color-hero-glow: #1d7fbd;
+  --color-celebrate: #22a06b;
+  --color-celebrate-glow: #2bb77c;
+  --color-celebrate-star-empty: #5fc596;
 
   --color-success: #22a06b;
   --color-success-edge: #157a50;
+  --color-success-ink: #157a50;
   --color-success-soft: #eafaf2;
+  /* Fills dark enough for small white text (answer markers, result numbers). */
+  --color-success-solid: #1b7f55;
   --color-oops: #e8833a;
   --color-oops-ink: #a3501a;
   --color-oops-soft: #fff4ea;
   --color-oops-line: #f6c89f;
+  --color-oops-solid: #b15615;
   --color-warm: #fff8d6;
   --color-warm-ink: #5c4400;
   --color-warm-line: #ffe58a;
@@ -40,26 +68,206 @@
   --color-streak-soft: #fff4e5;
   --color-streak-ink: #8a4b0f;
 
-  /* Kept for older references; the subject palette proper lives in subjects.ts. */
-  --color-subject-ipa: #388ca1;
-  --color-subject-mtk: #517fbb;
-  --color-subject-en: #574399;
-  --color-subject-bing: #574399;
-  --color-subject-bi: #bb5153;
-  --color-subject-bind: #bb5153;
-  --color-subject-ips: #bb7851;
-  --color-subject-inf: #32836a;
-  --color-subject-pp: #0069a8;
-  --color-subject-pai: #2f7d5b;
-
   --radius-chip: 14px;
   --radius-btn: 18px;
   --radius-card: 24px;
   --radius-panel: 28px;
 }
 
+/* Tokens read only from inline styles (subjects, avatars, the mascot, the page sketch). The light
+ * subject values mirror subjects.ts; theme.test.ts keeps the two equal. */
 :root {
+  color-scheme: light;
   --focus: #0069a8;
+
+  --color-subject-ipa: #388ca1;
+  --color-subject-ipa-ink: #1f5f6e;
+  --color-subject-ipa-tint: #e6f5f7;
+  --color-subject-ipa-edge: #bfe3e9;
+  --color-subject-ipa-shadow: #9fd3dd;
+  --color-subject-mtk: #517fbb;
+  --color-subject-mtk-ink: #2f5487;
+  --color-subject-mtk-tint: #eaf1fb;
+  --color-subject-mtk-edge: #c8d9f1;
+  --color-subject-mtk-shadow: #a9c4ea;
+  --color-subject-bing: #574399;
+  --color-subject-bing-ink: #3d2c75;
+  --color-subject-bing-tint: #f0edf9;
+  --color-subject-bing-edge: #d6cdf0;
+  --color-subject-bing-shadow: #c2b5ea;
+  --color-subject-bind: #bb5153;
+  --color-subject-bind-ink: #8a3335;
+  --color-subject-bind-tint: #fbeeee;
+  --color-subject-bind-edge: #f0caca;
+  --color-subject-bind-shadow: #e8b2b2;
+  --color-subject-ips: #bb7851;
+  --color-subject-ips-ink: #7f4b2c;
+  --color-subject-ips-tint: #fbf1ea;
+  --color-subject-ips-edge: #efd2be;
+  --color-subject-ips-shadow: #e6bd9f;
+  --color-subject-inf: #32836a;
+  --color-subject-inf-ink: #1f5c49;
+  --color-subject-inf-tint: #e8f5f0;
+  --color-subject-inf-edge: #bfe2d4;
+  --color-subject-inf-shadow: #9fd2bf;
+  --color-subject-pp: #0069a8;
+  --color-subject-pp-ink: #00598a;
+  --color-subject-pp-tint: #e6f2fb;
+  --color-subject-pp-edge: #c4e0f6;
+  --color-subject-pp-shadow: #a2cbee;
+  --color-subject-pai: #2f7d5b;
+  --color-subject-pai-ink: #1e5a40;
+  --color-subject-pai-tint: #e7f4ed;
+  --color-subject-pai-edge: #bde0cd;
+  --color-subject-pai-shadow: #9fd0b6;
+  /* A fill for small white text in the subject hue (a label pill). */
+  --color-subject-ipa-solid: var(--color-subject-ipa-ink);
+  --color-subject-mtk-solid: var(--color-subject-mtk-ink);
+  --color-subject-bing-solid: var(--color-subject-bing-ink);
+  --color-subject-bind-solid: var(--color-subject-bind-ink);
+  --color-subject-ips-solid: var(--color-subject-ips-ink);
+  --color-subject-inf-solid: var(--color-subject-inf-ink);
+  --color-subject-pp-solid: var(--color-subject-pp-ink);
+  --color-subject-pai-solid: var(--color-subject-pai-ink);
+  /* Kept for older references. */
+  --color-subject-en: var(--color-subject-bing);
+  --color-subject-bi: var(--color-subject-bind);
+
+  --color-avatar-1-bg: #ffe1ec;
+  --color-avatar-1-fg: #8a1f4b;
+  --color-avatar-2-bg: #e0f0fd;
+  --color-avatar-2-fg: #00598a;
+  --color-avatar-3-bg: #e8f5f0;
+  --color-avatar-3-fg: #1f5c49;
+  --color-avatar-4-bg: #fff4e5;
+  --color-avatar-4-fg: #8a4b0f;
+  --color-avatar-5-bg: #f0edf9;
+  --color-avatar-5-fg: #3d2c75;
+
+  --color-mascot-backdrop: #dbeefe;
+  /* The open book: navy here; the Mascot's on-dark (white) variant in the dark theme. */
+  --color-mascot-book: #050a30;
+  --color-mascot-book-shade: #050a30;
+  --color-mascot-page-shade: #dbeefe;
+
+  --color-paper: #ffffff;
+  --color-paper-line: #dfe8f0;
+  --color-paper-line-soft: #e9eff4;
+  --color-paper-mark: #ffe28a;
+  --color-paper-fill: #eef3f7;
+}
+
+/* The dark palette: deep navy surfaces, light inks, the same subject hues. A fill that carries
+ * white text keeps a luminance between 0.15 and 0.18, so the text stays >= 4.5:1 and the fill
+ * >= 3:1 on the surface. Unlayered, so it beats Tailwind's theme layer. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --focus: #5cb6f9;
+
+  --color-primary: #0076bc;
+  --color-primary-strong: #0069a8;
+  --color-primary-edge: #003a5f;
+  --color-primary-soft: #16324f;
+  --color-primary-ink: #7cc4fa;
+  --color-ink: #eaf2fb;
+  --color-ink-muted: #b6c8dc;
+  --color-ink-faint: #93a8bf;
+  --color-page: #0b1626;
+  --color-surface: #13233a;
+  --color-surface-alt: #1a2d47;
+  --color-line: #22374f;
+  --color-line-strong: #2d4560;
+  --color-line-sky: #3b5c80;
+  --color-line-dashed: #3b5c80;
+  --color-track: #0b1626;
+
+  --color-hero: #0d4a78;
+  --color-hero-glow: #1a64a0;
+  --color-celebrate: #1b8156;
+  --color-celebrate-glow: #23996a;
+  --color-celebrate-star-empty: #4fae84;
+
+  --color-success-edge: #0f5c3c;
+  --color-success-ink: #6fd6a6;
+  --color-success-soft: #12322a;
+  --color-oops-ink: #ffb27a;
+  --color-oops-soft: #3a2416;
+  --color-oops-line: #7a4a26;
+  --color-warm: #2d2711;
+  --color-warm-ink: #ffe08a;
+  --color-warm-line: #6a5618;
+  --color-warm-icon: #f5c542;
+  --color-star-ink: #ffd76a;
+  --color-star-empty: #34506f;
+  --color-streak-soft: #3a2611;
+  --color-streak-ink: #ffbf75;
+
+  --color-subject-ipa: #317b8d;
+  --color-subject-ipa-ink: #99c6d2;
+  --color-subject-ipa-tint: #1c2b2f;
+  --color-subject-ipa-edge: #344f56;
+  --color-subject-ipa-shadow: #0c1415;
+  --color-subject-mtk: #4472af;
+  --color-subject-mtk-ink: #aec1d8;
+  --color-subject-mtk-tint: #212935;
+  --color-subject-mtk-edge: #3d4c60;
+  --color-subject-mtk-shadow: #0e1218;
+  --color-subject-bing: #7863bb;
+  --color-subject-bing-ink: #c2bbdb;
+  --color-subject-bing-tint: #2a263a;
+  --color-subject-bing-edge: #4e4669;
+  --color-subject-bing-shadow: #13101b;
+  --color-subject-bind-ink: #dcb6b6;
+  --color-subject-bind-tint: #392324;
+  --color-subject-bind-edge: #664142;
+  --color-subject-bind-shadow: #1b0f10;
+  --color-subject-ips: #a0623e;
+  --color-subject-ips-ink: #d6baa9;
+  --color-subject-ips-tint: #33261f;
+  --color-subject-ips-edge: #5b463a;
+  --color-subject-ips-shadow: #16110d;
+  --color-subject-inf-ink: #90cab8;
+  --color-subject-inf-tint: #1b2d27;
+  --color-subject-inf-edge: #335047;
+  --color-subject-inf-shadow: #0b1411;
+  --color-subject-pp: #0076bc;
+  --color-subject-pp-ink: #82c8f1;
+  --color-subject-pp-tint: #112c3b;
+  --color-subject-pp-edge: #234f6a;
+  --color-subject-pp-shadow: #07131b;
+  --color-subject-pai-ink: #91cbb2;
+  --color-subject-pai-tint: #1b2c25;
+  --color-subject-pai-edge: #335044;
+  --color-subject-pai-shadow: #0b1310;
+  --color-subject-ipa-solid: var(--color-subject-ipa);
+  --color-subject-mtk-solid: var(--color-subject-mtk);
+  --color-subject-bing-solid: var(--color-subject-bing);
+  --color-subject-bind-solid: var(--color-subject-bind);
+  --color-subject-ips-solid: var(--color-subject-ips);
+  --color-subject-inf-solid: var(--color-subject-inf);
+  --color-subject-pp-solid: var(--color-subject-pp);
+  --color-subject-pai-solid: var(--color-subject-pai);
+
+  --color-avatar-1-bg: #3a1a27;
+  --color-avatar-1-fg: #ffb3d0;
+  --color-avatar-2-bg: #15314f;
+  --color-avatar-2-fg: #9fd2fb;
+  --color-avatar-3-bg: #173a30;
+  --color-avatar-3-fg: #9fdcc4;
+  --color-avatar-4-bg: #3a2611;
+  --color-avatar-4-fg: #ffc58a;
+  --color-avatar-5-bg: #2a2342;
+  --color-avatar-5-fg: #cbbcf5;
+
+  --color-mascot-backdrop: #1d3a5c;
+  --color-mascot-book: var(--color-snow);
+  --color-mascot-book-shade: var(--color-mascot-page-shade);
+
+  --color-paper: #dfe6ee;
+  --color-paper-line: #c3cfdb;
+  --color-paper-line-soft: #ccd6e0;
+  --color-paper-mark: #e8c95f;
+  --color-paper-fill: #d3dce5;
 }
 
 /* Base styles sit in the base layer so Tailwind utilities on an element always win. */
@@ -77,7 +285,7 @@
   }
 
   a {
-    color: var(--color-primary);
+    color: var(--color-primary-ink);
     text-decoration: none;
   }
 
@@ -95,7 +303,7 @@
 
 /* Sections painted in a strong colour switch the focus ring to yellow so it stays visible. */
 .on-dark {
-  --focus: #ffd23f;
+  --focus: var(--color-sun);
 }
 
 .pressable {

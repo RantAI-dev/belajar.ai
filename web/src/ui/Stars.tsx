@@ -29,7 +29,7 @@ export function StarCount({
 export function StarRating({
   value,
   size = 16,
-  emptyColor = "#d5e3f0",
+  emptyColor = "var(--color-star-empty)",
   className,
 }: {
   readonly value: number;
@@ -45,7 +45,7 @@ export function StarRating({
       className={cx("inline-flex gap-0.5", className)}
     >
       {[1, 2, 3].map((n) => (
-        <StarIcon key={n} size={size} fill={n <= rating ? "#f5b301" : emptyColor} />
+        <StarIcon key={n} size={size} fill={n <= rating ? "var(--color-star)" : emptyColor} />
       ))}
     </span>
   );

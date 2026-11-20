@@ -1,5 +1,4 @@
 import { expect, test } from "bun:test";
-import { contrastRatio } from "./contrast";
 import { cx } from "./cx";
 import { AVATAR_COLORS, avatarColorIndex, initialsOf } from "./initials";
 
@@ -10,10 +9,14 @@ test("initials from up to two words", () => {
   expect(initialsOf("")).toBe("");
 });
 
-test("a name keeps its colour and every colour pair is readable", () => {
+// Contrast of each avatar pair, in both themes, is in theme.test.ts (tokenPairs.ts).
+test("a name keeps its colour, and every colour is a theme token", () => {
   expect(avatarColorIndex("Siswa A")).toBe(avatarColorIndex("Siswa A"));
   expect(avatarColorIndex("Siswa A")).toBeLessThan(AVATAR_COLORS.length);
-  for (const c of AVATAR_COLORS) expect(contrastRatio(c.fg, c.bg)).toBeGreaterThanOrEqual(4.5);
+  for (const c of AVATAR_COLORS) {
+    expect(c.bg).toMatch(/^var\(--color-avatar-\d-bg\)$/);
+    expect(c.fg).toMatch(/^var\(--color-avatar-\d-fg\)$/);
+  }
 });
 
 test("cx drops empty parts", () => {

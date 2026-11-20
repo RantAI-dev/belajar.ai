@@ -3,6 +3,8 @@
  * `color` is for fills, icons and large white text only; `ink` is for any text drawn in the
  * subject's hue (>= 4.5:1 on white, on the page and on `tint`). `tint`, `edge` and `shadow` are the
  * light shades the cards are built from.
+ * The hex values are the light theme's palette (theme.css mirrors them, theme.test.ts checks it);
+ * components paint with `subjectPaint`, whose CSS variables also switch for the dark theme.
  */
 export type SubjectId = "ipa" | "mtk" | "bing" | "bind" | "ips" | "inf" | "pp" | "pai";
 
@@ -100,6 +102,45 @@ export const SUBJECTS: readonly Subject[] = [
     shadow: "#9fd0b6",
   },
 ];
+
+export type SubjectPaint = {
+  readonly color: string;
+  readonly ink: string;
+  readonly tint: string;
+  readonly edge: string;
+  readonly shadow: string;
+  /** A fill that carries small white text (a label pill). */
+  readonly solid: string;
+};
+
+/** The subject's shades as theme tokens (`var(--color-subject-<id>-…)`), for inline styles. */
+export const subjectPaint = (subject: Pick<Subject, "id">): SubjectPaint => {
+  const t = `--color-subject-${subject.id}`;
+  return {
+    color: `var(${t})`,
+    ink: `var(${t}-ink)`,
+    tint: `var(${t}-tint)`,
+    edge: `var(${t}-edge)`,
+    shadow: `var(${t}-shadow)`,
+    solid: `var(${t}-solid)`,
+  };
+};
+
+/** The primary blue in the same shape, for "all subjects" and unknown ids. */
+export const PRIMARY_PAINT: SubjectPaint = {
+  color: "var(--color-primary)",
+  ink: "var(--color-primary-ink)",
+  tint: "var(--color-primary-soft)",
+  edge: "var(--color-line-sky)",
+  shadow: "var(--color-line-sky)",
+  solid: "var(--color-primary)",
+};
+
+/** The paint for an id, falling back to primary for an id we do not know. */
+export const paintFor = (id: string | undefined): SubjectPaint => {
+  const subject = id === undefined ? undefined : subjectById(id);
+  return subject === undefined ? PRIMARY_PAINT : subjectPaint(subject);
+};
 
 export const subjectById = (id: string): Subject | undefined => SUBJECTS.find((s) => s.id === id);
 

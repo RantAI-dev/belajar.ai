@@ -1,4 +1,4 @@
-import { ErrorState, LoadingState, Mascot, subjectById, ToggleChip } from "../../ui";
+import { ErrorState, LoadingState, Mascot, paintFor, subjectById, ToggleChip } from "../../ui";
 import { Composer } from "./Composer";
 import { ConversationTitle, type ConversationTitleProps } from "./ConversationTitle";
 import { HistoryList, type HistoryView } from "./HistoryList";
@@ -29,7 +29,7 @@ function FilterChips({
   readonly subjects: readonly string[];
   readonly onFilterChange: (filter: SubjectFilter) => void;
 }) {
-  const all = { id: "semua", shortName: "Semua", color: "#0069a8", tint: "#e0f0fd" };
+  const all = { id: "semua", shortName: "Semua" };
   const chips = [
     all,
     ...subjects.map((id) => subjectById(id) ?? undefined).filter((s) => s !== undefined),
@@ -44,7 +44,7 @@ function FilterChips({
           key={s.id}
           pressed={filter === s.id}
           onPressedChange={() => onFilterChange(s.id)}
-          accent={{ color: s.color, tint: s.tint }}
+          accent={paintFor(s.id)}
         >
           {s.shortName}
         </ToggleChip>
@@ -73,7 +73,7 @@ function EmptyState({
             <button
               type="button"
               onClick={() => onSend(s)}
-              className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold text-primary hover:bg-primary-soft"
+              className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-surface px-4 text-[15px] font-extrabold text-primary-ink hover:bg-primary-soft"
             >
               {s}
             </button>
@@ -113,7 +113,7 @@ export function TanyaScreen(props: TanyaScreenProps) {
                 key={f.id}
                 type="button"
                 onClick={() => onFollowUp(f.id)}
-                className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-white px-4 text-[15px] font-extrabold text-primary hover:bg-primary-soft"
+                className="inline-flex min-h-12 cursor-pointer items-center rounded-full border-2 border-line-sky bg-surface px-4 text-[15px] font-extrabold text-primary-ink hover:bg-primary-soft"
               >
                 {f.label}
               </button>

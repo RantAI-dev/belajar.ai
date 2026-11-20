@@ -17,7 +17,7 @@ export function ProgressBar({
   max,
   label,
   valueText,
-  color = "#22a06b",
+  color = "var(--color-success)",
   size = "sm",
   className,
 }: ProgressBarProps) {
@@ -32,7 +32,7 @@ export function ProgressBar({
       aria-valuetext={valueText}
       className={cx(
         "overflow-hidden rounded-full",
-        size === "lg" ? "h-[22px] border-2 border-line-sky bg-primary-soft" : "h-2 bg-white",
+        size === "lg" ? "h-[22px] border-2 border-line-sky bg-primary-soft" : "h-2 bg-track",
         className,
       )}
     >

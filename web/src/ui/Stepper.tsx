@@ -15,9 +15,9 @@ export type StepperProps = {
 export function Stepper({
   steps,
   current,
-  color = "#0069a8",
-  edge = "#c4dcf2",
-  ink = "#00598a",
+  color = "var(--color-primary)",
+  edge = "var(--color-line-sky)",
+  ink = "var(--color-primary-ink)",
   className,
 }: StepperProps) {
   return (
@@ -36,12 +36,12 @@ export function Stepper({
             <span
               className={cx(
                 "flex shrink-0 items-center justify-center rounded-full font-extrabold",
-                on ? "size-[42px] border-4 bg-white" : "size-[34px]",
-                !done && !on && "border-[3px] bg-white text-ink-faint",
+                on ? "size-[42px] border-4 bg-surface" : "size-[34px]",
+                !done && !on && "border-[3px] bg-surface text-ink-faint",
               )}
               style={
                 done
-                  ? { background: color, color: "#ffffff" }
+                  ? { background: color, color: "var(--color-on-fill)" }
                   : on
                     ? { borderColor: color, color: ink }
                     : { borderColor: edge }

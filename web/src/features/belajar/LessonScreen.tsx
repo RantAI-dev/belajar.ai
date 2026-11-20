@@ -7,6 +7,7 @@ import {
   ErrorState,
   LoadingState,
   Mascot,
+  paintFor,
   StarRating,
   Stepper,
   subjectById,
@@ -57,7 +58,7 @@ function QuizScore({
 }: Pick<LessonScreenProps, "onComplete" | "completing">) {
   const [correct, setCorrect] = useState<number | null>(null);
   return (
-    <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-card border-2 border-line bg-white p-4 sm:p-5">
+    <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-card border-2 border-line bg-surface p-4 sm:p-5">
       <legend className="float-left mb-1 p-0 font-display text-[20px] font-semibold">
         Sudah kamu jawab? Berapa yang benar?
       </legend>
@@ -97,16 +98,20 @@ function Celebration({ result, bestStars }: Pick<LessonScreenProps, "result" | "
   return (
     <section
       aria-label="Hasil sesi"
-      className="on-dark flex flex-wrap items-center gap-5 rounded-panel bg-success p-5 text-white sm:p-6"
+      className="on-dark flex flex-wrap items-center gap-5 rounded-panel bg-celebrate p-5 text-on-fill sm:p-6"
     >
-      <Mascot mood="celebrate" size={96} backdrop="#2bb77c" inverse animate />
+      <Mascot mood="celebrate" size={96} backdrop="var(--color-celebrate-glow)" inverse animate />
       <div className="flex min-w-0 flex-1 basis-[240px] flex-col gap-2">
         <h2 className="m-0 font-display text-[28px] font-semibold leading-tight">
           {result === null ? "Bab ini sudah selesai!" : quizHeadline(result.correct, result.total)}
         </h2>
-        <StarRating value={result?.stars ?? bestStars} size={36} emptyColor="#5fc596" />
+        <StarRating
+          value={result?.stars ?? bestStars}
+          size={36}
+          emptyColor="var(--color-celebrate-star-empty)"
+        />
         {result !== null && (
-          <span className="inline-flex min-h-9 items-center self-start rounded-[12px] bg-white px-3.5 text-[16px] font-extrabold text-success-edge">
+          <span className="inline-flex min-h-9 items-center self-start rounded-[12px] bg-surface px-3.5 text-[16px] font-extrabold text-success-ink">
             {result.starsEarned > 0
               ? `+${result.starsEarned} bintang untukmu`
               : "Bintang terbaikmu tetap tersimpan"}
@@ -119,6 +124,7 @@ function Celebration({ result, bestStars }: Pick<LessonScreenProps, "result" | "
 
 export function LessonScreen(p: LessonScreenProps) {
   const subject = subjectById(p.subjectId);
+  const paint = paintFor(subject?.id);
   const at = stepIndex(p.step);
   const idle = !p.busy && !p.loading;
   return (
@@ -137,9 +143,9 @@ export function LessonScreen(p: LessonScreenProps) {
         <Stepper
           steps={LESSON_STEPS}
           current={at}
-          color={subject?.color ?? "#0069a8"}
-          edge={subject?.edge ?? "#c4dcf2"}
-          ink={subject?.ink ?? "#00598a"}
+          color={paint.color}
+          edge={paint.edge}
+          ink={paint.ink}
           className="max-w-[520px]"
         />
       </div>

@@ -6,6 +6,7 @@ import {
   choiceState,
   letterAt,
   ProgressBar,
+  paintFor,
   subjectById,
 } from "../../ui";
 import type { QuizQuestion } from "./types";
@@ -41,7 +42,7 @@ export function QuizScreen(p: QuizScreenProps) {
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <span className="text-[15px] font-extrabold" style={{ color: subject?.ink ?? "#00598a" }}>
+        <span className="text-[15px] font-extrabold" style={{ color: paintFor(subject?.id).ink }}>
           {subject?.name ?? "Latihan"} · {p.topic}
         </span>
         <div className="flex items-center gap-3">
@@ -51,7 +52,7 @@ export function QuizScreen(p: QuizScreenProps) {
             label="Soal ke"
             valueText={`Soal ${p.index + 1} dari ${p.total}`}
             size="lg"
-            color="#0069a8"
+            color={paintFor(subject?.id).color}
             className="flex-1"
           />
           <span aria-hidden="true" className="font-display text-[22px] font-semibold">

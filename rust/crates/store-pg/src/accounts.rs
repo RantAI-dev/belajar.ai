@@ -3,6 +3,7 @@
 
 use async_trait::async_trait;
 use belajar_core::grade::{Grade, GradeError};
+use belajar_core::theme::ThemePreference;
 use belajar_ports::accounts::{AccountStore, LoginRecord, SessionRecord, StudentAccount};
 use belajar_ports::store::StoreError;
 use chrono::{DateTime, Utc};
@@ -19,6 +20,7 @@ struct StudentRow {
     created_at: DateTime<Utc>,
     nickname: String,
     grade: i16,
+    theme: String,
 }
 
 impl TryFrom<StudentRow> for StudentAccount {
@@ -29,11 +31,15 @@ impl TryFrom<StudentRow> for StudentAccount {
         let grade = u8::try_from(row.grade)
             .map_err(|_| out_of_range_grade())
             .and_then(|g| Grade::new(g).map_err(|GradeError::OutOfRange| out_of_range_grade()))?;
+        let theme = ThemePreference::parse(&row.theme).ok_or_else(|| {
+            StoreError::Internal("student_profiles.theme is not system, light or dark".to_owned())
+        })?;
         Ok(StudentAccount {
             id: row.id,
             username: row.username,
             nickname: row.nickname,
             grade,
+            theme,
             created_at: row.created_at,
         })
     }
@@ -110,6 +116,7 @@ impl AccountStore for Db {
             username: username.to_owned(),
             nickname: nickname.to_owned(),
             grade,
+            theme: ThemePreference::default(),
             created_at,
         })
     }
@@ -216,7 +223,7 @@ impl AccountStore for Db {
 
     async fn get_student(&self, student_id: Uuid) -> Result<StudentAccount, StoreError> {
         let row = sqlx::query_as::<Postgres, StudentRow>(
-            "SELECT u.id, u.username, u.created_at, p.nickname, p.grade \
+            "SELECT u.id, u.username, u.created_at, p.nickname, p.grade, p.theme \
              FROM users u JOIN student_profiles p ON p.student_id = u.id WHERE u.id = $1",
         )
         .bind(student_id)
@@ -231,15 +238,18 @@ impl AccountStore for Db {
         student_id: Uuid,
         nickname: Option<&str>,
         grade: Option<Grade>,
+        theme: Option<ThemePreference>,
     ) -> Result<StudentAccount, StoreError> {
         sqlx::query(
             "UPDATE student_profiles \
-             SET nickname = COALESCE($2, nickname), grade = COALESCE($3, grade), updated_at = now() \
+             SET nickname = COALESCE($2, nickname), grade = COALESCE($3, grade), \
+                 theme = COALESCE($4, theme), updated_at = now() \
              WHERE student_id = $1",
         )
         .bind(student_id)
         .bind(nickname)
         .bind(grade.map(|g| i16::from(g.get())))
+        .bind(theme.map(ThemePreference::as_str))
         .execute(&self.pool)
         .await
         .map_err(map_db_err)?;

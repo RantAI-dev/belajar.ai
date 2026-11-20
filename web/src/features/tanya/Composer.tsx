@@ -22,9 +22,9 @@ export function Composer({
   return (
     <form
       onSubmit={submit}
-      className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-auto bg-[linear-gradient(to_top,#f3f9ff_75%,rgb(243_249_255/0))] pt-3.5 pb-3 md:bottom-0 md:pb-[22px]"
+      className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-auto bg-[linear-gradient(to_top,var(--color-page)_75%,transparent)] pt-3.5 pb-3 md:bottom-0 md:pb-[22px]"
     >
-      <div className="ring-within flex items-center gap-2.5 rounded-[20px] border-2 border-line-sky bg-white py-2 pr-2 pl-4 shadow-[0_6px_20px_rgb(0_105_168/0.08)] sm:pl-5">
+      <div className="ring-within flex items-center gap-2.5 rounded-[20px] border-2 border-line-sky bg-surface py-2 pr-2 pl-4 shadow-[0_6px_20px_color-mix(in_srgb,var(--color-primary)_8%,transparent)] sm:pl-5">
         <label htmlFor="tanya-input" className="sr-only">
           Pertanyaanmu
         </label>
@@ -41,7 +41,7 @@ export function Composer({
           type="submit"
           disabled={busy}
           className={cx(
-            "pressable inline-flex min-h-[52px] min-w-[52px] items-center justify-center gap-2 rounded-[14px] bg-primary px-4 text-[19px] font-extrabold text-white shadow-[0_4px_0_var(--color-primary-edge)] sm:px-[22px]",
+            "pressable inline-flex min-h-[52px] min-w-[52px] items-center justify-center gap-2 rounded-[14px] bg-primary px-4 text-[19px] font-extrabold text-on-fill shadow-[0_4px_0_var(--color-primary-edge)] sm:px-[22px]",
             busy
               ? "cursor-not-allowed opacity-55"
               : "cursor-pointer active:translate-y-[4px] active:shadow-none",

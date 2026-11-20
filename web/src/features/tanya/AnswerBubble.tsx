@@ -18,7 +18,7 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
           <p className="m-0 text-[18px] font-semibold leading-[1.65]">
             {parts.map((p) =>
               p.emphasis === true ? (
-                <strong key={p.key} className="text-primary">
+                <strong key={p.key} className="text-primary-ink">
                   {p.text}
                 </strong>
               ) : (

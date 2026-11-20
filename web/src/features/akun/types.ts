@@ -1,3 +1,4 @@
+import type { ThemePreference } from "../../ui";
 import type { Grade } from "../auth";
 
 export type AkunView = {
@@ -6,4 +7,5 @@ export type AkunView = {
   readonly grade: Grade;
   readonly stars: number;
   readonly streakDays: number;
+  readonly theme: ThemePreference;
 };

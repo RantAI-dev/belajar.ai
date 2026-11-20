@@ -25,7 +25,7 @@ export function MissionCard({
         <h2 id="misi-title" className="m-0 font-display text-[22px] font-semibold">
           {title}
         </h2>
-        <span className="text-[15px] font-extrabold text-primary">
+        <span className="text-[15px] font-extrabold text-primary-ink">
           {done}/{missions.length} selesai
         </span>
       </div>
@@ -34,11 +34,11 @@ export function MissionCard({
           <li key={m.id}>
             <AppLink
               href={m.href}
-              className={`flex min-h-[60px] items-center gap-3.5 rounded-[16px] px-3.5 text-ink ${m.done ? "bg-success-soft" : "bg-[#f6fafe] hover:bg-primary-soft"}`}
+              className={`flex min-h-[60px] items-center gap-3.5 rounded-[16px] px-3.5 text-ink ${m.done ? "bg-success-soft" : "bg-surface-alt hover:bg-primary-soft"}`}
             >
               <span
                 aria-hidden="true"
-                className={`flex size-8 shrink-0 items-center justify-center rounded-full border-[3px] ${m.done ? "border-success bg-success text-white" : "border-[#c4d6e8] bg-white"}`}
+                className={`flex size-8 shrink-0 items-center justify-center rounded-full border-[3px] ${m.done ? "border-success bg-success text-on-fill" : "border-line-dashed bg-surface"}`}
               >
                 {m.done && <CheckIcon size={16} />}
               </span>

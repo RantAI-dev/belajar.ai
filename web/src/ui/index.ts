@@ -36,5 +36,26 @@ export { Stepper } from "./Stepper";
 export { StreakBadge } from "./StreakBadge";
 export { SubjectCard } from "./SubjectCard";
 export { SubjectIcon } from "./SubjectIcon";
-export { isSubjectId, SUBJECTS, type Subject, type SubjectId, subjectById } from "./subjects";
+export {
+  isSubjectId,
+  PRIMARY_PAINT,
+  paintFor,
+  SUBJECTS,
+  type Subject,
+  type SubjectId,
+  type SubjectPaint,
+  subjectById,
+  subjectPaint,
+} from "./subjects";
 export { ToggleChip } from "./ToggleChip";
+export {
+  applyTheme,
+  DARK_QUERY,
+  isThemePreference,
+  type ResolvedTheme,
+  readStoredTheme,
+  resolveTheme,
+  storeTheme,
+  THEME_PREFERENCES,
+  type ThemePreference,
+} from "./themePreference";

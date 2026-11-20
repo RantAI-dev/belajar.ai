@@ -37,9 +37,9 @@ export function HistoryList({
             <li key={c.id}>
               <AppLink
                 href={c.href}
-                className="flex min-h-[60px] items-center gap-3 rounded-[16px] border-2 border-line bg-white px-4 py-2 text-ink hover:bg-primary-soft"
+                className="flex min-h-[60px] items-center gap-3 rounded-[16px] border-2 border-line bg-surface px-4 py-2 text-ink hover:bg-primary-soft"
               >
-                <span className="text-primary" aria-hidden="true">
+                <span className="text-primary-ink" aria-hidden="true">
                   <ChatIcon size={22} />
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[17px] font-bold">{c.title}</span>
