@@ -12,6 +12,7 @@ import {
   StarRating,
   starsForScore,
 } from "../../ui";
+import { resultMood } from "./resultMood";
 import { resultHeadline } from "./scoring";
 import type { QuizResult, ReviewItem as Review } from "./types";
 
@@ -118,6 +119,7 @@ function ReviewItem({
 
 export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps) {
   const { correct, total } = result;
+  const mood = resultMood(correct, total);
   const firstWrong = result.items.find((i) => !i.isCorrect)?.question.id;
   const [open, setOpen] = useState<ReadonlySet<string>>(
     new Set(firstWrong === undefined ? [] : [firstWrong]),
@@ -136,7 +138,7 @@ export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps
         className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-celebrate p-5 text-on-fill sm:p-7"
       >
         <Mascot
-          mood="celebrate"
+          expression={mood.expression}
           size={120}
           backdrop="var(--color-celebrate-glow)"
           inverse
@@ -150,6 +152,9 @@ export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps
           >
             {resultHeadline(correct, total)}
           </h1>
+          {mood.cheer !== null && (
+            <p className="m-0 text-[17px] font-bold leading-snug">{mood.cheer}</p>
+          )}
           <StarRating
             value={starsForScore(correct, total)}
             size={40}
