@@ -1,5 +1,5 @@
 import { Button } from "./Button";
-import { Mascot } from "./Mascot";
+import { Mascot } from "./mascot/Mascot";
 
 /** The mascot thinking while a screen's data arrives. */
 export function LoadingState({ text = "Sebentar, aku siapkan dulu…" }: { readonly text?: string }) {
