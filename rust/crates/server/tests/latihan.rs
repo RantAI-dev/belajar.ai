@@ -207,6 +207,28 @@ async fn a_mixed_set_carries_every_kind_and_stories_have_their_text(pool: PgPool
 }
 
 #[sqlx::test(migrations = "../../migrations")]
+async fn a_set_delivered_short_counts_the_questions_it_holds(pool: PgPool) {
+    // The real API may deliver fewer questions than asked for (recorded: 2 of 5); the fake's
+    // "__short__" topic does the same.
+    let (app, _fake) = world(pool.clone()).await;
+    let budi = app.student("budi").await;
+    let set = generate(&app, &budi, "ipa", "__short__", "mcq_multiple_correct", 5).await;
+    let held = set["questions"].as_array().unwrap().len() as u64;
+    assert_eq!(held, 2);
+    assert_eq!(set["totalQuestions"], held, "the set counts what it holds");
+
+    let res = submit(&app, &pool, &budi, &set, false).await;
+    assert_eq!(res.status, StatusCode::OK, "{}", res.text);
+    assert_eq!(res.body["totalCount"], held);
+    let list = app.get("/v1/practice-sets?limit=10", Some(&budi)).await;
+    assert_eq!(
+        list.body["data"][0]["totalQuestions"], held,
+        "{}",
+        list.text
+    );
+}
+
+#[sqlx::test(migrations = "../../migrations")]
 async fn the_page_appears_only_after_submit(pool: PgPool) {
     let (app, fake) = world(pool.clone()).await;
     let budi = app.student("budi").await;

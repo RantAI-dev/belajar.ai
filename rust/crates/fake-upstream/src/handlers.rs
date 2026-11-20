@@ -133,7 +133,14 @@ pub(crate) async fn generate_practice(
         ));
     }
 
-    let set = bank::set_json(practice_type, total, &topics);
+    // The reserved topic "__short__" delivers 2 of 5, as the real API did for the recorded
+    // `generate-mcq_multiple_correct-json` when its checks rejected the rest.
+    let delivered = if topics.iter().any(|topic| topic == "__short__") {
+        (total * 2 / 5).max(1)
+    } else {
+        total
+    };
+    let set = bank::set_json(practice_type, total, delivered, &topics);
     if !request.stream {
         return Json(set).into_response();
     }
@@ -141,26 +148,26 @@ pub(crate) async fn generate_practice(
         "progress",
         &json!({ "stage": "retrieval", "delivered": 0, "adapter_calls": 0, "total": total, "elapsed_s": 0 }),
     )];
-    for delivered in 1..=total {
+    for step in 1..=delivered {
         frames.push(event_frame(
             "progress",
             &json!({
                 "stage": "generating",
-                "delivered": delivered,
+                "delivered": step,
                 "total": total,
-                "adapter_calls": delivered + 1,
-                "elapsed_s": 0.2 + delivered as f64 * 0.3,
+                "adapter_calls": step + 1,
+                "elapsed_s": 0.2 + step as f64 * 0.3,
             }),
         ));
     }
     let done = total as f64;
     frames.push(event_frame(
         "progress",
-        &json!({ "stage": "checking", "delivered": total, "total": total, "adapter_calls": total + 2, "elapsed_s": 0.3 + done * 0.3 }),
+        &json!({ "stage": "checking", "delivered": delivered, "total": total, "adapter_calls": total + 2, "elapsed_s": 0.3 + done * 0.3 }),
     ));
     frames.push(event_frame(
         "progress",
-        &json!({ "stage": "labelling", "delivered": total, "adapter_calls": total + 2, "total": total, "elapsed_s": 0.4 + done * 0.3 }),
+        &json!({ "stage": "labelling", "delivered": delivered, "adapter_calls": total + 2, "total": total, "elapsed_s": 0.4 + done * 0.3 }),
     ));
     frames.push(event_frame("result", &set));
     sse_response(sse_body(

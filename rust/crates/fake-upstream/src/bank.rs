@@ -619,9 +619,15 @@ const STORY: &[Seed] = &[
 
 /// The whole practice set in the real upstream's shape (recorded in `fixtures/practice/`): the
 /// body of a `stream: false` response and the payload of the stream's `result` event.
-pub(crate) fn set_json(practice_type: &str, total: usize, topics: &[String]) -> Value {
+/// `delivered` may be below `requested`: the real API drops questions that fail its checks.
+pub(crate) fn set_json(
+    practice_type: &str,
+    requested: usize,
+    delivered: usize,
+    topics: &[String],
+) -> Value {
     let topic = topics.first().map(String::as_str).unwrap_or("Pemuaian");
-    let questions: Vec<Value> = (0..total)
+    let questions: Vec<Value> = (0..delivered)
         .map(|index| question_json(index, practice_type, topic))
         .collect();
     let mut materi_titles: Vec<&str> = Vec::new();
@@ -640,14 +646,14 @@ pub(crate) fn set_json(practice_type: &str, total: usize, topics: &[String]) -> 
         "materi_titles": materi_titles,
         "questions": questions,
         "report": {
-            "requested": total,
+            "requested": requested,
             "delivered": questions.len(),
-            "adapter_calls": total + 1,
-            "checks_run": total,
+            "adapter_calls": requested + 1,
+            "checks_run": requested,
             "seconds": 0.1,
             "rejected": {
                 "format": 0, "key_unsupported": 0, "twin_keys": 0,
-                "ambiguous": 0, "ai_checker": 0, "duplicate": 0,
+                "ambiguous": 0, "ai_checker": requested - questions.len().min(requested), "duplicate": 0,
             },
             "skipped_topics": [],
         },
@@ -736,7 +742,7 @@ mod tests {
 
     #[test]
     fn the_set_has_unique_ids_and_the_requested_number_of_questions() {
-        let set = set_json("mcq_mixed", 7, &["Pemuaian".to_owned()]);
+        let set = set_json("mcq_mixed", 7, 7, &["Pemuaian".to_owned()]);
         let questions = set["questions"].as_array().unwrap();
         assert_eq!(questions.len(), 7);
         assert_eq!(set["total_questions"], 7);
@@ -792,7 +798,7 @@ mod tests {
             "mcq_mixed",
         ] {
             let recorded = crate::recorded::json(&format!("generate-{practice_type}-json.json"));
-            let fake = set_json(practice_type, 5, &["Pemuaian".to_owned()]);
+            let fake = set_json(practice_type, 5, 5, &["Pemuaian".to_owned()]);
 
             let top = |set: &Value| {
                 let mut keys: Vec<String> = set.as_object().unwrap().keys().cloned().collect();
