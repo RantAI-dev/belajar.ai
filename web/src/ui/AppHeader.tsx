@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { cx } from "./cx";
-import { BookIcon, ChatIcon, CheckSquareIcon, HomeIcon } from "./icons";
+import { BookIcon, ChartIcon, ChatIcon, CheckSquareIcon, HomeIcon } from "./icons";
 import { AppLink } from "./link";
 import { Logo } from "./Mascot";
 import { StarCount } from "./Stars";
 import { StreakBadge } from "./StreakBadge";
 
-export type NavKey = "beranda" | "tanya" | "belajar" | "latihan";
+export type NavKey = "beranda" | "tanya" | "belajar" | "latihan" | "progres";
 
 const NAV: ReadonlyArray<{
   readonly key: NavKey;
@@ -18,6 +18,7 @@ const NAV: ReadonlyArray<{
   { key: "tanya", label: "Tanya", icon: <ChatIcon /> },
   { key: "belajar", label: "Belajar", icon: <BookIcon /> },
   { key: "latihan", label: "Latihan", icon: <CheckSquareIcon /> },
+  { key: "progres", label: "Progres", icon: <ChartIcon /> },
 ];
 
 export type AppHeaderProps = {
@@ -39,12 +40,12 @@ export function AppHeader({
   accountHref,
 }: AppHeaderProps) {
   return (
-    <header className="border-b-2 border-line bg-white">
+    <header className="border-b-2 border-line bg-surface">
       <div className="mx-auto flex min-h-[64px] max-w-[1240px] items-center justify-between gap-x-5 gap-y-3 px-4 py-2 sm:min-h-[76px] sm:px-7">
         <Logo href={links.beranda} />
         <nav
           aria-label="Menu utama"
-          className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-white px-2 pb-[env(safe-area-inset-bottom)] md:static md:border-0 md:bg-transparent md:p-0"
+          className="fixed inset-x-0 bottom-0 z-20 border-t-2 border-line bg-surface px-2 pb-[env(safe-area-inset-bottom)] md:static md:border-0 md:bg-transparent md:p-0"
         >
           <ul className="m-0 flex list-none justify-around gap-1.5 p-0 md:justify-start">
             {NAV.map((item) => {
@@ -57,7 +58,7 @@ export function AppHeader({
                     className={cx(
                       "flex min-h-[60px] flex-col items-center justify-center gap-0.5 rounded-chip px-2 text-[13px] md:min-h-12 md:flex-row md:gap-2 md:px-[18px] md:text-[16px]",
                       on
-                        ? "bg-primary-soft font-extrabold text-primary-strong"
+                        ? "bg-primary-soft font-extrabold text-primary-ink"
                         : "font-bold text-ink-muted hover:bg-page",
                     )}
                   >

@@ -2,7 +2,7 @@ import { type InputHTMLAttributes, type SelectHTMLAttributes, useId } from "reac
 import { cx } from "./cx";
 
 const CONTROL =
-  "min-h-[52px] w-full rounded-chip border-2 bg-white px-3.5 text-[17px] font-bold text-ink placeholder:text-ink-faint placeholder:font-semibold";
+  "min-h-[52px] w-full rounded-chip border-2 bg-surface px-3.5 text-[17px] font-bold text-ink placeholder:text-ink-faint placeholder:font-semibold";
 
 type Shared = {
   readonly label: string;

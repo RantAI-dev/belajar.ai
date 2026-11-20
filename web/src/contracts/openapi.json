@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "belajar.ai",
-    "description": "Accounts, profiles, sessions, subjects, guided lessons, the home screen, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
+    "description": "Accounts, profiles, sessions, subjects, guided lessons, the home screen, progress, conversations, streamed answers and practice sets for the learning app. Every error body has the same shape: { code, message, requestId, errors? }.",
     "license": {
       "name": ""
     },
@@ -1158,7 +1158,7 @@
       },
       "patch": {
         "tags": ["me"],
-        "summary": "Updates the nickname and/or the grade. `username` and friends are not editable here.",
+        "summary": "Updates the nickname, the grade and/or the theme. `username` and friends are not editable here.",
         "operationId": "patch_me",
         "requestBody": {
           "content": {
@@ -1689,6 +1689,35 @@
         }
       }
     },
+    "/v1/progress": {
+      "get": {
+        "tags": ["progress"],
+        "summary": "`GET /v1/progress`.",
+        "operationId": "get_progress",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/subjects": {
       "get": {
         "tags": ["subjects"],
@@ -1881,6 +1910,67 @@
   },
   "components": {
     "schemas": {
+      "ActivityDto": {
+        "type": "object",
+        "required": ["last7Days", "last30Days"],
+        "properties": {
+          "last30Days": {
+            "$ref": "#/components/schemas/ActivityWindowDto"
+          },
+          "last7Days": {
+            "$ref": "#/components/schemas/ActivityWindowDto"
+          }
+        }
+      },
+      "ActivityWindowDto": {
+        "type": "object",
+        "description": "The last N Jakarta days, today included, oldest first.",
+        "required": [
+          "startsOn",
+          "endsOn",
+          "daysActive",
+          "questionsAnswered",
+          "lessonsCompleted",
+          "questionsAsked",
+          "days"
+        ],
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayActivityDto"
+            }
+          },
+          "daysActive": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "lessonsCompleted": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "questionsAnswered": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "questionsAsked": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
       "ChapterDto": {
         "type": "object",
         "description": "One chapter of a subject, with the student's own progress in it.",
@@ -1914,6 +2004,51 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "ChapterProgressDto": {
+        "type": "object",
+        "description": "One chapter the student started in Belajar.",
+        "required": [
+          "lessonId",
+          "subjectId",
+          "chapterId",
+          "chapterTitle",
+          "step",
+          "stars",
+          "isCompleted",
+          "updatedAt"
+        ],
+        "properties": {
+          "chapterId": {
+            "type": "string"
+          },
+          "chapterTitle": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "lessonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "step": {
+            "type": "string",
+            "description": "`explain`, `check`, `quiz` or `done`."
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2103,6 +2238,47 @@
           }
         },
         "additionalProperties": false
+      },
+      "DayActivityDto": {
+        "type": "object",
+        "description": "One Jakarta calendar day.",
+        "required": [
+          "on",
+          "isActive",
+          "questionsAnswered",
+          "correctAnswers",
+          "lessonsCompleted",
+          "questionsAsked"
+        ],
+        "properties": {
+          "correctAnswers": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lessonsCompleted": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "on": {
+            "type": "string",
+            "format": "date"
+          },
+          "questionsAnswered": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "questionsAsked": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
       },
       "DeltaData": {
         "type": "object",
@@ -2310,6 +2486,11 @@
         "description": "`POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing.",
         "additionalProperties": false
       },
+      "MasteryLevelDto": {
+        "type": "string",
+        "description": "`not_started` (Belum mulai), `learning` (Sedang belajar), `almost` (Hampir) or `mastered`\n(Dikuasai: at least 80% over at least 5 answered questions).",
+        "enum": ["not_started", "learning", "almost", "mastered"]
+      },
       "MessageDto": {
         "type": "object",
         "description": "One stored message: the student's question or the assistant's answer.",
@@ -2446,6 +2627,17 @@
           "nickname": {
             "type": ["string", "null"],
             "description": "A `nickname` that is only whitespace is invalid, so `null` is the only \"no change\" form."
+          },
+          "theme": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ThemePreferenceDto",
+                "description": "Read as text so a value outside the three gets a field error, not a bare 400."
+              }
+            ]
           }
         },
         "additionalProperties": false
@@ -2458,6 +2650,54 @@
           "suggestedNickname": {
             "type": "string",
             "description": "The Google profile name, cut to the nickname limit; empty when Google sent none."
+          }
+        }
+      },
+      "PeriodSummaryDto": {
+        "type": "object",
+        "description": "The headline numbers for one period (\"Minggu ini\" or \"Semua\").",
+        "required": [
+          "stars",
+          "lessonsCompleted",
+          "questionsAnswered",
+          "correctAnswers",
+          "accuracyPercent",
+          "daysActive"
+        ],
+        "properties": {
+          "accuracyPercent": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Round(100 × correct / answered); `null` when nothing was answered.",
+            "minimum": 0
+          },
+          "correctAnswers": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "daysActive": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Jakarta days with any activity in the period.",
+            "minimum": 0
+          },
+          "lessonsCompleted": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Chapters completed for the first time in the period.",
+            "minimum": 0
+          },
+          "questionsAnswered": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "stars": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Stars earned in the period.",
+            "minimum": 0
           }
         }
       },
@@ -2611,6 +2851,74 @@
         "description": "A set's status: `ready` until it is submitted, `submitted` for ever after.",
         "enum": ["ready", "submitted"]
       },
+      "ProgressDto": {
+        "type": "object",
+        "description": "The whole Progres page in one response, for the signed-in student only.",
+        "required": [
+          "streakDays",
+          "weekStartsOn",
+          "weekEndsOn",
+          "thisWeek",
+          "allTime",
+          "subjects",
+          "activity",
+          "recentSessions",
+          "practiceAgain",
+          "continueLessons"
+        ],
+        "properties": {
+          "activity": {
+            "$ref": "#/components/schemas/ActivityDto"
+          },
+          "allTime": {
+            "$ref": "#/components/schemas/PeriodSummaryDto"
+          },
+          "continueLessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterProgressDto"
+            },
+            "description": "Unfinished chapters, most recent first (at most 3)."
+          },
+          "practiceAgain": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicProgressDto"
+            },
+            "description": "The weakest topics not yet mastered, weakest first (at most 3)."
+          },
+          "recentSessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecentSessionDto"
+            }
+          },
+          "streakDays": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectProgressDto"
+            },
+            "description": "In the app's subject order."
+          },
+          "thisWeek": {
+            "$ref": "#/components/schemas/PeriodSummaryDto"
+          },
+          "weekEndsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "weekStartsOn": {
+            "type": "string",
+            "format": "date",
+            "description": "The Jakarta week: Monday to Sunday."
+          }
+        }
+      },
       "ProgressEventDto": {
         "type": "object",
         "description": "One `progress` event of the generation stream.",
@@ -2700,6 +3008,58 @@
           }
         }
       },
+      "RecentSessionDto": {
+        "type": "object",
+        "description": "One recent session, newest first.",
+        "required": [
+          "kind",
+          "id",
+          "subjectId",
+          "title",
+          "correctCount",
+          "totalCount",
+          "stars",
+          "occurredAt"
+        ],
+        "properties": {
+          "correctCount": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Practice only.",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The practice set, lesson or conversation."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SessionKindDto"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stars": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Lesson only.",
+            "minimum": 0
+          },
+          "subjectId": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "totalCount": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Practice only.",
+            "minimum": 0
+          }
+        }
+      },
       "RegisterRequest": {
         "type": "object",
         "required": ["username", "password", "nickname", "grade"],
@@ -2780,6 +3140,11 @@
         },
         "additionalProperties": false
       },
+      "SessionKindDto": {
+        "type": "string",
+        "description": "What a recent session was.",
+        "enum": ["practice", "lesson", "ask"]
+      },
       "SourceDto": {
         "type": "object",
         "description": "One book passage an answer used. The upstream's `page_url` stays on our server; the browser\nfetches the page through `pagePreviewUrl` instead.",
@@ -2814,7 +3179,7 @@
       "StudentDto": {
         "type": "object",
         "description": "A whole student, as every auth and `/v1/me` response shows them. No password material, ever.",
-        "required": ["id", "username", "nickname", "grade", "createdAt"],
+        "required": ["id", "username", "nickname", "grade", "theme", "createdAt"],
         "properties": {
           "createdAt": {
             "type": "string",
@@ -2831,6 +3196,9 @@
           },
           "nickname": {
             "type": "string"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/ThemePreferenceDto"
           },
           "username": {
             "type": "string"
@@ -2856,6 +3224,72 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "SubjectProgressDto": {
+        "type": "object",
+        "description": "One subject the student has practised or studied.",
+        "required": [
+          "subjectId",
+          "name",
+          "attempts",
+          "correct",
+          "masteryPercent",
+          "level",
+          "lessonsStarted",
+          "lessonsCompleted",
+          "topics",
+          "chapters"
+        ],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterProgressDto"
+            },
+            "description": "Most recently updated first."
+          },
+          "correct": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "lessonsCompleted": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "lessonsStarted": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "level": {
+            "$ref": "#/components/schemas/MasteryLevelDto"
+          },
+          "masteryPercent": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicProgressDto"
+            },
+            "description": "Weakest first."
           }
         }
       },
@@ -2904,9 +3338,14 @@
         },
         "additionalProperties": false
       },
+      "ThemePreferenceDto": {
+        "type": "string",
+        "description": "The colour theme the student chose: `system` follows the device's light/dark setting.",
+        "enum": ["system", "light", "dark"]
+      },
       "TopicMasteryDto": {
         "type": "object",
-        "required": ["subjectId", "topic", "attempts", "correct", "masteryPercent"],
+        "required": ["subjectId", "topic", "attempts", "correct", "masteryPercent", "level"],
         "properties": {
           "attempts": {
             "type": "integer",
@@ -2917,6 +3356,10 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          },
+          "level": {
+            "$ref": "#/components/schemas/MasteryLevelDto",
+            "description": "The level `belajar_core::mastery::mastery_level` gives these answers."
           },
           "masteryPercent": {
             "type": "integer",
@@ -2945,6 +3388,73 @@
             "type": ["string", "null"]
           }
         }
+      },
+      "TopicProgressDto": {
+        "type": "object",
+        "description": "One practised topic.",
+        "required": [
+          "subjectId",
+          "topic",
+          "attempts",
+          "correct",
+          "masteryPercent",
+          "level",
+          "trend",
+          "thisWeekPercent",
+          "lastWeekPercent",
+          "lastPracticedAt"
+        ],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int32",
+            "description": "All answered questions on this topic, ever (the same numbers Latihan shows).",
+            "minimum": 0
+          },
+          "correct": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "lastPracticedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "lastWeekPercent": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Last Jakarta week's accuracy; `null` without answers last week.",
+            "minimum": 0
+          },
+          "level": {
+            "$ref": "#/components/schemas/MasteryLevelDto"
+          },
+          "masteryPercent": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "thisWeekPercent": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "This Jakarta week's accuracy; `null` without answers this week.",
+            "minimum": 0
+          },
+          "topic": {
+            "type": "string"
+          },
+          "trend": {
+            "$ref": "#/components/schemas/TrendDto"
+          }
+        }
+      },
+      "TrendDto": {
+        "type": "string",
+        "description": "This week's accuracy against last week's: `up`, `down`, `same`, or `no_data` when either week\nhas no answers.",
+        "enum": ["up", "down", "same", "no_data"]
       }
     }
   }

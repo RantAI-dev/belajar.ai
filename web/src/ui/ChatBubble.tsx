@@ -31,7 +31,7 @@ function TypingDots() {
 export function ChatBubble(props: ChatBubbleProps) {
   if (props.from === "student") {
     return (
-      <div className="max-w-[85%] self-end rounded-[22px_22px_6px_22px] bg-primary px-[18px] py-3.5 text-[18px] font-bold leading-snug text-white sm:max-w-[78%]">
+      <div className="max-w-[85%] self-end rounded-[22px_22px_6px_22px] bg-primary px-[18px] py-3.5 text-[18px] font-bold leading-snug text-on-fill sm:max-w-[78%]">
         <span className="sr-only">Kamu: </span>
         {props.children}
       </div>
@@ -46,9 +46,9 @@ export function ChatBubble(props: ChatBubbleProps) {
         aria-live={streaming ? "polite" : undefined}
         aria-busy={streaming || undefined}
         className={cx(
-          "flex min-w-0 flex-1 flex-col gap-3.5 rounded-[6px_22px_22px_22px] bg-white px-4 py-4 sm:px-5",
+          "flex min-w-0 flex-1 flex-col gap-3.5 rounded-[6px_22px_22px_22px] bg-surface px-4 py-4 sm:px-5",
           variant === "ungrounded"
-            ? "border-2 border-dashed border-[#c4d6e8]"
+            ? "border-2 border-dashed border-line-dashed"
             : "border-2 border-line",
         )}
       >

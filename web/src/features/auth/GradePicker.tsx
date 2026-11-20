@@ -29,8 +29,8 @@ export function GradePicker({
                   className={cx(
                     "pressable ring-within flex min-h-[60px] cursor-pointer items-center justify-center rounded-[16px] border-[3px] font-display text-[26px] font-semibold",
                     on
-                      ? "border-primary bg-primary text-white shadow-[0_4px_0_var(--color-primary-edge)]"
-                      : "border-line-strong bg-white text-ink hover:bg-page",
+                      ? "border-primary bg-primary text-on-fill shadow-[0_4px_0_var(--color-primary-edge)]"
+                      : "border-line-strong bg-surface text-ink hover:bg-page",
                   )}
                 >
                   <input

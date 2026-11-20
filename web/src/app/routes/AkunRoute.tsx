@@ -4,10 +4,12 @@ import { err, ok } from "../../contracts/result";
 import { AkunScreen } from "../../features/akun";
 import { useHeaderStats } from "../headerStats";
 import { useAuth } from "../session";
+import { useTheme } from "../theme";
 
 export function AkunRoute() {
   const auth = useAuth();
   const stats = useHeaderStats();
+  const theme = useTheme();
   const { student } = auth;
   // RequireSession renders this route only for a signed-in student.
   if (student === null) return null;
@@ -19,6 +21,7 @@ export function AkunRoute() {
         grade: student.grade,
         stars: stats.stars,
         streakDays: stats.streakDays,
+        theme: theme.preference,
       }}
       onSaveProfile={async (p) => {
         const r = await auth.updateProfile(p);
@@ -30,6 +33,10 @@ export function AkunRoute() {
           newPassword: next,
         });
         return r.ok ? ok(undefined) : err(passwordChangeMessage(r.error));
+      }}
+      onThemeChange={async (next) => {
+        const r = await theme.setPreference(next);
+        return r.ok ? ok(undefined) : err(profileMessage(r.error));
       }}
       onLogout={async () => {
         const r = await auth.logout();

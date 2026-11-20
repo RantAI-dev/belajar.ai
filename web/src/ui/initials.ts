@@ -10,14 +10,11 @@ export const initialsOf = (name: string): string => {
     .join("");
 };
 
-// Pastel fills with an ink that reads at 4.5:1 on them.
+// Pastel fills with an ink that reads at 4.5:1 on them, in both themes (theme tokens; the pairs
+// are checked in tokenPairs.ts).
 export const AVATAR_COLORS: ReadonlyArray<{ readonly bg: string; readonly fg: string }> = [
-  { bg: "#ffe1ec", fg: "#8a1f4b" },
-  { bg: "#e0f0fd", fg: "#00598a" },
-  { bg: "#e8f5f0", fg: "#1f5c49" },
-  { bg: "#fff4e5", fg: "#8a4b0f" },
-  { bg: "#f0edf9", fg: "#3d2c75" },
-];
+  1, 2, 3, 4, 5,
+].map((n) => ({ bg: `var(--color-avatar-${n}-bg)`, fg: `var(--color-avatar-${n}-fg)` }));
 
 /** The same name always gets the same colour. */
 export const avatarColorIndex = (name: string): number => {

@@ -15,7 +15,7 @@ export type ToggleChipProps = Omit<
   readonly children: ReactNode;
 };
 
-const PRIMARY = { color: "#0069a8", tint: "#e0f0fd" };
+const PRIMARY = { color: "var(--color-primary)", tint: "var(--color-primary-soft)" };
 
 /** A pressable chip that stays on or off (aria-pressed). */
 export function ToggleChip({
@@ -31,7 +31,7 @@ export function ToggleChip({
 }: ToggleChipProps) {
   const on: CSSProperties =
     look === "solid"
-      ? { background: accent.color, borderColor: accent.color, color: "#ffffff" }
+      ? { background: accent.color, borderColor: accent.color, color: "var(--color-on-fill)" }
       : { background: accent.tint, borderColor: accent.color };
   return (
     <button
@@ -40,7 +40,7 @@ export function ToggleChip({
       onClick={() => onPressedChange(!pressed)}
       className={cx(
         "pressable inline-flex min-h-12 cursor-pointer items-center gap-2 border-[3px] font-extrabold text-ink",
-        pressed ? "" : "border-line-strong bg-white hover:border-line-sky hover:bg-page",
+        pressed ? "" : "border-line-strong bg-surface hover:border-line-sky hover:bg-page",
         shape === "pill"
           ? "rounded-full px-4 text-[15px]"
           : "rounded-btn p-3.5 text-left text-[17px]",

@@ -1,3 +1,5 @@
+import type { MasteryLevel } from "../../ui";
+
 export type QuestionKind = "single" | "multiple" | "story";
 export type PracticeKind = QuestionKind | "mixed";
 
@@ -52,7 +54,11 @@ export type Generation = {
   readonly total: number;
 };
 
-export type MasteryRow = { readonly topic: string; readonly percent: number };
+export type MasteryRow = {
+  readonly topic: string;
+  readonly percent: number;
+  readonly level: MasteryLevel;
+};
 
 export type SetupView = {
   readonly subjects: readonly Choice[];

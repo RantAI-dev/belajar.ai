@@ -15,6 +15,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
 
+use belajar_core::mastery::{mastery_level, mastery_percent};
 use belajar_core::subject;
 use belajar_ports::practice::{PracticeSetStatus, StoredPracticeSet};
 
@@ -310,6 +311,7 @@ pub(crate) async fn topic_mastery(
             attempts: entry.attempts,
             correct: entry.correct,
             mastery_percent: mastery_percent(entry.correct, entry.attempts),
+            level: mastery_level(entry.correct, entry.attempts).into(),
         })
         .collect();
     (
@@ -320,15 +322,6 @@ pub(crate) async fn topic_mastery(
         }),
     )
         .into_response()
-}
-
-/// Round(100 × correct / attempts). A row only exists after a submission, so attempts is never
-/// zero; the guard keeps the arithmetic honest anyway.
-fn mastery_percent(correct: u32, attempts: u32) -> u32 {
-    if attempts == 0 {
-        return 0;
-    }
-    ((100.0 * correct as f64) / attempts as f64).round() as u32
 }
 
 #[cfg(test)]

@@ -9,6 +9,7 @@ pub mod google;
 pub mod home;
 pub mod lessons;
 pub mod practice;
+pub mod progress;
 pub mod store;
 pub mod upstream;
 
@@ -24,6 +25,10 @@ pub use lessons::{Lesson, LessonStep, LessonStore};
 pub use practice::{
     GradedAnswer, NewPracticeSet, PracticeSetStatus, PracticeSetSummary, PracticeStore,
     StoredPracticeAnswer, StoredPracticeSet, SubmitRecord, TopicMasteryEntry,
+};
+pub use progress::{
+    ChapterProgress, DayActivity, ProgressData, ProgressStore, ProgressWindows, RecentSession,
+    SessionKind, Tally, TopicProgress,
 };
 pub use store::StoreError;
 pub use upstream::Upstream;

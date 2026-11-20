@@ -9,12 +9,12 @@ export type ButtonSize = "md" | "lg";
 // White text on success green is 3.3:1, so every size uses bold text >= 19px (WCAG large text).
 const VARIANT: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white shadow-[0_5px_0_var(--color-primary-edge)] hover:bg-primary-strong",
+    "bg-primary text-on-fill shadow-[0_5px_0_var(--color-primary-edge)] hover:bg-primary-strong",
   secondary:
-    "bg-white text-primary border-2 border-line-sky shadow-[0_4px_0_var(--color-line-sky)] hover:bg-primary-soft",
-  success: "bg-success text-white shadow-[0_5px_0_var(--color-success-edge)] hover:brightness-95",
+    "bg-surface text-primary-ink border-2 border-line-sky shadow-[0_4px_0_var(--color-line-sky)] hover:bg-primary-soft",
+  success: "bg-success text-on-fill shadow-[0_5px_0_var(--color-success-edge)] hover:brightness-95",
   sun: "bg-sun text-sun-ink shadow-[0_4px_0_var(--color-sun-edge)] hover:brightness-95",
-  ghost: "bg-transparent text-primary hover:bg-primary-soft",
+  ghost: "bg-transparent text-primary-ink hover:bg-primary-soft",
 };
 
 const SIZE: Record<ButtonSize, string> = {

@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import { AppLink } from "./link";
 import { ProgressBar } from "./ProgressBar";
 import { SubjectIcon } from "./SubjectIcon";
-import type { Subject } from "./subjects";
+import { type Subject, subjectPaint } from "./subjects";
 
 export type SubjectCardProps = {
   readonly subject: Subject;
@@ -15,10 +15,11 @@ export type SubjectCardProps = {
 
 /** A subject tile that lifts on hover; the icon wiggles. */
 export function SubjectCard({ subject, href, progressLabel, progress }: SubjectCardProps) {
+  const paint = subjectPaint(subject);
   const style = {
-    "--edge": subject.shadow,
-    background: subject.tint,
-    borderColor: subject.edge,
+    "--edge": paint.shadow,
+    background: paint.tint,
+    borderColor: paint.edge,
   } as CSSProperties;
   return (
     <AppLink
@@ -28,14 +29,14 @@ export function SubjectCard({ subject, href, progressLabel, progress }: SubjectC
     >
       <SubjectIcon subjectId={subject.id} framed />
       <span className="text-[18px] font-extrabold leading-tight">{subject.name}</span>
-      <span className="text-[14px] font-bold" style={{ color: subject.ink }}>
+      <span className="text-[14px] font-bold" style={{ color: paint.ink }}>
         {progressLabel}
       </span>
       <ProgressBar
         value={progress}
         max={100}
         label={`Kemajuan ${subject.name}`}
-        color={subject.color}
+        color={paint.color}
       />
     </AppLink>
   );

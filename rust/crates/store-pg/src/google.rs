@@ -2,6 +2,7 @@
 //! uses one deletes it in the same statement, so two requests can never both use it.
 
 use async_trait::async_trait;
+use belajar_core::theme::ThemePreference;
 use belajar_ports::accounts::StudentAccount;
 use belajar_ports::google::{
     GoogleAttempt, GoogleSignInStore, NewGoogleStudent, PendingGoogleSignup,
@@ -207,6 +208,8 @@ impl GoogleSignInStore for Db {
             username: student.username.to_owned(),
             nickname: student.nickname.to_owned(),
             grade: student.grade,
+            // The column default: a new student follows the device until they choose in Akun.
+            theme: ThemePreference::default(),
             created_at,
         })
     }

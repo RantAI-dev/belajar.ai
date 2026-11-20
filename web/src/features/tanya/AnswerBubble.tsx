@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react";
-import { BulbIcon, ChatBubble, CITE, CitationPill, cx, PagePreview, SourceChip } from "../../ui";
+import {
+  BulbIcon,
+  ChatBubble,
+  CITE,
+  CitationPill,
+  cx,
+  PagePreview,
+  RichText,
+  SourceChip,
+} from "../../ui";
 import {
   type CitationSegment,
   type CiteFocus,
@@ -43,12 +52,16 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
     const style = isMarked ? { background: CITE.marker } : undefined;
     const className = cx(isMarked && "rounded-[4px] [box-decoration-break:clone]");
     return s.emphasis ? (
-      <strong key={key} className={cx("text-primary", className)} style={style}>
-        {s.text}
+      <strong
+        key={key}
+        className={cx(isMarked ? "text-cite-marker-ink" : "text-primary-ink", className)}
+        style={style}
+      >
+        <RichText text={s.text} streaming={streaming} />
       </strong>
     ) : (
       <span key={key} className={className} style={style}>
-        {s.text}
+        <RichText text={s.text} streaming={streaming} />
       </span>
     );
   };

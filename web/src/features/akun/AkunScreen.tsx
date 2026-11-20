@@ -3,6 +3,7 @@ import type { FormMessage } from "../../contracts/messages";
 import type { Result } from "../../contracts/result";
 import { Avatar, Button, Card, FormAlert, StarCount, StreakBadge, TextField } from "../../ui";
 import { type Grade, GradePicker, gradeLabel, PASSWORD_MIN } from "../auth";
+import { ThemeSetting, type ThemeSettingProps } from "./ThemeSetting";
 import type { AkunView } from "./types";
 
 /** What a save answers: done, or what to show (one sentence and/or hints by field name). */
@@ -13,6 +14,7 @@ export type AkunScreenProps = {
   readonly onSaveProfile: (profile: { nickname: string; grade: Grade }) => Promise<AkunOutcome>;
   readonly onChangePassword: (change: { current: string; next: string }) => Promise<AkunOutcome>;
   readonly onLogout: () => Promise<AkunOutcome>;
+  readonly onThemeChange: ThemeSettingProps["onChange"];
 };
 
 export const PROFILE_SAVED = "Tersimpan! Profilmu sudah diperbarui.";
@@ -25,7 +27,13 @@ type Shown = { readonly notice?: string; readonly problem?: FormMessage };
 
 const formError = (s: Shown): string | undefined => s.problem?.form ?? undefined;
 
-export function AkunScreen({ view, onSaveProfile, onChangePassword, onLogout }: AkunScreenProps) {
+export function AkunScreen({
+  view,
+  onSaveProfile,
+  onChangePassword,
+  onLogout,
+  onThemeChange,
+}: AkunScreenProps) {
   const [nickname, setNickname] = useState(view.nickname);
   const [grade, setGrade] = useState<Grade>(view.grade);
   const [current, setCurrent] = useState("");
@@ -131,6 +139,8 @@ export function AkunScreen({ view, onSaveProfile, onChangePassword, onLogout }: 
           Simpan profil
         </Button>
       </Card>
+
+      <ThemeSetting value={view.theme} onChange={onThemeChange} />
 
       <Card
         as="form"

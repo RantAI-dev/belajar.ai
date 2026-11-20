@@ -12,6 +12,7 @@ import { type ApiResult, api } from "../contracts/client";
 import { type ApiProblem, setSessionExpiredListener } from "../contracts/problem";
 import { err, ok } from "../contracts/result";
 import { type Grade, isGrade } from "../features/auth";
+import type { ThemePreference } from "../ui";
 
 type StudentDto = components["schemas"]["StudentDto"];
 
@@ -20,6 +21,7 @@ export type Student = {
   readonly username: string;
   readonly nickname: string;
   readonly grade: Grade;
+  readonly theme: ThemePreference;
   readonly createdAt: string;
 };
 
@@ -63,7 +65,11 @@ export type Auth = {
   readonly logout: () => Promise<ApiResult<undefined>>;
   /** Loads the student again (on start, and after "coba lagi" on the failed screen). */
   readonly refresh: () => Promise<void>;
-  readonly updateProfile: (p: { nickname?: string; grade?: Grade }) => Promise<ApiResult<Student>>;
+  readonly updateProfile: (p: {
+    nickname?: string;
+    grade?: Grade;
+    theme?: ThemePreference;
+  }) => Promise<ApiResult<Student>>;
 };
 
 const AuthContext = createContext<Auth | null>(null);

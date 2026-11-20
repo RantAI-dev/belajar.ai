@@ -24,6 +24,7 @@ import {
   ResultScreen,
   resultFromDto,
   setFromDto,
+  shouldAutostart,
   startQuiz,
   submissionOf,
 } from "../../features/latihan";
@@ -113,6 +114,18 @@ export function LatihanSetupRoute() {
     setGeneration({ stage: "ready", ready: ready.questions.length, total: ready.questions.length });
     navigate(`/latihan/${ready.id}`);
   };
+
+  // "Latih lagi" on Progres opens this page with `mulai=1`: start making the set once, and drop
+  // the flag first so going back here does not start another one.
+  const [autostart] = useState(() => shouldAutostart(params));
+  const startOnce = useRef({ done: false, generate });
+  startOnce.current.generate = generate;
+  useEffect(() => {
+    if (!autostart || startOnce.current.done) return;
+    startOnce.current.done = true;
+    navigate(latihanHref(subjectId, topic), { replace: true });
+    void startOnce.current.generate();
+  }, [autostart, navigate, subjectId, topic]);
 
   return (
     <LatihanSetupScreen

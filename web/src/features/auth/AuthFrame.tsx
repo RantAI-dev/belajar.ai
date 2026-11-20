@@ -21,13 +21,13 @@ export function AuthFrame({
       </div>
       <div className="flex items-center gap-4">
         <Mascot mood={mood} size={88} animate />
-        <div className="rounded-[6px_22px_22px_22px] border-2 border-line bg-white px-4 py-3 text-[17px] font-bold leading-snug">
+        <div className="rounded-[6px_22px_22px_22px] border-2 border-line bg-surface px-4 py-3 text-[17px] font-bold leading-snug">
           {greeting}
         </div>
       </div>
       <section
         aria-labelledby="auth-title"
-        className="flex flex-col gap-5 rounded-panel border-2 border-line bg-white p-5 sm:p-7"
+        className="flex flex-col gap-5 rounded-panel border-2 border-line bg-surface p-5 sm:p-7"
       >
         <h1 id="auth-title" className="m-0 font-display text-[28px] font-semibold">
           {title}

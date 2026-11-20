@@ -17,18 +17,33 @@ export {
   BangIcon,
   BookIcon,
   BulbIcon,
+  ChartIcon,
   ChatIcon,
   CheckIcon,
+  CheckSquareIcon,
+  DashIcon,
+  FlameIcon,
   LockIcon,
   SendIcon,
   StarIcon,
+  TrendDownIcon,
+  TrendFlatIcon,
+  TrendUpIcon,
 } from "./icons";
 export { initialsOf } from "./initials";
 export { AppLink, type LinkComponent, type LinkProps, LinkProvider } from "./link";
 export { Logo, LogoMark, Mascot, type MascotMood } from "./Mascot";
+export {
+  MASTERY_LABEL,
+  MasteryBadge,
+  type MasteryLevel,
+  MasteryMeter,
+} from "./MasteryBadge";
 export { type Mission, MissionCard } from "./MissionCard";
+export { isMathReady, loadMath } from "./math";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";
+export { MermaidDiagram, RichText, type RichTextProps } from "./RichText";
 export { clampRating, type Rating, starsForScore } from "./rating";
 export { PagePreview, SourceChip } from "./Source";
 export { StarCount, StarRating } from "./Stars";
@@ -37,5 +52,27 @@ export { Stepper } from "./Stepper";
 export { StreakBadge } from "./StreakBadge";
 export { SubjectCard } from "./SubjectCard";
 export { SubjectIcon } from "./SubjectIcon";
-export { isSubjectId, SUBJECTS, type Subject, type SubjectId, subjectById } from "./subjects";
+export {
+  isSubjectId,
+  PRIMARY_PAINT,
+  paintFor,
+  SUBJECTS,
+  type Subject,
+  type SubjectId,
+  type SubjectPaint,
+  subjectById,
+  subjectPaint,
+} from "./subjects";
 export { ToggleChip } from "./ToggleChip";
+export {
+  applyTheme,
+  DARK_QUERY,
+  isThemePreference,
+  type ResolvedTheme,
+  readStoredTheme,
+  resolveTheme,
+  storeTheme,
+  THEME_PREFERENCES,
+  type ThemePreference,
+} from "./themePreference";
+export { cutOutsideMaths, type Segment, tokenize } from "./tokenize";

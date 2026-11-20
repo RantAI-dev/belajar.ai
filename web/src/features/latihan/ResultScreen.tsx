@@ -8,6 +8,7 @@ import {
   cx,
   letterAt,
   Mascot,
+  RichText,
   StarRating,
   starsForScore,
 } from "../../ui";
@@ -38,7 +39,7 @@ function ReviewItem({
   return (
     <article
       className={cx(
-        "overflow-hidden rounded-[22px] border-2 bg-white",
+        "overflow-hidden rounded-[22px] border-2 bg-surface",
         ok ? "border-line" : "border-oops-line",
       )}
     >
@@ -53,17 +54,17 @@ function ReviewItem({
           <span
             aria-hidden="true"
             className={cx(
-              "flex size-9 shrink-0 items-center justify-center rounded-full font-display text-[18px] font-semibold text-white",
-              ok ? "bg-success" : "bg-oops",
+              "flex size-9 shrink-0 items-center justify-center rounded-full font-display text-[18px] font-semibold text-on-fill",
+              ok ? "bg-success-solid" : "bg-oops-solid",
             )}
           >
             {ok ? <CheckIcon size={20} /> : <BangIcon size={20} />}
           </span>
           <span className="flex-1 text-[17px] font-extrabold leading-snug">
             <span className="sr-only">{ok ? "Benar. " : "Belum tepat. "}</span>
-            {no}. {q.prompt}
+            {no}. <RichText text={q.prompt} />
           </span>
-          <span className="text-[15px] font-extrabold text-primary">
+          <span className="text-[15px] font-extrabold text-primary-ink">
             {open ? "Tutup" : "Lihat"}
           </span>
         </button>
@@ -86,12 +87,14 @@ function ReviewItem({
             <span
               className={cx(
                 "text-[17px] font-extrabold",
-                ok ? "text-success-edge" : "text-oops-ink",
+                ok ? "text-success-ink" : "text-oops-ink",
               )}
             >
               {ok ? "Benar!" : "Hampir benar!"}
             </span>
-            <p className="m-0 text-[16px] font-semibold leading-relaxed">{item.explanation}</p>
+            <p className="m-0 text-[16px] font-semibold leading-relaxed">
+              <RichText text={item.explanation} />
+            </p>
             {item.source !== null &&
               (item.source.href !== undefined ? (
                 <a
@@ -130,12 +133,12 @@ export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps
     <div className="mx-auto flex w-full max-w-[960px] flex-col gap-[22px]">
       <section
         aria-labelledby="hasil-title"
-        className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-success p-5 text-white sm:p-7"
+        className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-celebrate p-5 text-on-fill sm:p-7"
       >
         <Mascot
           mood="celebrate"
           size={120}
-          backdrop="#2bb77c"
+          backdrop="var(--color-celebrate-glow)"
           inverse
           animate
           className="max-sm:size-24"
@@ -147,8 +150,12 @@ export function ResultScreen({ result, againHref, studyHref }: ResultScreenProps
           >
             {resultHeadline(correct, total)}
           </h1>
-          <StarRating value={starsForScore(correct, total)} size={40} emptyColor="#5fc596" />
-          <span className="inline-flex min-h-9 items-center gap-1.5 self-start rounded-[12px] bg-white px-3.5 text-[16px] font-extrabold text-success-edge">
+          <StarRating
+            value={starsForScore(correct, total)}
+            size={40}
+            emptyColor="var(--color-celebrate-star-empty)"
+          />
+          <span className="inline-flex min-h-9 items-center gap-1.5 self-start rounded-[12px] bg-surface px-3.5 text-[16px] font-extrabold text-success-ink">
             {result.starsEarned > 0
               ? `+${result.starsEarned} bintang untukmu`
               : "Ayo coba lagi untuk dapat bintang"}

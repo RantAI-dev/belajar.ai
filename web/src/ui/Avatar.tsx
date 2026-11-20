@@ -10,7 +10,10 @@ export function Avatar({
   readonly size?: number;
   readonly className?: string;
 }) {
-  const color = AVATAR_COLORS[avatarColorIndex(name)] ?? { bg: "#e0f0fd", fg: "#00598a" };
+  const color = AVATAR_COLORS[avatarColorIndex(name)] ?? {
+    bg: "var(--color-primary-soft)",
+    fg: "var(--color-primary-ink)",
+  };
   return (
     <span
       aria-hidden="true"

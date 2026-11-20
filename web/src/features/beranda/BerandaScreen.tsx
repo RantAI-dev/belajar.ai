@@ -1,5 +1,15 @@
 import { type CSSProperties, type FormEvent, useState } from "react";
-import { AppLink, Mascot, MissionCard, Stepper, SubjectCard, subjectById } from "../../ui";
+import {
+  AppLink,
+  ArrowRightIcon,
+  ChartIcon,
+  Mascot,
+  MissionCard,
+  Stepper,
+  SubjectCard,
+  subjectById,
+  subjectPaint,
+} from "../../ui";
 import { LESSON_STEPS } from "../belajar";
 import type { BerandaView, ContinueLesson } from "./types";
 
@@ -15,6 +25,7 @@ export type BerandaScreenProps = {
 function ContinueCard({ lesson }: { readonly lesson: ContinueLesson }) {
   const subject = subjectById(lesson.subjectId);
   if (subject === undefined) return null;
+  const paint = subjectPaint(subject);
   const steps = Array.from(
     { length: lesson.totalSteps },
     (_, i) => LESSON_STEPS[i] ?? `Langkah ${i + 1}`,
@@ -25,15 +36,15 @@ function ContinueCard({ lesson }: { readonly lesson: ContinueLesson }) {
       className="tile flex min-w-0 flex-1 basis-[340px] flex-col gap-3.5 rounded-card border-2 p-5 text-ink sm:p-[22px]"
       style={
         {
-          "--edge": subject.shadow,
-          background: subject.tint,
-          borderColor: subject.edge,
+          "--edge": paint.shadow,
+          background: paint.tint,
+          borderColor: paint.edge,
         } as CSSProperties
       }
     >
       <span
-        className="inline-flex min-h-[30px] items-center self-start rounded-full px-3 text-[14px] font-extrabold text-white"
-        style={{ background: subject.ink }}
+        className="inline-flex min-h-[30px] items-center self-start rounded-full px-3 text-[14px] font-extrabold text-on-fill"
+        style={{ background: paint.solid }}
       >
         {subject.shortName}
       </span>
@@ -43,13 +54,13 @@ function ContinueCard({ lesson }: { readonly lesson: ContinueLesson }) {
       <Stepper
         steps={steps}
         current={lesson.step}
-        color={subject.color}
-        edge={subject.edge}
-        ink={subject.ink}
+        color={paint.color}
+        edge={paint.edge}
+        ink={paint.ink}
       />
       <span
-        className="inline-flex min-h-12 items-center self-start rounded-[14px] px-[22px] text-[19px] font-extrabold text-white"
-        style={{ background: subject.color, boxShadow: `0 4px 0 ${subject.ink}` }}
+        className="inline-flex min-h-12 items-center self-start rounded-[14px] px-[22px] text-[19px] font-extrabold text-on-fill"
+        style={{ background: paint.color, boxShadow: `0 4px 0 ${paint.solid}` }}
       >
         Lanjut belajar
       </span>
@@ -65,11 +76,11 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
   };
   return (
     <div className="flex flex-col gap-6">
-      <section className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-primary p-5 text-white sm:p-7">
+      <section className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-hero p-5 text-on-fill sm:p-7">
         <Mascot
           mood="happy"
           size={132}
-          backdrop="#1d7fbd"
+          backdrop="var(--color-hero-glow)"
           inverse
           animate
           className="max-sm:size-24"
@@ -88,7 +99,7 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Contoh: kenapa rel kereta diberi celah?"
-              className="min-h-14 min-w-0 flex-1 basis-[240px] rounded-[16px] border-0 bg-white px-5 text-[18px] font-semibold text-ink placeholder:text-ink-faint"
+              className="min-h-14 min-w-0 flex-1 basis-[240px] rounded-[16px] border-0 bg-surface px-5 text-[18px] font-semibold text-ink placeholder:text-ink-faint"
             />
             <button
               type="submit"
@@ -102,12 +113,12 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
           {askError !== undefined && (
             <p
               role="alert"
-              className="m-0 rounded-[12px] bg-white px-3.5 py-2 text-[16px] font-bold text-oops-ink"
+              className="m-0 rounded-[12px] bg-surface px-3.5 py-2 text-[16px] font-bold text-oops-ink"
             >
               {askError}
             </p>
           )}
-          <p className="m-0 text-[15px] font-semibold text-[#cfe7fb]">
+          <p className="m-0 text-[15px] font-semibold text-hero-ink-soft">
             Jawabanku selalu dari buku pelajaranmu, lengkap dengan halamannya.
           </p>
         </div>
@@ -119,6 +130,25 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
         </div>
         {view.continueLesson !== null && <ContinueCard lesson={view.continueLesson} />}
       </div>
+
+      <AppLink
+        href="/progres"
+        className="tile flex flex-wrap items-center gap-4 rounded-card border-2 border-line-sky bg-primary-soft p-4 text-ink sm:p-5"
+        style={{ "--edge": "var(--color-line-sky)" } as CSSProperties}
+      >
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-line-sky bg-page text-primary">
+          <ChartIcon size={26} />
+        </span>
+        <span className="flex min-w-0 flex-1 basis-[220px] flex-col gap-0.5">
+          <span className="font-display text-[22px] font-semibold leading-tight">
+            Lihat progresmu
+          </span>
+          <span className="text-[15px] font-bold text-ink-muted">
+            Bintang, runtunan, topik yang sudah dikuasai, dan yang perlu dilatih lagi.
+          </span>
+        </span>
+        <ArrowRightIcon className="text-primary" />
+      </AppLink>
 
       <section aria-labelledby="mapel-title" className="flex flex-col gap-3.5">
         <h2 id="mapel-title" className="m-0 font-display text-[22px] font-semibold">

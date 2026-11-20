@@ -3,7 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <title>belajar.ai</title>
+    <!-- Sets <html data-theme> before the first paint (no flash of the other theme). Same key and
+         rules as src/ui/themePreference.ts; src/app/noFlash.test.ts runs this script. -->
+    <script id="theme-boot">
+      (() => {
+        let preference = "system";
+        let stored = null;
+        try {
+          stored = window.localStorage.getItem("belajar.theme");
+        } catch {}
+        if (stored === "light" || stored === "dark" || stored === "system") preference = stored;
+        let dark = preference === "dark";
+        if (preference === "system") {
+          try {
+            dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          } catch {}
+        }
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -10,6 +10,7 @@ use belajar_ports::google::GoogleSignInStore;
 use belajar_ports::home::HomeStore;
 use belajar_ports::lessons::LessonStore;
 use belajar_ports::practice::PracticeStore;
+use belajar_ports::progress::ProgressStore;
 use belajar_ports::upstream::Upstream;
 use belajar_store_pg::Db;
 
@@ -36,6 +37,7 @@ pub struct AppState {
     pub google_sign_in: Arc<dyn GoogleSignInStore>,
     /// `None` when Google sign-in is not configured: the web app hides the button.
     pub google: Option<Arc<GoogleClient>>,
+    pub progress: Arc<dyn ProgressStore>,
     pub upstream: Arc<dyn Upstream>,
     pub clock: Arc<dyn Clock>,
     pub config: Config,
@@ -66,6 +68,7 @@ impl AppState {
             practice: db.clone(),
             google_sign_in: db.clone(),
             google,
+            progress: db.clone(),
             upstream: deps.upstream,
             clock: deps.clock.clone(),
             config,

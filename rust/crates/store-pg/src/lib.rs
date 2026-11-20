@@ -2,11 +2,13 @@
 //! by that student's id; queries are runtime-checked (`query_as::<_, T>(...)`), never macros.
 
 mod accounts;
+mod activity;
 mod conversations;
 mod google;
 mod home;
 mod lessons;
 mod practice;
+mod progress;
 
 use sqlx::postgres::PgPool;
 

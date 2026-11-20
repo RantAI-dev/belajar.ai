@@ -22,6 +22,7 @@ const STUDENT = {
   username: "demo",
   nickname: "Demo",
   grade: 7,
+  theme: "system" as const,
   createdAt: "2026-11-11T08:30:00.000Z",
 };
 
