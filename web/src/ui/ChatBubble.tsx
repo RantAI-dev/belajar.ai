@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { cx } from "./cx";
-import { Mascot, type MascotMood } from "./mascot/Mascot";
+import { MascotIcon, type MascotIconKind } from "./mascot/MascotIcon";
 
 export type ChatBubbleProps =
   | { readonly from: "student"; readonly children: ReactNode }
   | {
       readonly from: "mascot";
-      readonly mood?: MascotMood;
+      /** The mascot icon beside the bubble: what the assistant is doing (thinking, confused…). */
+      readonly avatar?: MascotIconKind;
       /** `ungrounded`: a dashed bubble for answers that are not in the student's book. */
       readonly variant?: "grounded" | "ungrounded";
       /** The answer is still arriving: announce it politely and show typing dots while empty. */
@@ -37,11 +38,11 @@ export function ChatBubble(props: ChatBubbleProps) {
       </div>
     );
   }
-  const { mood = "happy", variant = "grounded", streaming = false, children } = props;
+  const { avatar = "assistant", variant = "grounded", streaming = false, children } = props;
   const empty = children === undefined || children === null || children === "";
   return (
     <div className="flex items-start gap-3">
-      <Mascot mood={mood} size={48} className="max-sm:size-10" />
+      <MascotIcon kind={avatar} size={48} className="max-sm:size-10" />
       <div
         aria-live={streaming ? "polite" : undefined}
         aria-busy={streaming || undefined}
