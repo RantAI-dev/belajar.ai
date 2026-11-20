@@ -61,10 +61,10 @@ struct ChapterWire {
     title: String,
     number: u32,
     page: Option<u32>,
-    #[allow(non_snake_case, reason = "the upstream's own field name on the wire")]
-    documentId: String,
-    #[allow(non_snake_case, reason = "the upstream's own field name on the wire")]
-    documentTitle: String,
+    #[serde(rename = "documentId")]
+    document_id: String,
+    #[serde(rename = "documentTitle")]
+    document_title: String,
     #[serde(default)]
     topics: Vec<TopicWire>,
 }
@@ -88,8 +88,8 @@ impl ChaptersResponseWire {
                 book_number: wire.number,
                 title: wire.title,
                 page: wire.page,
-                document_id: wire.documentId,
-                document_title: wire.documentTitle,
+                document_id: wire.document_id,
+                document_title: wire.document_title,
                 topics: wire
                     .topics
                     .into_iter()
