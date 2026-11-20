@@ -2436,6 +2436,7 @@
           "lessonsCompleted",
           "questionsAnswered",
           "correctAnswers",
+          "accuracyPercent",
           "daysActive"
         ],
         "properties": {
@@ -2785,7 +2786,16 @@
       "RecentSessionDto": {
         "type": "object",
         "description": "One recent session, newest first.",
-        "required": ["kind", "id", "title", "occurredAt"],
+        "required": [
+          "kind",
+          "id",
+          "subjectId",
+          "title",
+          "correctCount",
+          "totalCount",
+          "stars",
+          "occurredAt"
+        ],
         "properties": {
           "correctCount": {
             "type": ["integer", "null"],
@@ -3156,7 +3166,10 @@
           "correct",
           "masteryPercent",
           "level",
-          "trend"
+          "trend",
+          "thisWeekPercent",
+          "lastWeekPercent",
+          "lastPracticedAt"
         ],
         "properties": {
           "attempts": {

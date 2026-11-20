@@ -17,15 +17,28 @@ export {
   BangIcon,
   BookIcon,
   BulbIcon,
+  ChartIcon,
   ChatIcon,
   CheckIcon,
+  CheckSquareIcon,
+  DashIcon,
+  FlameIcon,
   LockIcon,
   SendIcon,
   StarIcon,
+  TrendDownIcon,
+  TrendFlatIcon,
+  TrendUpIcon,
 } from "./icons";
 export { initialsOf } from "./initials";
 export { AppLink, type LinkComponent, type LinkProps, LinkProvider } from "./link";
 export { Logo, LogoMark, Mascot, type MascotMood } from "./Mascot";
+export {
+  MASTERY_LABEL,
+  MasteryBadge,
+  type MasteryLevel,
+  MasteryMeter,
+} from "./MasteryBadge";
 export { type Mission, MissionCard } from "./MissionCard";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";

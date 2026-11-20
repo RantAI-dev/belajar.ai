@@ -5,7 +5,9 @@ import {
   CheckIcon,
   cx,
   FunFactCard,
+  MASTERY_LABEL,
   Mascot,
+  MasteryBadge,
   ProgressBar,
   SelectField,
   TextField,
@@ -110,11 +112,19 @@ function Mastery({ rows }: { readonly rows: SetupView["mastery"] }) {
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {rows.slice(0, 4).map((r) => (
           <li key={r.topic} className="flex flex-col gap-1.5">
-            <span className="flex justify-between gap-2 text-[15px] font-bold">
+            <span className="flex items-center justify-between gap-2 text-[15px] font-bold">
               <span className="min-w-0 truncate">{r.topic}</span>
-              <span className="shrink-0 text-ink-muted">{r.percent}%</span>
+              <span className="flex shrink-0 items-center gap-2">
+                <MasteryBadge level={r.level} />
+                <span className="text-ink-muted">{r.percent}%</span>
+              </span>
             </span>
-            <ProgressBar value={r.percent} max={100} label={`Penguasaan ${r.topic}`} />
+            <ProgressBar
+              value={r.percent}
+              max={100}
+              label={`Penguasaan ${r.topic}`}
+              valueText={`${r.percent}%, ${MASTERY_LABEL[r.level]}`}
+            />
           </li>
         ))}
       </ul>

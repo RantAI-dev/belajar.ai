@@ -731,7 +731,7 @@ export interface components {
        * Format: int32
        * @description Round(100 × correct / answered); `null` when nothing was answered.
        */
-      accuracyPercent?: number | null;
+      accuracyPercent: number | null;
       /** Format: int32 */
       correctAnswers: number;
       /**
@@ -862,7 +862,7 @@ export interface components {
        * Format: int32
        * @description Practice only.
        */
-      correctCount?: number | null;
+      correctCount: number | null;
       /**
        * Format: uuid
        * @description The practice set, lesson or conversation.
@@ -875,14 +875,14 @@ export interface components {
        * Format: int32
        * @description Lesson only.
        */
-      stars?: number | null;
-      subjectId?: string | null;
+      stars: number | null;
+      subjectId: string | null;
       title: string;
       /**
        * Format: int32
        * @description Practice only.
        */
-      totalCount?: number | null;
+      totalCount: number | null;
     };
     RegisterRequest: {
       /** Format: int32 */
@@ -1008,12 +1008,12 @@ export interface components {
       /** Format: int32 */
       correct: number;
       /** Format: date-time */
-      lastPracticedAt?: string | null;
+      lastPracticedAt: string | null;
       /**
        * Format: int32
        * @description Last Jakarta week's accuracy; `null` without answers last week.
        */
-      lastWeekPercent?: number | null;
+      lastWeekPercent: number | null;
       level: components["schemas"]["MasteryLevelDto"];
       /** Format: int32 */
       masteryPercent: number;
@@ -1022,7 +1022,7 @@ export interface components {
        * Format: int32
        * @description This Jakarta week's accuracy; `null` without answers this week.
        */
-      thisWeekPercent?: number | null;
+      thisWeekPercent: number | null;
       topic: string;
       trend: components["schemas"]["TrendDto"];
     };

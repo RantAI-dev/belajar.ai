@@ -96,7 +96,11 @@ export const masteryRows = (
 ): readonly MasteryRow[] =>
   rows
     .filter((r) => r.subjectId === subjectId)
-    .map((r) => ({ topic: r.topic, percent: Math.max(0, Math.min(100, r.masteryPercent)) }))
+    .map((r) => ({
+      topic: r.topic,
+      percent: Math.max(0, Math.min(100, r.masteryPercent)),
+      level: r.level,
+    }))
     .sort((a, b) => b.percent - a.percent);
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>

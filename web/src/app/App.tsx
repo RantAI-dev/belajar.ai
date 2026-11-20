@@ -9,6 +9,7 @@ import { BelajarHomeRoute, ChapterMapRoute, ChapterSessionRoute } from "./routes
 import { BerandaRoute } from "./routes/BerandaRoute";
 import { LatihanSetupRoute, QuizRoute, ResultRoute } from "./routes/LatihanRoutes";
 import { NotFound } from "./routes/NotFound";
+import { ProgresRoute } from "./routes/ProgresRoute";
 import { TanyaRoute } from "./routes/TanyaRoute";
 import { Shell } from "./Shell";
 import { AuthProvider } from "./session";
@@ -33,6 +34,7 @@ export function App() {
                   <Route path="latihan" element={<LatihanSetupRoute />} />
                   <Route path="latihan/:setId" element={<QuizRoute />} />
                   <Route path="latihan/:setId/hasil" element={<ResultRoute />} />
+                  <Route path="progres" element={<ProgresRoute />} />
                   <Route path="akun" element={<AkunRoute />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>

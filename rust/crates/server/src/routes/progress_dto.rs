@@ -19,6 +19,7 @@ pub struct PeriodSummaryDto {
     pub questions_answered: u32,
     pub correct_answers: u32,
     /// Round(100 × correct / answered); `null` when nothing was answered.
+    #[schema(required)]
     pub accuracy_percent: Option<u32>,
     /// Jakarta days with any activity in the period.
     pub days_active: u32,
@@ -37,11 +38,13 @@ pub struct TopicProgressDto {
     pub level: MasteryLevelDto,
     pub trend: TrendDto,
     /// This Jakarta week's accuracy; `null` without answers this week.
+    #[schema(required)]
     pub this_week_percent: Option<u32>,
     /// Last Jakarta week's accuracy; `null` without answers last week.
+    #[schema(required)]
     pub last_week_percent: Option<u32>,
     #[serde(with = "instant::option")]
-    #[schema(value_type = Option<String>, format = DateTime)]
+    #[schema(value_type = Option<String>, format = DateTime, required)]
     pub last_practiced_at: Option<DateTime<Utc>>,
 }
 
@@ -131,13 +134,17 @@ pub struct RecentSessionDto {
     pub kind: SessionKindDto,
     /// The practice set, lesson or conversation.
     pub id: Uuid,
+    #[schema(required)]
     pub subject_id: Option<String>,
     pub title: String,
     /// Practice only.
+    #[schema(required)]
     pub correct_count: Option<u32>,
     /// Practice only.
+    #[schema(required)]
     pub total_count: Option<u32>,
     /// Lesson only.
+    #[schema(required)]
     pub stars: Option<u8>,
     #[serde(with = "instant")]
     #[schema(format = DateTime)]
