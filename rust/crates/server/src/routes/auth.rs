@@ -40,6 +40,10 @@ pub struct StudentDto {
     #[serde(with = "instant")]
     #[schema(format = DateTime)]
     pub created_at: DateTime<Utc>,
+    /// False for a student who signed up with Google: Akun then has no password to change.
+    pub has_password: bool,
+    /// Whether a Google account is linked: Akun then shows it instead of "Hubungkan dengan Google".
+    pub is_google_linked: bool,
 }
 
 impl From<StudentAccount> for StudentDto {
@@ -51,6 +55,8 @@ impl From<StudentAccount> for StudentDto {
             grade: account.grade.get(),
             theme: account.theme.into(),
             created_at: account.created_at,
+            has_password: account.has_password,
+            is_google_linked: account.is_google_linked,
         }
     }
 }
@@ -377,6 +383,7 @@ pub(crate) async fn logout(
         (status = 400, body = ErrorBody),
         (status = 401, body = ErrorBody),
         (status = 403, description = "The current password is wrong", body = ErrorBody),
+        (status = 409, description = "`password_not_set`: the student signs in with Google and has no password", body = ErrorBody),
     )
 )]
 pub(crate) async fn change_password(
@@ -385,6 +392,15 @@ pub(crate) async fn change_password(
     student: CurrentStudent,
     ApiJson(req): ApiJson<PasswordChangeRequest>,
 ) -> Response {
+    // First: a student with no password gets this code whatever the body holds.
+    let stored_hash = match state.accounts.password_hash(student.student_id).await {
+        Ok(hash) => hash,
+        // The signed-in student exists, so `NotFound` here means they have no password.
+        Err(StoreError::NotFound) => {
+            return ApiError::new(ErrorCode::PasswordNotSet).into_response(&id.0);
+        }
+        Err(err) => return store_errors::into_response(err, &id.0),
+    };
     let mut errors = Vec::new();
     if req.current_password.is_empty() {
         errors.push(required("/currentPassword"));
@@ -395,16 +411,6 @@ pub(crate) async fn change_password(
     if !errors.is_empty() {
         return ApiError::invalid(errors).into_response(&id.0);
     }
-    let stored_hash = match state.accounts.password_hash(student.student_id).await {
-        Ok(hash) => hash,
-        // The signed-in student exists, so `NotFound` here means they have no password.
-        Err(StoreError::NotFound) => {
-            return ApiError::new(ErrorCode::PermissionDenied)
-                .message("This account signs in with Google and has no password to change.")
-                .into_response(&id.0);
-        }
-        Err(err) => return store_errors::into_response(err, &id.0),
-    };
     let ok = match passwords::verify(stored_hash, req.current_password).await {
         Ok(ok) => ok,
         Err(err) => return internal(&id, &password_cause(&err)),

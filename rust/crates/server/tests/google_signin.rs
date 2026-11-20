@@ -11,96 +11,14 @@ mod google_fake;
 mod support;
 
 use axum::http::StatusCode;
-use google_fake::{CLIENT_ID, FakeGoogle, REDIRECT_URL, Signer};
-use serde_json::{Value, json};
+use google_fake::flow::{
+    FLOW, SIGNUP, app_with_google, callback, count, query_param, sign_in, sign_in_with, sign_up,
+    start,
+};
+use google_fake::{CLIENT_ID, REDIRECT_URL, Signer};
+use serde_json::json;
 use sqlx::PgPool;
 use support::{TestApp, TestResponse};
-
-const FLOW: &str = "belajar_google_flow";
-const SIGNUP: &str = "belajar_google_signup";
-
-/// What the start step handed the browser.
-struct Started {
-    state: String,
-    nonce: String,
-    challenge: String,
-    /// "belajar_google_flow=<value>", for the Cookie header.
-    flow_cookie: String,
-}
-
-fn query_param(url: &reqwest::Url, name: &str) -> String {
-    url.query_pairs()
-        .find(|(key, _)| key == name)
-        .map(|(_, value)| value.into_owned())
-        .unwrap_or_else(|| panic!("{name} in {url}"))
-}
-
-async fn start(app: &TestApp) -> Started {
-    let res = app.get("/v1/auth/google/start", None).await;
-    assert_eq!(res.status, StatusCode::SEE_OTHER);
-    let url = reqwest::Url::parse(&res.header("location").unwrap()).unwrap();
-    Started {
-        state: query_param(&url, "state"),
-        nonce: query_param(&url, "nonce"),
-        challenge: query_param(&url, "code_challenge"),
-        flow_cookie: res.cookie_named(FLOW).expect("a flow cookie"),
-    }
-}
-
-async fn callback(app: &TestApp, query: &str, cookie: &str) -> TestResponse {
-    app.get(&format!("/v1/auth/google/callback?{query}"), Some(cookie))
-        .await
-}
-
-/// Start, let the fake Google issue a code for `claims`, and come back with it.
-async fn sign_in_with(
-    app: &TestApp,
-    fake: &FakeGoogle,
-    claims: impl FnOnce(&Started) -> Value,
-    signer: Signer,
-) -> TestResponse {
-    let started = start(app).await;
-    let code = fake.issue_code(&started.challenge, &claims(&started), signer);
-    callback(
-        app,
-        &format!("code={code}&state={}", started.state),
-        &started.flow_cookie,
-    )
-    .await
-}
-
-async fn sign_in(app: &TestApp, fake: &FakeGoogle, sub: &str, name: &str) -> TestResponse {
-    sign_in_with(
-        app,
-        fake,
-        |s| fake.claims(sub, name, &s.nonce),
-        Signer::Published,
-    )
-    .await
-}
-
-/// A new Google account all the way to a signed-in student. Returns the session cookie.
-async fn sign_up(app: &TestApp, fake: &FakeGoogle, sub: &str, nickname: &str) -> String {
-    let res = sign_in(app, fake, sub, nickname).await;
-    assert_eq!(res.header("location").as_deref(), Some("/daftar/google"));
-    let signup = res.cookie_named(SIGNUP).unwrap();
-    let done = app
-        .post(
-            "/v1/auth/google/signup",
-            json!({ "nickname": nickname, "grade": 5 }),
-            Some(&signup),
-        )
-        .await;
-    assert_eq!(done.status, StatusCode::CREATED, "{}", done.text);
-    done.cookie().expect("a session cookie")
-}
-
-async fn count(pool: &PgPool, table: &str) -> i64 {
-    sqlx::query_scalar::<_, i64>(&format!("SELECT count(*) FROM {table}"))
-        .fetch_one(pool)
-        .await
-        .unwrap()
-}
 
 /// A refused callback: back to the login page with `google=<outcome>`, no session, no account,
 /// nothing parked.
@@ -116,13 +34,6 @@ async fn assert_refused(res: &TestResponse, outcome: &str, pool: &PgPool) {
     assert_eq!(count(pool, "google_pending_signups").await, 0);
     assert_eq!(count(pool, "users").await, 0);
 }
-
-async fn app_with_google(pool: PgPool) -> (TestApp, FakeGoogle) {
-    let fake = FakeGoogle::start().await;
-    (TestApp::with_google(pool, fake.config()).await, fake)
-}
-
-// ---- configuration ----------------------------------------------------------------------------
 
 #[sqlx::test(migrations = "../../migrations")]
 async fn unconfigured_google_is_reported_off_and_its_routes_answer_google_disabled(pool: PgPool) {
@@ -506,8 +417,46 @@ async fn a_google_student_has_no_password_to_log_in_with_or_change(pool: PgPool)
             Some(&session),
         )
         .await;
-    assert_eq!(res.status, StatusCode::FORBIDDEN);
-    assert_eq!(res.body["error"]["code"], "permission_denied");
+    assert_eq!(res.status, StatusCode::CONFLICT);
+    assert_eq!(res.body["error"]["code"], "password_not_set");
+    // Whatever the body holds: an empty form gets the same answer, not a field error.
+    let res = app
+        .post(
+            "/v1/auth/password",
+            json!({ "currentPassword": "", "newPassword": "" }),
+            Some(&session),
+        )
+        .await;
+    assert_eq!(res.body["error"]["code"], "password_not_set");
+    let me = app.get("/v1/me", Some(&session)).await;
+    assert_eq!(me.body["hasPassword"], false);
+    assert_eq!(me.body["isGoogleLinked"], true);
+}
+
+#[sqlx::test(migrations = "../../migrations")]
+async fn a_password_student_still_changes_their_password_and_is_told_a_wrong_one(pool: PgPool) {
+    let (app, _fake) = app_with_google(pool).await;
+    let session = app.student("budi").await;
+    let me = app.get("/v1/me", Some(&session)).await;
+    assert_eq!(me.body["hasPassword"], true);
+    assert_eq!(me.body["isGoogleLinked"], false);
+    let wrong = app
+        .post(
+            "/v1/auth/password",
+            json!({ "currentPassword": "salah-sekali", "newPassword": "rahasia-baru-123" }),
+            Some(&session),
+        )
+        .await;
+    assert_eq!(wrong.status, StatusCode::FORBIDDEN);
+    assert_eq!(wrong.body["error"]["code"], "permission_denied");
+    let right = app
+        .post(
+            "/v1/auth/password",
+            json!({ "currentPassword": "rahasia-123", "newPassword": "rahasia-baru-123" }),
+            Some(&session),
+        )
+        .await;
+    assert_eq!(right.status, StatusCode::NO_CONTENT);
 }
 
 // ---- isolation ---------------------------------------------------------------------------------

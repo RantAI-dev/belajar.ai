@@ -39,8 +39,8 @@ use crate::routes::tanya::{
 };
 use crate::routes::tanya_messages::{DeltaData, SendMessageRequest};
 use crate::routes::{
-    auth, google_auth, google_signup, health, home, lessons, me, openapi, progress, root, subjects,
-    tanya, tanya_messages, tanya_pages,
+    auth, google_auth, google_link, google_signup, health, home, lessons, me, openapi, progress,
+    root, subjects, tanya, tanya_messages, tanya_pages,
 };
 use crate::wire::mastery::{MasteryLevelDto, TrendDto};
 
@@ -59,6 +59,7 @@ use crate::wire::mastery::{MasteryLevelDto, TrendDto};
         google_auth::google_status,
         google_auth::google_start,
         google_auth::google_callback,
+        google_link::link_start,
         google_signup::get_pending,
         google_signup::complete,
         me::get_me,

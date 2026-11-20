@@ -24,6 +24,8 @@ const STUDENT = {
   grade: 7,
   theme: "system" as const,
   createdAt: "2026-11-11T08:30:00.000Z",
+  hasPassword: true,
+  isGoogleLinked: false,
 };
 
 afterEach(() => setSessionExpiredListener(null));

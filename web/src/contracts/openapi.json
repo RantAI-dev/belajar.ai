@@ -103,10 +103,52 @@
         ],
         "responses": {
           "303": {
-            "description": "To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed`"
+            "description": "To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed`. A link attempt goes to `/akun?google=linked|conflict|cancelled|unavailable|failed`"
           },
           "404": {
             "description": "`google_disabled`: Google sign-in is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/google/link/start": {
+      "get": {
+        "tags": ["google_link"],
+        "summary": "Starts linking Google to the signed-in student: a browser navigation from Akun.",
+        "operationId": "link_start",
+        "responses": {
+          "303": {
+            "description": "To Google's consent page, with a short-lived httpOnly cookie that binds the attempt to this browser and this session"
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`google_disabled`: Google sign-in is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`google_already_linked`: this student already has a Google account",
             "content": {
               "application/json": {
                 "schema": {
@@ -358,6 +400,16 @@
           },
           "403": {
             "description": "The current password is wrong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`password_not_set`: the student signs in with Google and has no password",
             "content": {
               "application/json": {
                 "schema": {
@@ -3179,7 +3231,16 @@
       "StudentDto": {
         "type": "object",
         "description": "A whole student, as every auth and `/v1/me` response shows them. No password material, ever.",
-        "required": ["id", "username", "nickname", "grade", "theme", "createdAt"],
+        "required": [
+          "id",
+          "username",
+          "nickname",
+          "grade",
+          "theme",
+          "createdAt",
+          "hasPassword",
+          "isGoogleLinked"
+        ],
         "properties": {
           "createdAt": {
             "type": "string",
@@ -3190,9 +3251,17 @@
             "format": "int32",
             "minimum": 0
           },
+          "hasPassword": {
+            "type": "boolean",
+            "description": "False for a student who signed up with Google: Akun then has no password to change."
+          },
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "isGoogleLinked": {
+            "type": "boolean",
+            "description": "Whether a Google account is linked: Akun then shows it instead of \"Hubungkan dengan Google\"."
           },
           "nickname": {
             "type": "string"

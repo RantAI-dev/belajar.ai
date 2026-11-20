@@ -18,6 +18,10 @@ pub struct StudentAccount {
     pub grade: Grade,
     pub theme: ThemePreference,
     pub created_at: DateTime<Utc>,
+    /// False for a student who signed up with Google and never set a password.
+    pub has_password: bool,
+    /// Whether a Google account is linked to this student.
+    pub is_google_linked: bool,
 }
 
 /// What a login attempt needs from the user's row.

@@ -79,6 +79,10 @@ describe("messages", () => {
     expect(passwordChangeMessage(problem("permission_denied")).form).toBe(
       MESSAGES.wrongCurrentPassword,
     );
+    // A Google-only student is never told their password is wrong: they have none.
+    expect(passwordChangeMessage(problem("password_not_set", { status: 409 })).form).toBe(
+      MESSAGES.noPasswordWithGoogle,
+    );
     expect(
       passwordChangeMessage(
         problem("invalid_request", { fieldErrors: { "/newPassword": "too_short" } }),

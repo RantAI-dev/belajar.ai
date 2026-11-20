@@ -21,6 +21,8 @@ struct StudentRow {
     nickname: String,
     grade: i16,
     theme: String,
+    has_password: bool,
+    is_google_linked: bool,
 }
 
 impl TryFrom<StudentRow> for StudentAccount {
@@ -41,6 +43,8 @@ impl TryFrom<StudentRow> for StudentAccount {
             grade,
             theme,
             created_at: row.created_at,
+            has_password: row.has_password,
+            is_google_linked: row.is_google_linked,
         })
     }
 }
@@ -118,6 +122,8 @@ impl AccountStore for Db {
             grade,
             theme: ThemePreference::default(),
             created_at,
+            has_password: true,
+            is_google_linked: false,
         })
     }
 
@@ -229,7 +235,10 @@ impl AccountStore for Db {
 
     async fn get_student(&self, student_id: Uuid) -> Result<StudentAccount, StoreError> {
         let row = sqlx::query_as::<Postgres, StudentRow>(
-            "SELECT u.id, u.username, u.created_at, p.nickname, p.grade, p.theme \
+            "SELECT u.id, u.username, u.created_at, p.nickname, p.grade, p.theme, \
+                    u.password_hash IS NOT NULL AS has_password, \
+                    EXISTS (SELECT 1 FROM google_identities g WHERE g.student_id = u.id) \
+                        AS is_google_linked \
              FROM users u JOIN student_profiles p ON p.student_id = u.id WHERE u.id = $1",
         )
         .bind(student_id)

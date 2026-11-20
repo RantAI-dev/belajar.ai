@@ -73,6 +73,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/auth/google/link/start": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Starts linking Google to the signed-in student: a browser navigation from Akun. */
+    get: operations["link_start"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/auth/google/signup": {
     parameters: {
       query?: never;
@@ -1023,8 +1040,12 @@ export interface components {
       createdAt: string;
       /** Format: int32 */
       grade: number;
+      /** @description False for a student who signed up with Google: Akun then has no password to change. */
+      hasPassword: boolean;
       /** Format: uuid */
       id: string;
+      /** @description Whether a Google account is linked: Akun then shows it instead of "Hubungkan dengan Google". */
+      isGoogleLinked: boolean;
       nickname: string;
       theme: components["schemas"]["ThemePreferenceDto"];
       username: string;
@@ -1215,7 +1236,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed` */
+      /** @description To `/` (signed in, with the session cookie), `/daftar/google` (new account: pick a grade), or `/masuk?google=cancelled|unavailable|failed`. A link attempt goes to `/akun?google=linked|conflict|cancelled|unavailable|failed` */
       303: {
         headers: {
           [name: string]: unknown;
@@ -1224,6 +1245,50 @@ export interface operations {
       };
       /** @description `google_disabled`: Google sign-in is not configured */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  link_start: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description To Google's consent page, with a short-lived httpOnly cookie that binds the attempt to this browser and this session */
+      303: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description `google_disabled`: Google sign-in is not configured */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description `google_already_linked`: this student already has a Google account */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -1456,6 +1521,15 @@ export interface operations {
       };
       /** @description The current password is wrong */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+      /** @description `password_not_set`: the student signs in with Google and has no password */
+      409: {
         headers: {
           [name: string]: unknown;
         };

@@ -19,6 +19,8 @@ pub enum ErrorCode {
     Unavailable,
     Timeout,
     GoogleDisabled,
+    PasswordNotSet,
+    GoogleAlreadyLinked,
 }
 
 #[rustfmt::skip]
@@ -39,6 +41,8 @@ impl ErrorCode {
         ErrorCode::Unavailable,
         ErrorCode::Timeout,
         ErrorCode::GoogleDisabled,
+        ErrorCode::PasswordNotSet,
+        ErrorCode::GoogleAlreadyLinked,
     ];
 
     /// The string sent to clients.
@@ -59,6 +63,8 @@ impl ErrorCode {
             Self::Unavailable => "unavailable",
             Self::Timeout => "timeout",
             Self::GoogleDisabled => "google_disabled",
+            Self::PasswordNotSet => "password_not_set",
+            Self::GoogleAlreadyLinked => "google_already_linked",
         }
     }
 
@@ -81,6 +87,8 @@ impl ErrorCode {
             Self::Unavailable => 503,
             Self::Timeout => 504,
             Self::GoogleDisabled => 404,
+            Self::PasswordNotSet => 409,
+            Self::GoogleAlreadyLinked => 409,
         }
     }
 
@@ -103,6 +111,8 @@ impl ErrorCode {
             Self::Unavailable => "The service is temporarily unavailable. Try again later.",
             Self::Timeout => "The request took too long.",
             Self::GoogleDisabled => "Sign-in with Google is not set up on this server.",
+            Self::PasswordNotSet => "This account signs in with Google and has no password to change.",
+            Self::GoogleAlreadyLinked => "This account is already linked to a Google account.",
         }
     }
 }

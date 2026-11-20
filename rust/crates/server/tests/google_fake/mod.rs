@@ -7,6 +7,8 @@
 #![allow(clippy::expect_used, reason = "tests")]
 #![allow(dead_code, reason = "each test uses part of the fake")]
 
+pub mod flow;
+
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, OnceLock};
 
