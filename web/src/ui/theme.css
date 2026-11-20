@@ -68,6 +68,13 @@
   --color-streak-soft: #fff4e5;
   --color-streak-ink: #8a4b0f;
 
+  /* Inline citation pills and the marker on a cited sentence (CitationPill, AnswerBubble). */
+  --color-cite-line: #388ca1;
+  --color-cite-soft: #e6f5f7;
+  --color-cite-strong: #1f5f6e;
+  --color-cite-marker: #ffe58a;
+  --color-cite-marker-ink: #0069a8;
+
   --radius-chip: 14px;
   --radius-btn: 18px;
   --radius-card: 24px;
@@ -201,6 +208,12 @@
   --color-star-empty: #34506f;
   --color-streak-soft: #3a2611;
   --color-streak-ink: #ffbf75;
+
+  --color-cite-line: #4fa3b8;
+  --color-cite-soft: #1c2b2f;
+  --color-cite-strong: #317b8d;
+  --color-cite-marker: #5a4a12;
+  --color-cite-marker-ink: #ffe9a8;
 
   --color-subject-ipa: #317b8d;
   --color-subject-ipa-ink: #99c6d2;

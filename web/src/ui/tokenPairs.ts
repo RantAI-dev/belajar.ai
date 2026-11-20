@@ -65,6 +65,11 @@ const BASE: readonly TokenPair[] = [
   p("primary", "page", "ui", "selected fills on the page"),
   p("success", "surface", "ui", "correct-answer border, progress"),
   p("warm-icon", "warm", "ui", "fun fact bulb"),
+  p("ink", "cite-soft", "text", "citation pill label"),
+  p("on-fill", "cite-strong", "text", "pressed citation pill"),
+  p("cite-line", "surface", "ui", "citation pill outline in an answer"),
+  p("ink", "cite-marker", "text", "marked cited sentence"),
+  p("cite-marker-ink", "cite-marker", "text", "emphasis inside a marked sentence"),
 ];
 
 const SUBJECT_PAIRS: readonly TokenPair[] = SUBJECTS.flatMap((s) => {

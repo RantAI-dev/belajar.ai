@@ -15,6 +15,8 @@ export const sourceFromDto = (messageId: string, s: SourceDto): BookSource => {
   const section = s.section ?? "";
   return {
     id: `${messageId}-${s.number}`,
+    number: s.number,
+    ...(page === null ? {} : { page }),
     label: `[${s.number}] ${s.title}${page === null ? "" : ` · hal. ${page}`}`,
     title,
     book: s.title,
@@ -36,6 +38,7 @@ export const messageFromDto = (m: MessageDto, gradeLabel: string): TanyaMessage 
     parts: [{ text: m.content }],
     // The answer cited nothing by number: show every passage it used rather than none.
     sources: (cited.length > 0 ? cited : m.sources).map((s) => sourceFromDto(m.id, s)),
+    allSources: m.sources.map((s) => sourceFromDto(m.id, s)),
   };
 };
 
