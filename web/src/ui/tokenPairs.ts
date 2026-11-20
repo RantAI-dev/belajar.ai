@@ -74,6 +74,11 @@ const BASE: readonly TokenPair[] = [
   p("brand-wordmark", "page", "large", "wordmark on the page"),
   p("mascot-accent", "page", "ui", "mascot marks (zzz, ?) on the page"),
   p("mascot-accent", "surface", "ui", "mascot marks (zzz, ?) on cards"),
+  // The sign-in pages' mascot stage (features/auth/MascotStage).
+  p("brand-wordmark", "surface-alt", "large", "wordmark on the sign-in stage"),
+  p("focus", "surface-alt", "ui", "focus ring on the 3D mascot canvas"),
+  p("mascot-accent", "surface-alt", "ui", "mascot marks (zzz, ?) on the sign-in stage"),
+  p("mascot-accent", "mascot-backdrop", "ui", "mascot marks over the stage's circle"),
 ];
 
 const SUBJECT_PAIRS: readonly TokenPair[] = SUBJECTS.flatMap((s) => {

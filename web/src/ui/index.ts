@@ -8,7 +8,7 @@ export { ChoiceButton, type ChoiceState, choiceState, letterAt } from "./ChoiceB
 export { CITE, CitationPill, type CitationPillProps } from "./CitationPill";
 export { contrastRatio } from "./contrast";
 export { cx } from "./cx";
-export { SelectField, type SelectOption, TextField } from "./Field";
+export { PasswordField, SelectField, type SelectOption, TextField } from "./Field";
 export { FormAlert } from "./FormAlert";
 export { FunFactCard } from "./FunFactCard";
 export {
@@ -40,9 +40,19 @@ export {
   MasteryMeter,
 } from "./MasteryBadge";
 export { type Mission, MissionCard } from "./MissionCard";
-export { EXPRESSIONS as MASCOT_EXPRESSIONS, type MascotExpression } from "./mascot/face";
+export {
+  type Arm as MascotArm,
+  type Brow as MascotBrow,
+  EXPRESSIONS as MASCOT_EXPRESSIONS,
+  type Eye as MascotEye,
+  FACES as MASCOT_FACES,
+  type Face as MascotFace,
+  type MascotExpression,
+  type Mouth as MascotMouth,
+} from "./mascot/face";
 export { Mascot, type MascotMood, type MascotProps } from "./mascot/Mascot";
 export { MASCOT_ICON_KINDS, MascotIcon, type MascotIconKind } from "./mascot/MascotIcon";
+export { useReducedMotion } from "./mascot/motion";
 export { isMathReady, loadMath } from "./math";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";
