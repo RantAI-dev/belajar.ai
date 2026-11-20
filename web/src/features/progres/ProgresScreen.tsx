@@ -41,7 +41,7 @@ function RecentSessions({ sessions }: { readonly sessions: readonly SessionRow[]
                   href={s.href}
                   className="flex min-h-14 items-center gap-3 rounded-[16px] border-2 border-line px-3.5 py-2 text-ink hover:border-line-sky hover:bg-page"
                 >
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-ink">
                     {KIND_ICON[s.kind]}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">

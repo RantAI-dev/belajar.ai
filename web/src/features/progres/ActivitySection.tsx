@@ -91,7 +91,7 @@ function DayChart({ view }: { readonly view: ActivityView }) {
 function DayTable({ view }: { readonly view: ActivityView }) {
   return (
     <details className="rounded-[16px] border-2 border-line bg-page px-4 py-2.5">
-      <summary className="cursor-pointer text-[15px] font-extrabold text-primary">
+      <summary className="cursor-pointer text-[15px] font-extrabold text-primary-ink">
         Lihat sebagai tabel
       </summary>
       <div className="mt-2 overflow-x-auto">
