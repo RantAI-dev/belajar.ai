@@ -8,6 +8,7 @@ import {
   cx,
   letterAt,
   Mascot,
+  RichText,
   StarRating,
   starsForScore,
 } from "../../ui";
@@ -61,7 +62,7 @@ function ReviewItem({
           </span>
           <span className="flex-1 text-[17px] font-extrabold leading-snug">
             <span className="sr-only">{ok ? "Benar. " : "Belum tepat. "}</span>
-            {no}. {q.prompt}
+            {no}. <RichText text={q.prompt} />
           </span>
           <span className="text-[15px] font-extrabold text-primary">
             {open ? "Tutup" : "Lihat"}
@@ -91,7 +92,9 @@ function ReviewItem({
             >
               {ok ? "Benar!" : "Hampir benar!"}
             </span>
-            <p className="m-0 text-[16px] font-semibold leading-relaxed">{item.explanation}</p>
+            <p className="m-0 text-[16px] font-semibold leading-relaxed">
+              <RichText text={item.explanation} />
+            </p>
             {item.source !== null &&
               (item.source.href !== undefined ? (
                 <a

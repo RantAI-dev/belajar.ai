@@ -1,5 +1,6 @@
 import { cx } from "./cx";
 import { BangIcon, CheckIcon } from "./icons";
+import { RichText } from "./RichText";
 
 /** `idle`/`selected` while answering; `correct`, `wrong` (chosen but not right) and `missed` (right
  * but not chosen) after the answer is revealed. */
@@ -71,9 +72,9 @@ export function ChoiceButton({
           letter
         )}
       </span>
-      <span className="flex-1">
+      <span className="min-w-0 flex-1">
         <span className="sr-only">{letter}. </span>
-        {text}
+        <RichText text={text} />
       </span>
       {TAG[state] !== null && (
         <span className={cx("shrink-0 text-[13px] font-extrabold", TAG[state]?.className)}>

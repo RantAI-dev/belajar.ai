@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BulbIcon, ChatBubble, PagePreview, SourceChip } from "../../ui";
+import { BulbIcon, ChatBubble, PagePreview, RichText, SourceChip } from "../../ui";
 import type { TanyaMessage } from "./types";
 
 type Answer = Extract<TanyaMessage, { kind: "answer" }>;
@@ -19,10 +19,12 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
             {parts.map((p) =>
               p.emphasis === true ? (
                 <strong key={p.key} className="text-primary">
-                  {p.text}
+                  <RichText text={p.text} streaming={streaming} />
                 </strong>
               ) : (
-                <span key={p.key}>{p.text}</span>
+                <span key={p.key}>
+                  <RichText text={p.text} streaming={streaming} />
+                </span>
               ),
             )}
           </p>
