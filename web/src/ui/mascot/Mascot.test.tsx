@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { EXPRESSIONS } from "./face";
 import { Mascot } from "./Mascot";
+import { MASCOT_ICON_KINDS, MascotIcon } from "./MascotIcon";
 
 // useId differs per render; strip it so only the drawing is compared.
 const drawing = (html: string) => html.replace(/id="[^"]*"|url\(#[^)]*\)/g, "");
@@ -45,5 +46,14 @@ describe("Mascot", () => {
 
   test("the old book artwork is gone", () => {
     expect(renderToStaticMarkup(<Mascot />)).not.toContain("mascot-book");
+  });
+});
+
+describe("MascotIcon", () => {
+  test("every kind draws something different", () => {
+    const shapes = MASCOT_ICON_KINDS.map((k) =>
+      drawing(renderToStaticMarkup(<MascotIcon kind={k} />)),
+    );
+    expect(new Set(shapes).size).toBe(MASCOT_ICON_KINDS.length);
   });
 });

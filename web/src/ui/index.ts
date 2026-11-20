@@ -42,6 +42,7 @@ export {
 export { type Mission, MissionCard } from "./MissionCard";
 export { EXPRESSIONS as MASCOT_EXPRESSIONS, type MascotExpression } from "./mascot/face";
 export { Mascot, type MascotMood, type MascotProps } from "./mascot/Mascot";
+export { MASCOT_ICON_KINDS, MascotIcon, type MascotIconKind } from "./mascot/MascotIcon";
 export { isMathReady, loadMath } from "./math";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";
