@@ -57,7 +57,7 @@ export function GoogleSignupScreen({
   return (
     <AuthFrame
       title="Satu langkah lagi"
-      greeting="Akun Google-mu sudah tersambung. Sekarang pilih kelasmu, yuk!"
+      subtitle="Akun Google-mu sudah tersambung. Sekarang pilih kelasmu, yuk!"
     >
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         {error !== undefined && <FormAlert tone="error">{error}</FormAlert>}

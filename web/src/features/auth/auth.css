@@ -1,0 +1,20 @@
+/* The sign-in pages only: their typeface (bundled, see fonts.ts) and the card's shake after a wrong
+ * password. The reduced-motion rule in ui/theme.css stops the shake. */
+.font-landing {
+  font-family: "Plus Jakarta Sans", var(--font-sans);
+}
+
+.auth-shake {
+  animation: auth-shake 0.5s;
+}
+
+@keyframes auth-shake {
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}

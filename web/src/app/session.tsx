@@ -53,7 +53,11 @@ export type SessionState =
 export type Auth = {
   readonly state: SessionState;
   readonly student: Student | null;
-  readonly login: (v: { username: string; password: string }) => Promise<ApiResult<Student>>;
+  /** `beforeSignIn` runs after the server accepts, before the session (and the redirect) changes. */
+  readonly login: (
+    v: { username: string; password: string },
+    options?: { readonly beforeSignIn?: () => Promise<void> },
+  ) => Promise<ApiResult<Student>>;
   readonly register: (v: {
     username: string;
     password: string;
@@ -101,7 +105,11 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
   }, []);
 
   const login = useCallback<Auth["login"]>(
-    async (v) => signedIn(asStudent(await api.post("/v1/auth/login", v))),
+    async (v, options) => {
+      const r = asStudent(await api.post("/v1/auth/login", v));
+      if (r.ok) await options?.beforeSignIn?.();
+      return signedIn(r);
+    },
     [signedIn],
   );
   const register = useCallback<Auth["register"]>(
