@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { cx } from "./cx";
 import { BookIcon, ChartIcon, ChatIcon, CheckSquareIcon, HomeIcon } from "./icons";
+import { Logo } from "./Logo";
 import { AppLink } from "./link";
-import { Logo } from "./Mascot";
 import { StarCount } from "./Stars";
 import { StreakBadge } from "./StreakBadge";
 

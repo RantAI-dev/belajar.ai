@@ -156,11 +156,27 @@
   --color-avatar-5-bg: #f0edf9;
   --color-avatar-5-fg: #3d2c75;
 
+  /* The brand (logo mark, mascot body, confetti): the same in both themes. */
+  --color-brand-teal: #38c4cf;
+  --color-brand-blue: #4382ea;
+  --color-brand-purple: #8f55e6;
+  --color-brand-pink: #ff8fb1;
+  --color-brand-sparkle: #ffc83d;
+  /* The "belajar.ai" wordmark: navy here, a light periwinkle in the dark theme. */
+  --color-brand-wordmark: #1d3a9c;
+
   --color-mascot-backdrop: #dbeefe;
-  /* The open book: navy here; the Mascot's on-dark (white) variant in the dark theme. */
-  --color-mascot-book: #050a30;
-  --color-mascot-book-shade: #050a30;
-  --color-mascot-page-shade: #dbeefe;
+  /* Drawn on the mascot's own body, so the same in both themes. */
+  --color-mascot-arm: #4cc0d8;
+  --color-mascot-cap: #27aaa6;
+  --color-mascot-cap-band: #1d8f8b;
+  --color-mascot-face: #14183a;
+  --color-mascot-mouth: #7a1f3d;
+  --color-mascot-tongue: #ff7d9c;
+  --color-mascot-blush: var(--color-brand-pink);
+  /* Marks beside the mascot on the page (zzz, ?, thought bubble) and its ground shadow. */
+  --color-mascot-accent: #5468e0;
+  --color-mascot-shadow: #cfd3f3;
 
   --color-paper: #ffffff;
   --color-paper-line: #dfe8f0;
@@ -277,9 +293,10 @@
   --color-avatar-5-bg: #2a2342;
   --color-avatar-5-fg: #cbbcf5;
 
+  --color-brand-wordmark: #dfe6ff;
   --color-mascot-backdrop: #1d3a5c;
-  --color-mascot-book: var(--color-snow);
-  --color-mascot-book-shade: var(--color-mascot-page-shade);
+  --color-mascot-accent: #a9b6ff;
+  --color-mascot-shadow: #050c18;
 
   --color-paper: #dfe6ee;
   --color-paper-line: #c3cfdb;
@@ -370,6 +387,69 @@
 }
 .bob {
   animation: bob 2.4s ease-in-out infinite;
+}
+
+/* The mascot (ui/mascot): idle breathing, a blink every few seconds, the tassel's sway, a squash
+ * when tapped and the eyes easing toward the pointer. The reduced-motion rule below stops them all. */
+.mascot-breathe,
+.mascot-blink,
+.mascot-sway,
+.mascot-pop {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.mascot-breathe {
+  animation: mascot-breathe 3.2s ease-in-out infinite;
+}
+.mascot-blink {
+  transform-origin: center;
+  animation: mascot-blink 4.6s infinite;
+}
+.mascot-sway {
+  transform-origin: 50% 0;
+  animation: mascot-sway 2.8s ease-in-out infinite;
+}
+.mascot-pop {
+  animation: mascot-pop 0.5s ease;
+}
+.mascot-look {
+  transition: transform 0.18s ease-out;
+}
+@keyframes mascot-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.025, 0.975);
+  }
+}
+@keyframes mascot-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes mascot-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes mascot-pop {
+  30% {
+    transform: scale(1.12, 0.86);
+  }
+  60% {
+    transform: scale(0.94, 1.08);
+  }
 }
 
 @keyframes dot {
