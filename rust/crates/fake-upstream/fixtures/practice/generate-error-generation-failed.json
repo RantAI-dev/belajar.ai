@@ -1,0 +1,20 @@
+{
+ "error": {
+  "message": "Every generated question failed verification (key_unsupported 15). Try again.",
+  "type": "server_error",
+  "code": "generation_failed",
+  "details": {
+   "rejected": {
+    "format": 0,
+    "key_unsupported": 15,
+    "twin_keys": 0,
+    "ambiguous": 0,
+    "ai_checker": 0,
+    "duplicate": 0
+   },
+   "adapter_calls": 15,
+   "adapter_timeouts": 0,
+   "adapter_errors": 0
+  }
+ }
+}

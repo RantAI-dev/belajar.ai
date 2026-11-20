@@ -1,0 +1,127 @@
+{
+ "score": {
+  "correct": 2,
+  "total": 5,
+  "percentage": 40
+ },
+ "questions": [
+  {
+   "question_id": "q1",
+   "materi": "Muai luas",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "A"
+   ],
+   "answer_key": [
+    "A"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Dua kali. Di buku tertulis: \"Pemuaian luas memiliki koeisien muai sebesar dua kali koeisien muai panjang.\""
+  },
+  {
+   "question_id": "q2",
+   "materi": "Kaca panas",
+   "correct": false,
+   "answered": true,
+   "your_answer": [
+    "A"
+   ],
+   "answer_key": [
+    "C"
+   ],
+   "pembahasan": "Jawaban yang benar adalah C. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\""
+  },
+  {
+   "question_id": "q3",
+   "materi": "Sifat cairan",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "C"
+   ],
+   "answer_key": [
+    "C"
+   ],
+   "pembahasan": "Jawaban yang benar adalah C. Zat cair lebih mudah teramati dibandingkan zat padat. Di buku tertulis: \"Zat cair relatif lebih mudah teramati dibanding zat padat.\""
+  },
+  {
+   "question_id": "q4",
+   "materi": "Retak gelas",
+   "correct": false,
+   "answered": false,
+   "your_answer": [],
+   "answer_key": [
+    "D"
+   ],
+   "pembahasan": "Jawaban yang benar adalah D. Karena terjadi pemuaian yang tidak merata pada gelas.. Di buku tertulis: \"Retaknya gelas ini karena terjadinya pemuaian yang tidak merata pada gelas itu.\""
+  },
+  {
+   "question_id": "q5",
+   "materi": "Wadah kertas",
+   "correct": false,
+   "answered": false,
+   "your_answer": [],
+   "answer_key": [
+    "B"
+   ],
+   "pembahasan": "Jawaban yang benar adalah B. Udara di dalam wadah menjadi lebih ringan daripada udara di sekitarnya.. Di buku tertulis: \"Dengan membuat sebuah wadah kubah dengan bahan koran/kertas bekas atau plastik, kamu dapat menerbangkan wadah tersebut akibat udara panas didalamnya yang memuai sehingga menjadi lebih ringan daripada udara di sekitarnya.\""
+  }
+ ],
+ "materi": [
+  {
+   "materi": "Muai luas",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Kaca panas",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Sifat cairan",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Retak gelas",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Wadah kertas",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  }
+ ],
+ "recommendations": [
+  {
+   "materi": "Kaca panas",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Kaca panas\": benar 0 dari 1 soal."
+  },
+  {
+   "materi": "Retak gelas",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Retak gelas\": benar 0 dari 1 soal."
+  },
+  {
+   "materi": "Wadah kertas",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Wadah kertas\": benar 0 dari 1 soal."
+  }
+ ]
+}

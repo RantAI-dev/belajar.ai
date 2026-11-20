@@ -1,6 +1,5 @@
-//! The fake's API: mapel, chat, practice generation and grading, and the book page images.
-
-use std::collections::HashMap;
+//! The fake's API: mapel, chat, practice generation and the book page images (grading is
+//! `grade.rs`).
 
 use axum::Json;
 use axum::extract::{Path, State};
@@ -11,7 +10,9 @@ use serde::Deserialize;
 use serde_json::{Value, json};
 
 use crate::data::{self, Answer};
-use crate::{AppState, bank, data_frame, error_response, event_frame, sse_body, sse_response};
+use crate::{
+    AppState, bank, data_frame, error_response, event_frame, recorded, sse_body, sse_response,
+};
 
 pub(crate) async fn mapel() -> Json<Value> {
     Json(data::mapel_json())
@@ -93,11 +94,11 @@ pub(crate) struct GenerateIn {
     #[serde(default)]
     topics: Option<Vec<String>>,
     #[serde(default)]
-    mapel: Option<String>,
-    #[serde(default)]
     practice_type: Option<String>,
     #[serde(default)]
     total_questions: Option<u8>,
+    #[serde(default)]
+    stream: bool,
 }
 
 pub(crate) async fn generate_practice(
@@ -116,40 +117,29 @@ pub(crate) async fn generate_practice(
     // The server validates 5, 10 or 15 before calling; the fake just stays within the bank's size.
     let total = request.total_questions.unwrap_or(5).clamp(1, 50) as usize;
     let practice_type = request.practice_type.as_deref().unwrap_or("mcq_normal");
-    let mapel = request.mapel.as_deref().unwrap_or("IPA");
 
-    // The reserved topic "__error__" lets a test watch the error path end to end.
+    // The reserved topic "__error__" replays the real upstream's recorded failure, so a test
+    // watches the error path end to end.
     if topics.iter().any(|topic| topic == "__error__") {
-        let frames = vec![
-            event_frame(
-                "progress",
-                &json!({ "stage": "retrieval", "delivered": 0, "total": total, "adapter_calls": 1, "elapsed_s": 0.2 }),
-            ),
-            event_frame(
-                "error",
-                &json!({
-                    "error": { "message": "the fake was asked to fail", "type": "fake_error", "code": "__error__" },
-                    "status": 502,
-                }),
-            ),
-        ];
+        if !request.stream {
+            let body: Value = serde_json::from_str(recorded::GENERATION_FAILED_JSON)
+                .unwrap_or_else(|_| json!({ "error": { "message": "generation failed" } }));
+            return (StatusCode::BAD_GATEWAY, Json(body)).into_response();
+        }
         return sse_response(sse_body(
-            frames,
+            recorded::sse_frames(recorded::GENERATION_FAILED_STREAM),
             state.config.step_delay,
             state.config.ping_every,
         ));
     }
 
-    let set = bank::set_json(
-        practice_type,
-        total,
-        mapel,
-        &topics.join(", "),
-        &state.base_url,
-    );
+    let set = bank::set_json(practice_type, total, &topics);
+    if !request.stream {
+        return Json(set).into_response();
+    }
     let mut frames = vec![event_frame(
         "progress",
-        &json!({ "stage": "retrieval", "delivered": 0, "total": total, "adapter_calls": 1, "elapsed_s": 0.1 }),
+        &json!({ "stage": "retrieval", "delivered": 0, "adapter_calls": 0, "total": total, "elapsed_s": 0 }),
     )];
     for delivered in 1..=total {
         frames.push(event_frame(
@@ -170,7 +160,7 @@ pub(crate) async fn generate_practice(
     ));
     frames.push(event_frame(
         "progress",
-        &json!({ "stage": "labelling", "delivered": total, "total": total, "adapter_calls": total + 2, "elapsed_s": 0.4 + done * 0.3 }),
+        &json!({ "stage": "labelling", "delivered": total, "adapter_calls": total + 2, "total": total, "elapsed_s": 0.4 + done * 0.3 }),
     ));
     frames.push(event_frame("result", &set));
     sse_response(sse_body(
@@ -178,80 +168,6 @@ pub(crate) async fn generate_practice(
         state.config.step_delay,
         state.config.ping_every,
     ))
-}
-
-// ===== practice grading =============================================================================================
-
-#[derive(Deserialize)]
-pub(crate) struct GradeIn {
-    practice: Value,
-    #[serde(default)]
-    answers: Vec<AnswerIn>,
-}
-
-#[derive(Deserialize)]
-pub(crate) struct AnswerIn {
-    question_id: String,
-    #[serde(default)]
-    selected: Vec<String>,
-}
-
-#[derive(Deserialize)]
-struct PracticeKey {
-    questions: Vec<QuestionKey>,
-}
-
-#[derive(Deserialize)]
-struct QuestionKey {
-    id: String,
-    #[serde(default)]
-    answer: Vec<String>,
-}
-
-pub(crate) async fn grade_practice(Json(request): Json<GradeIn>) -> Response {
-    // The set comes back exactly as it was generated, so the answer key is inside it.
-    let key: PracticeKey = match serde_json::from_value(request.practice) {
-        Ok(key) => key,
-        Err(_) => {
-            return error_response(
-                StatusCode::BAD_REQUEST,
-                "the submitted practice set could not be read",
-                "invalid_practice",
-            );
-        }
-    };
-    let answers: HashMap<String, Vec<String>> = key
-        .questions
-        .into_iter()
-        .map(|question| (question.id, question.answer))
-        .collect();
-
-    let mut results = Vec::new();
-    let mut score = 0.0;
-    for answer in &request.answers {
-        let Some(expected) = answers.get(&answer.question_id) else {
-            continue; // not our question; grading it would make up an answer key
-        };
-        let correct = same_set(&answer.selected, expected);
-        if correct {
-            score += 1.0;
-        }
-        results.push(json!({
-            "question_id": answer.question_id,
-            "correct": correct,
-            "score": if correct { 1.0 } else { 0.0 },
-        }));
-    }
-    Json(json!({ "results": results, "score": score })).into_response()
-}
-
-/// Two labels picked mean the same two labels keyed, whatever the order.
-fn same_set(selected: &[String], expected: &[String]) -> bool {
-    let mut left: Vec<&str> = selected.iter().map(String::as_str).collect();
-    let mut right: Vec<&str> = expected.iter().map(String::as_str).collect();
-    left.sort_unstable();
-    right.sort_unstable();
-    left == right
 }
 
 // ===== book pages ==================================================================================================
@@ -312,18 +228,6 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::panic, reason = "tests")]
 
     use super::*;
-
-    #[test]
-    fn grading_compares_labels_as_a_set() {
-        assert!(same_set(
-            &["C".to_owned(), "A".to_owned()],
-            &["A".to_owned(), "C".to_owned()]
-        ));
-        assert!(!same_set(
-            &["A".to_owned()],
-            &["A".to_owned(), "C".to_owned()]
-        ));
-    }
 
     #[test]
     fn the_page_svg_escapes_the_document_id() {

@@ -1,0 +1,41 @@
+event: progress
+data: {"stage":"retrieval","delivered":0,"adapter_calls":0,"total":5,"elapsed_s":0}
+
+event: progress
+data: {"stage":"generating","delivered":0,"total":5,"adapter_calls":0,"elapsed_s":0}
+
+event: progress
+data: {"stage":"checking","delivered":0,"total":5,"adapter_calls":5,"elapsed_s":2.9}
+
+event: progress
+data: {"stage":"checking","delivered":1,"total":5,"adapter_calls":5,"elapsed_s":3.4}
+
+event: progress
+data: {"stage":"checking","delivered":2,"total":5,"adapter_calls":5,"elapsed_s":3.4}
+
+event: progress
+data: {"stage":"checking","delivered":3,"total":5,"adapter_calls":5,"elapsed_s":3.4}
+
+event: progress
+data: {"stage":"generating","delivered":3,"total":5,"adapter_calls":5,"elapsed_s":3.4}
+
+event: progress
+data: {"stage":"checking","delivered":3,"total":5,"adapter_calls":7,"elapsed_s":5.8}
+
+event: progress
+data: {"stage":"checking","delivered":4,"total":5,"adapter_calls":7,"elapsed_s":6.2}
+
+event: progress
+data: {"stage":"generating","delivered":4,"total":5,"adapter_calls":7,"elapsed_s":6.2}
+
+event: progress
+data: {"stage":"checking","delivered":4,"total":5,"adapter_calls":8,"elapsed_s":9.1}
+
+event: progress
+data: {"stage":"labelling","delivered":4,"adapter_calls":8,"total":5,"elapsed_s":9.5}
+
+: ping
+
+event: result
+data: {"practice_type":"mcq_mixed","topic":"Pemuaian","topics":["Pemuaian"],"total_questions":4,"materi_titles":["Koeisien Muai","Benda Sulit Muai","Pernyataan Pemuaian","Penyebab Pemuaian"],"questions":[{"question_id":"q1","type":"mcq_single","materi":"Koeisien Muai","question":"Berapakah koeisien muai luas lempengan baja?","options":{"A":"tidak disebutkan","B":"tiga kali koeisien muai panjang","C":"0,000022/oC","D":"dua kali koeisien muai panjang"},"answer_key":"C","pembahasan":"Jawaban yang benar adalah C. 0,000022/oC. Di buku tertulis: \"Berdasarkan data dalam Tabel 7.1, maka lempengan baja memiliki koeisien muai luas sebesar 0,000022/oC.\"","topic":"Pemuaian"},{"question_id":"q2","type":"mcq_single","materi":"Benda Sulit Muai","question":"Benda yang sulit memuai akan mengalami perubahan ukuran yang bagaimana meskipun suhunya bertambah cukup besar?","options":{"A":"Memuai lebih cepat dari benda lain","B":"Mengalami perubahan yang sangat kecil","C":"Membesar secara signifikan","D":"Tidak mengalami perubahan sama sekali"},"answer_key":"B","pembahasan":"Jawaban yang benar adalah B. Mengalami perubahan yang sangat kecil. Di buku tertulis: \"Sebaliknya, ada benda yang sulit memuai sehingga meskipun suhu bertambah cukup besar, ukuran benda hampir tidak mengalami perubahan.\"","topic":"Pemuaian"},{"question_id":"q3","type":"mcq_multi","materi":"Pernyataan Pemuaian","question":"Manakah dua pernyataan berikut yang benar? (pilih dua)","options":{"A":"Termometer dibuat untuk mengukur suhu","B":"Balok baja memuai dengan koeisien muai 0,000033/°C","C":"Zat padat lebih mudah diamati daripada zat cair","D":"Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang"},"answer_key":["B","D"],"pembahasan":"Jawaban yang benar adalah B. Balok baja memuai dengan koeisien muai 0,000033/°C dan D. Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang. Di buku tertulis: \"Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang.\"","topic":"Pemuaian"},{"question_id":"q4","type":"mcq_single","materi":"Penyebab Pemuaian","question":"Apa yang menyebabkan ukuran benda membesar dalam peristiwa pemuaian?","scenario":"Dimas sedang memasang jendela di rumahnya, ia sengaja memasangnya agak longgar agar tidak macet.","options":{"A":"Kekuatan angin","B":"Tekanan dari luar","C":"Pengaruh kalor","D":"Perubahan suhu udara"},"answer_key":"C","pembahasan":"Jawaban yang benar adalah C. Pengaruh kalor. Di buku tertulis: \"Pemuaian adalah peristiwa memuai, di mana suatu benda ukurannya membesar, baik panjang, lebar, tinggi, luas, maupun volume yang dipengaruhi kalor.\"","topic":"Pemuaian"}],"report":{"requested":5,"delivered":4,"adapter_calls":8,"checks_run":6,"seconds":10.4,"rejected":{"format":0,"key_unsupported":0,"twin_keys":0,"ambiguous":2,"ai_checker":2,"duplicate":0},"skipped_topics":[]}}
+

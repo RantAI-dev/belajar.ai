@@ -1,0 +1,108 @@
+{
+ "practice_type": "mcq_normal",
+ "topic": "Pemuaian",
+ "topics": [
+  "Pemuaian"
+ ],
+ "total_questions": 5,
+ "materi_titles": [
+  "Pemuaian panas",
+  "Koefisien muai luas",
+  "Pemuaian suhu",
+  "Gerak partikel",
+  "Penyebab pemuaian"
+ ],
+ "questions": [
+  {
+   "question_id": "q1",
+   "type": "mcq_single",
+   "materi": "Pemuaian panas",
+   "question": "Peristiwa apa yang terjadi ketika kaca memiliki suhu tinggi akibat cuaca sangat panas?",
+   "options": {
+    "A": "Kaca akan menjadi lebih kecil dari semula",
+    "B": "Kaca akan memiliki dimensi lebih besar dari semula",
+    "C": "Kaca akan pecah karena tekanan",
+    "D": "Kaca akan berubah warna"
+   },
+   "answer_key": "B",
+   "pembahasan": "Jawaban yang benar adalah B. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q2",
+   "type": "mcq_single",
+   "materi": "Koefisien muai luas",
+   "question": "Berapakah koefisien muai luas lempengan baja?",
+   "options": {
+    "A": "Tiga kali koefisien muai panjang",
+    "B": "0,000022/oC",
+    "C": "Dua kali koefisien muai panjang",
+    "D": "Tidak disebutkan dalam teks"
+   },
+   "answer_key": "B",
+   "pembahasan": "Jawaban yang benar adalah B. 0,000022/oC. Di buku tertulis: \"Berdasarkan data dalam Tabel 7.1, maka lempengan baja memiliki koeisien muai luas sebesar 0,000022/oC.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q3",
+   "type": "mcq_single",
+   "materi": "Pemuaian suhu",
+   "question": "Peristiwa apa yang terjadi ketika suhu benda naik sehingga ukuran benda bertambah?",
+   "options": {
+    "A": "Penguapan",
+    "B": "Pemuaian",
+    "C": "Pengembunan",
+    "D": "Penyusutan"
+   },
+   "answer_key": "B",
+   "pembahasan": "Jawaban yang benar adalah B. Pemuaian. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q4",
+   "type": "mcq_single",
+   "materi": "Gerak partikel",
+   "question": "Apa yang terjadi pada zat padat ketika partikel-partikelnya bergerak makin cepat?",
+   "options": {
+    "A": "Zat padat tersebut akan menyusut",
+    "B": "Zat padat tersebut akan memuai",
+    "C": "Zat padat tersebut akan berubah wujud",
+    "D": "Zat padat tersebut akan tetap diam"
+   },
+   "answer_key": "B",
+   "pembahasan": "Jawaban yang benar adalah B. Zat padat tersebut akan memuai. Di buku tertulis: \"Jarak antara partikel makin besar, zat padat itu memuai, bertambah panjang, bertambah luas, dan akhirnya bertambah volumenya.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q5",
+   "type": "mcq_single",
+   "materi": "Penyebab pemuaian",
+   "question": "Apa yang menyebabkan suatu benda memuai?",
+   "options": {
+    "A": "Pengaruh kalor",
+    "B": "Perubahan ukuran secara tiba-tiba",
+    "C": "Perubahan bentuk benda",
+    "D": "Perubahan suhu secara drastis"
+   },
+   "answer_key": "A",
+   "pembahasan": "Jawaban yang benar adalah A. Pengaruh kalor. Di buku tertulis: \"Pemuaian adalah peristiwa memuai, di mana suatu benda ukurannya membesar, baik panjang, lebar, tinggi, luas, maupun volume yang dipengaruhi kalor.\"",
+   "topic": "Pemuaian"
+  }
+ ],
+ "report": {
+  "requested": 5,
+  "delivered": 5,
+  "adapter_calls": 5,
+  "checks_run": 5,
+  "seconds": 4.5,
+  "rejected": {
+   "format": 0,
+   "key_unsupported": 0,
+   "twin_keys": 0,
+   "ambiguous": 0,
+   "ai_checker": 0,
+   "duplicate": 0
+  },
+  "skipped_topics": []
+ }
+}

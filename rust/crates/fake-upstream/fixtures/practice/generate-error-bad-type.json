@@ -1,0 +1,14 @@
+{
+ "error": {
+  "message": "Invalid request body",
+  "type": "invalid_request_error",
+  "details": {
+   "formErrors": [],
+   "fieldErrors": {
+    "practice_type": [
+     "Invalid enum value. Expected 'mcq_normal' | 'mcq_multiple_correct' | 'mcq_story' | 'mcq_mixed', received 'essay'"
+    ]
+   }
+  }
+ }
+}

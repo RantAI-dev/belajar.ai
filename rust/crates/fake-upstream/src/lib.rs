@@ -6,7 +6,9 @@
 
 mod bank;
 mod data;
+mod grade;
 mod handlers;
+mod recorded;
 
 use std::convert::Infallible;
 use std::sync::Arc;
@@ -54,7 +56,7 @@ pub fn router(config: FakeConfig, base_url: String) -> Router {
             "/api/v1/practice/generate",
             post(handlers::generate_practice),
         )
-        .route("/api/v1/practice/grade", post(handlers::grade_practice))
+        .route("/api/v1/practice/grade", post(grade::grade_practice))
         .layer(axum::middleware::from_fn(require_fake_key))
         .with_state(state.clone());
     // Page URLs are pre-signed by the upstream; the fake serves them without a key.

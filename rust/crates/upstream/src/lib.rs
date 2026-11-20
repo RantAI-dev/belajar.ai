@@ -13,6 +13,8 @@
 
 mod chapters;
 mod keys;
+#[cfg(test)]
+mod recorded_tests;
 mod streams;
 mod wire;
 

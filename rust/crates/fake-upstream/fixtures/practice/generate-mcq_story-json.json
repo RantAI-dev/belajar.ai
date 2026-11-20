@@ -1,0 +1,113 @@
+{
+ "practice_type": "mcq_story",
+ "topic": "Pemuaian",
+ "topics": [
+  "Pemuaian"
+ ],
+ "total_questions": 5,
+ "materi_titles": [
+  "Muai luas",
+  "Kaca panas",
+  "Sifat cairan",
+  "Retak gelas",
+  "Wadah kertas"
+ ],
+ "questions": [
+  {
+   "question_id": "q1",
+   "type": "mcq_single",
+   "materi": "Muai luas",
+   "question": "Berapa kali koefisien muai luas lempengan baja dibandingkan dengan koefisien muai panjangnya?",
+   "scenario": "Hasan sedang memasang dua lempengan logam untuk membuat bingkai jendela di rumahnya. Ia ingin memastikan bingkai tersebut tidak rusak saat cuaca menjadi lebih panas.",
+   "options": {
+    "A": "Dua kali",
+    "B": "Satu kali",
+    "C": "Tiga kali",
+    "D": "Setengah kali"
+   },
+   "answer_key": "A",
+   "pembahasan": "Jawaban yang benar adalah A. Dua kali. Di buku tertulis: \"Pemuaian luas memiliki koeisien muai sebesar dua kali koeisien muai panjang.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q2",
+   "type": "mcq_single",
+   "materi": "Kaca panas",
+   "question": "Apa yang terjadi pada kaca ketika suhu udara sangat panas?",
+   "scenario": "Rudi sedang memasang kaca jendela di rumahnya. Ia memastikan bahwa dudukan kaca tidak dipasang terlalu kencang agar kaca tidak pecah saat cuaca sedang panas terik.",
+   "options": {
+    "A": "Kaca akan memiliki dimensi lebih kecil dari semula",
+    "B": "Kaca akan berubah warna menjadi biru",
+    "C": "Kaca akan memiliki dimensi lebih besar dari semula",
+    "D": "Kaca akan menjadi lebih berat dari biasanya"
+   },
+   "answer_key": "C",
+   "pembahasan": "Jawaban yang benar adalah C. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q3",
+   "type": "mcq_single",
+   "materi": "Sifat cairan",
+   "question": "Apa yang dapat diamati dari sifat zat cair dalam konteks ini?",
+   "scenario": "Wulan sedang mengamati bagaimana cairan di dalam termometer bergerak saat suhu berubah.",
+   "options": {
+    "A": "Zat cair selalu memuai dengan koeisien muai yang besar",
+    "B": "Zat cair tidak menunjukkan fenomena pemuaian",
+    "C": "Zat cair lebih mudah teramati dibandingkan zat padat",
+    "D": "Zat cair lebih sulit diamati daripada zat padat"
+   },
+   "answer_key": "C",
+   "pembahasan": "Jawaban yang benar adalah C. Zat cair lebih mudah teramati dibandingkan zat padat. Di buku tertulis: \"Zat cair relatif lebih mudah teramati dibanding zat padat.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q4",
+   "type": "mcq_single",
+   "materi": "Retak gelas",
+   "question": "Mengapa gelas tersebut bisa retak?",
+   "scenario": "Sinta menuangkan air panas ke dalam gelas yang terbuat dari kaca.",
+   "options": {
+    "A": "Karena air panas menyebabkan gelas menjadi lebih kecil.",
+    "B": "Karena gelas tersebut tidak tahan terhadap panas.",
+    "C": "Karena suhu air panas terlalu rendah.",
+    "D": "Karena terjadi pemuaian yang tidak merata pada gelas."
+   },
+   "answer_key": "D",
+   "pembahasan": "Jawaban yang benar adalah D. Karena terjadi pemuaian yang tidak merata pada gelas.. Di buku tertulis: \"Retaknya gelas ini karena terjadinya pemuaian yang tidak merata pada gelas itu.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q5",
+   "type": "mcq_single",
+   "materi": "Wadah kertas",
+   "question": "Apa yang menyebabkan wadah kertas tersebut bisa terbang?",
+   "scenario": "Ani sedang membuat model balon udara sederhana menggunakan kertas bekas dan api lilin kecil di bawahnya.",
+   "options": {
+    "A": "Api lilin membuat kertas menjadi lebih kuat.",
+    "B": "Udara di dalam wadah menjadi lebih ringan daripada udara di sekitarnya.",
+    "C": "Kertas menjadi lebih berat karena panas.",
+    "D": "Kertas tersebut memuai karena suhu dingin."
+   },
+   "answer_key": "B",
+   "pembahasan": "Jawaban yang benar adalah B. Udara di dalam wadah menjadi lebih ringan daripada udara di sekitarnya.. Di buku tertulis: \"Dengan membuat sebuah wadah kubah dengan bahan koran/kertas bekas atau plastik, kamu dapat menerbangkan wadah tersebut akibat udara panas didalamnya yang memuai sehingga menjadi lebih ringan daripada udara di sekitarnya.\"",
+   "topic": "Pemuaian"
+  }
+ ],
+ "report": {
+  "requested": 5,
+  "delivered": 5,
+  "adapter_calls": 6,
+  "checks_run": 6,
+  "seconds": 24,
+  "rejected": {
+   "format": 0,
+   "key_unsupported": 0,
+   "twin_keys": 0,
+   "ambiguous": 0,
+   "ai_checker": 1,
+   "duplicate": 0
+  },
+  "skipped_topics": []
+ }
+}

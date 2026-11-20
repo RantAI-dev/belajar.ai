@@ -1,0 +1,105 @@
+{
+ "score": {
+  "correct": 2,
+  "total": 4,
+  "percentage": 50
+ },
+ "questions": [
+  {
+   "question_id": "q1",
+   "materi": "Pemuaian Gas",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "A",
+    "C"
+   ],
+   "answer_key": [
+    "A",
+    "C"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Menerbangkan balon udara dan C. Memompa ban sepeda. Di buku tertulis: \"Sifat pemuaian gas dapat kita manfaatkan dalam kehidupan sehari-hari, misalnya untuk menerbangkan balon udara, memompa ban sepeda tidak perlu terlalu kencang dan jangan meletakkan balon di tempat yang panas.\""
+  },
+  {
+   "question_id": "q2",
+   "materi": "Sifat Pemuaian",
+   "correct": false,
+   "answered": true,
+   "your_answer": [
+    "B"
+   ],
+   "answer_key": [
+    "A"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Benda pertama mudah memuai dan benda kedua sulit memuai.. Di buku tertulis: \"Ada benda yang sangat mudah memuai sehingga kenaikan suhu sedikit saja sudah cukup membuat ukuran benda yang dapat diamati mata.\""
+  },
+  {
+   "question_id": "q3",
+   "materi": "Kaca Panas",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "A"
+   ],
+   "answer_key": [
+    "A"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\""
+  },
+  {
+   "question_id": "q4",
+   "materi": "Koeisien Muai",
+   "correct": false,
+   "answered": false,
+   "your_answer": [],
+   "answer_key": [
+    "A"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Tiga kali lipat. Di buku tertulis: \"Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang.\""
+  }
+ ],
+ "materi": [
+  {
+   "materi": "Pemuaian Gas",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Sifat Pemuaian",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Kaca Panas",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Koeisien Muai",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  }
+ ],
+ "recommendations": [
+  {
+   "materi": "Koeisien Muai",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Koeisien Muai\": benar 0 dari 1 soal."
+  },
+  {
+   "materi": "Sifat Pemuaian",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Sifat Pemuaian\": benar 0 dari 1 soal."
+  }
+ ]
+}
