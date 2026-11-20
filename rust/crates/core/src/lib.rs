@@ -5,6 +5,10 @@ pub mod calendar;
 
 pub mod grade;
 
+pub mod mastery;
+
+pub mod period;
+
 pub mod stars;
 
 pub mod streak;

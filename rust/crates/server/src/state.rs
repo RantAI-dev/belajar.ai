@@ -9,6 +9,7 @@ use belajar_ports::conversations::ConversationStore;
 use belajar_ports::home::HomeStore;
 use belajar_ports::lessons::LessonStore;
 use belajar_ports::practice::PracticeStore;
+use belajar_ports::progress::ProgressStore;
 use belajar_ports::upstream::Upstream;
 use belajar_store_pg::Db;
 
@@ -31,6 +32,7 @@ pub struct AppState {
     pub home: Arc<dyn HomeStore>,
     pub conversations: Arc<dyn ConversationStore>,
     pub practice: Arc<dyn PracticeStore>,
+    pub progress: Arc<dyn ProgressStore>,
     pub upstream: Arc<dyn Upstream>,
     pub clock: Arc<dyn Clock>,
     pub config: Config,
@@ -49,6 +51,7 @@ impl AppState {
             lessons: db.clone(),
             home: db.clone(),
             practice: db.clone(),
+            progress: db.clone(),
             upstream: deps.upstream,
             clock: deps.clock.clone(),
             config,

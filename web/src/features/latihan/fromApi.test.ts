@@ -161,19 +161,40 @@ describe("setup", () => {
     ]);
   });
 
-  test("mastery keeps this subject's topics, best first, within 0..100", () => {
+  test("mastery keeps this subject's topics, best first, within 0..100, with the server's level", () => {
     expect(
       masteryRows(
         [
-          { subjectId: "ipa", topic: "Suhu", attempts: 1, correct: 3, masteryPercent: 60 },
-          { subjectId: "mtk", topic: "Pecahan", attempts: 1, correct: 5, masteryPercent: 100 },
-          { subjectId: "ipa", topic: "Zat", attempts: 2, correct: 9, masteryPercent: 120 },
+          {
+            subjectId: "ipa",
+            topic: "Suhu",
+            attempts: 1,
+            correct: 3,
+            masteryPercent: 60,
+            level: "almost",
+          },
+          {
+            subjectId: "mtk",
+            topic: "Pecahan",
+            attempts: 1,
+            correct: 5,
+            masteryPercent: 100,
+            level: "almost",
+          },
+          {
+            subjectId: "ipa",
+            topic: "Zat",
+            attempts: 2,
+            correct: 9,
+            masteryPercent: 120,
+            level: "mastered",
+          },
         ],
         "ipa",
       ),
     ).toEqual([
-      { topic: "Zat", percent: 100 },
-      { topic: "Suhu", percent: 60 },
+      { topic: "Zat", percent: 100, level: "mastered" },
+      { topic: "Suhu", percent: 60, level: "almost" },
     ]);
   });
 });

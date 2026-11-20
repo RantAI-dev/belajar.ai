@@ -139,6 +139,38 @@ const TOPICS: &[Topic] = &[
             source(IPA, "Bab 6: Fotosintesis pada Tumbuhan", "kb-ipa-7", 135),
         ],
     },
+    // Maths and a diagram, the way the real API writes them: LaTeX between dollars, mermaid fences.
+    Topic {
+        keywords: &["jumlahkan pecahan"],
+        text: "Kalau penyebutnya sama, kita cukup menjumlahkan pembilangnya [1]. Jadi \
+            $ \\frac{1}{4} + \\frac{3}{4} = \\frac{4}{4} = 1 $, artinya satu utuh [2]. Kalau \
+            harganya Rp5.000 dan $3, itu uang, bukan rumus.",
+        sources: [
+            source(MAT, "Bab 2: Bilangan Pecahan", "kb-matematika-7", 44),
+            source(MAT, "Bab 2: Bilangan Pecahan", "kb-matematika-7", 45),
+        ],
+    },
+    Topic {
+        keywords: &["rumus abc"],
+        text: "Akar persamaan kuadrat $ax^2 + bx + c = 0$ dicari dengan rumus abc [1]: \
+            $$x_{1,2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} \\quad \\text{dengan} \\quad \
+            D = b^2 - 4ac,\\; a \\neq 0,\\; x_1 + x_2 = -\\frac{b}{a},\\; \
+            x_1 \\cdot x_2 = \\frac{c}{a}$$ Nilai $D$ disebut diskriminan [2].",
+        sources: [
+            source(MAT, "Bab 6: Persamaan Kuadrat", "kb-matematika-7", 120),
+            source(MAT, "Bab 6: Persamaan Kuadrat", "kb-matematika-7", 122),
+        ],
+    },
+    Topic {
+        keywords: &["siklus air"],
+        text: "Air di bumi terus berputar dalam siklus air [1]:\n```mermaid\nflowchart LR\n  \
+            A[Air laut] -->|menguap| B[Uap air]\n  B -->|mengembun| C[Awan]\n  \
+            C -->|hujan| D[Sungai]\n  D --> A\n```\nPanas matahari membuat air menguap [2].",
+        sources: [
+            source(IPA, "Bab 7: Siklus Air", "kb-ipa-7", 150),
+            source(IPA, "Bab 7: Siklus Air", "kb-ipa-7", 152),
+        ],
+    },
     Topic {
         keywords: &["pecahan"],
         text: "Pecahan menunjukkan berapa bagian dari keseluruhan yang kita ambil [1]. Angka atas \
@@ -255,6 +287,17 @@ mod tests {
             panic!("fotosintesis is grounded");
         };
         assert!(text.contains("kloroplas"));
+    }
+
+    #[test]
+    fn maths_and_diagram_answers_keep_their_markup() {
+        let text = |question| match answer_for(question, Some("Matematika")) {
+            Answer::Grounded { text, .. } => text,
+            Answer::Ungrounded { text } => text,
+        };
+        assert!(text("Jumlahkan pecahan 1/4 dan 3/4").contains("$ \\frac{1}{4}"));
+        assert!(text("Apa itu rumus abc?").contains("$$x_{1,2}"));
+        assert!(text("Jelaskan siklus air").contains("\n```mermaid\nflowchart LR\n"));
     }
 
     #[test]

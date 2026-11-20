@@ -4,13 +4,20 @@ import { AppHeader, type NavKey } from "../ui";
 import { useHeaderStats } from "./headerStats";
 import { useAuth } from "./session";
 
-const LINKS = { beranda: "/", tanya: "/tanya", belajar: "/belajar", latihan: "/latihan" } as const;
+const LINKS = {
+  beranda: "/",
+  tanya: "/tanya",
+  belajar: "/belajar",
+  latihan: "/latihan",
+  progres: "/progres",
+} as const;
 
 const navKeyOf = (path: string): NavKey | null => {
   if (path === "/") return "beranda";
   if (path.startsWith("/tanya")) return "tanya";
   if (path.startsWith("/belajar")) return "belajar";
   if (path.startsWith("/latihan")) return "latihan";
+  if (path.startsWith("/progres")) return "progres";
   return null;
 };
 

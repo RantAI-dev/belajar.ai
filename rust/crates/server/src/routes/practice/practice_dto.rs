@@ -11,6 +11,7 @@ use belajar_ports::practice::{PracticeSetStatus, PracticeSetSummary, StoredPract
 use belajar_ports::upstream::{PracticeQuestion, PracticeType, QuestionKind, Source};
 
 use crate::wire::instant;
+use crate::wire::mastery::MasteryLevelDto;
 
 /// One question's kind as the client sees it.
 #[derive(Debug, Clone, Copy, Serialize, ToSchema)]
@@ -141,6 +142,8 @@ pub struct TopicMasteryDto {
     pub attempts: u32,
     pub correct: u32,
     pub mastery_percent: u32,
+    /// The level `belajar_core::mastery::mastery_level` gives these answers.
+    pub level: MasteryLevelDto,
 }
 
 #[derive(Debug, Serialize, ToSchema)]

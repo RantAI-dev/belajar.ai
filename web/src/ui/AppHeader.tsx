@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { cx } from "./cx";
-import { BookIcon, ChatIcon, CheckSquareIcon, HomeIcon } from "./icons";
+import { BookIcon, ChartIcon, ChatIcon, CheckSquareIcon, HomeIcon } from "./icons";
 import { AppLink } from "./link";
 import { Logo } from "./Mascot";
 import { StarCount } from "./Stars";
 import { StreakBadge } from "./StreakBadge";
 
-export type NavKey = "beranda" | "tanya" | "belajar" | "latihan";
+export type NavKey = "beranda" | "tanya" | "belajar" | "latihan" | "progres";
 
 const NAV: ReadonlyArray<{
   readonly key: NavKey;
@@ -18,6 +18,7 @@ const NAV: ReadonlyArray<{
   { key: "tanya", label: "Tanya", icon: <ChatIcon /> },
   { key: "belajar", label: "Belajar", icon: <BookIcon /> },
   { key: "latihan", label: "Latihan", icon: <CheckSquareIcon /> },
+  { key: "progres", label: "Progres", icon: <ChartIcon /> },
 ];
 
 export type AppHeaderProps = {

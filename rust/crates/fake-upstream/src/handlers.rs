@@ -57,7 +57,8 @@ pub(crate) async fn chat(State(state): State<AppState>, Json(request): Json<Chat
 }
 
 fn chat_frames(text: &str, sources: Value, grounded: Value, retrieval_score: Value) -> Vec<Bytes> {
-    let words: Vec<&str> = text.split_whitespace().collect();
+    // Split on spaces only: newlines stay inside a chunk, so fenced blocks survive the stream.
+    let words: Vec<&str> = text.split(' ').filter(|w| !w.is_empty()).collect();
     let mut frames = Vec::new();
     for (i, piece) in words.chunks(3).enumerate() {
         // Like a real token stream, a chunk carries its own leading space: clients concatenate.

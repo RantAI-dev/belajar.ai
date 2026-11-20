@@ -1,6 +1,8 @@
 import { type CSSProperties, type FormEvent, useState } from "react";
 import {
   AppLink,
+  ArrowRightIcon,
+  ChartIcon,
   Mascot,
   MissionCard,
   Stepper,
@@ -128,6 +130,25 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
         </div>
         {view.continueLesson !== null && <ContinueCard lesson={view.continueLesson} />}
       </div>
+
+      <AppLink
+        href="/progres"
+        className="tile flex flex-wrap items-center gap-4 rounded-card border-2 border-line-sky bg-primary-soft p-4 text-ink sm:p-5"
+        style={{ "--edge": "var(--color-line-sky)" } as CSSProperties}
+      >
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-line-sky bg-page text-primary">
+          <ChartIcon size={26} />
+        </span>
+        <span className="flex min-w-0 flex-1 basis-[220px] flex-col gap-0.5">
+          <span className="font-display text-[22px] font-semibold leading-tight">
+            Lihat progresmu
+          </span>
+          <span className="text-[15px] font-bold text-ink-muted">
+            Bintang, runtunan, topik yang sudah dikuasai, dan yang perlu dilatih lagi.
+          </span>
+        </span>
+        <ArrowRightIcon className="text-primary" />
+      </AppLink>
 
       <section aria-labelledby="mapel-title" className="flex flex-col gap-3.5">
         <h2 id="mapel-title" className="m-0 font-display text-[22px] font-semibold">

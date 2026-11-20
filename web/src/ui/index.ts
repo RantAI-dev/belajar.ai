@@ -17,18 +17,33 @@ export {
   BangIcon,
   BookIcon,
   BulbIcon,
+  ChartIcon,
   ChatIcon,
   CheckIcon,
+  CheckSquareIcon,
+  DashIcon,
+  FlameIcon,
   LockIcon,
   SendIcon,
   StarIcon,
+  TrendDownIcon,
+  TrendFlatIcon,
+  TrendUpIcon,
 } from "./icons";
 export { initialsOf } from "./initials";
 export { AppLink, type LinkComponent, type LinkProps, LinkProvider } from "./link";
 export { Logo, LogoMark, Mascot, type MascotMood } from "./Mascot";
+export {
+  MASTERY_LABEL,
+  MasteryBadge,
+  type MasteryLevel,
+  MasteryMeter,
+} from "./MasteryBadge";
 export { type Mission, MissionCard } from "./MissionCard";
+export { isMathReady, loadMath } from "./math";
 export { ProgressBar } from "./ProgressBar";
 export { progressPercent } from "./progress";
+export { MermaidDiagram, RichText, type RichTextProps } from "./RichText";
 export { clampRating, type Rating, starsForScore } from "./rating";
 export { PagePreview, SourceChip } from "./Source";
 export { StarCount, StarRating } from "./Stars";
@@ -60,3 +75,4 @@ export {
   THEME_PREFERENCES,
   type ThemePreference,
 } from "./themePreference";
+export { cutOutsideMaths, type Segment, tokenize } from "./tokenize";

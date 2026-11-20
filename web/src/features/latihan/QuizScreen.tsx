@@ -7,6 +7,7 @@ import {
   letterAt,
   ProgressBar,
   paintFor,
+  RichText,
   subjectById,
 } from "../../ui";
 import type { QuizQuestion } from "./types";
@@ -67,12 +68,12 @@ export function QuizScreen(p: QuizScreenProps) {
           <div className="rounded-[18px] border-2 border-warm-line bg-warm px-4 py-3.5">
             <span className="text-[14px] font-extrabold text-warm-ink">Cerita</span>
             <p className="m-0 mt-1 text-[17px] font-semibold leading-relaxed text-warm-ink">
-              {q.story}
+              <RichText text={q.story} />
             </p>
           </div>
         )}
         <h1 id="soal-title" className="m-0 font-display text-[24px] font-semibold leading-snug">
-          {q.prompt}
+          <RichText text={q.prompt} />
         </h1>
         <p className="m-0 text-[15px] font-bold text-ink-muted">{HINT[q.kind]}</p>
         <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0">

@@ -41,6 +41,37 @@ export const CheckSquareIcon = (p: IconProps) => (
     <path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
   </Stroke>
 );
+export const ChartIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M4 20V10" />
+    <path d="M10 20V4" />
+    <path d="M16 20v-7" />
+    <path d="M22 20H2" />
+  </Stroke>
+);
+export const TrendUpIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3 17 9 11l4 4 8-8" />
+    <path d="M15 7h6v6" />
+  </Stroke>
+);
+export const TrendDownIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3 7l6 6 4-4 8 8" />
+    <path d="M15 17h6v-6" />
+  </Stroke>
+);
+export const TrendFlatIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3 12h16" />
+    <path d="m15 8 4 4-4 4" />
+  </Stroke>
+);
+export const DashIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M7 12h10" />
+  </Stroke>
+);
 export const CheckIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M5 12.5 10 17.5 19 7" />

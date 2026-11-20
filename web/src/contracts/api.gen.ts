@@ -373,6 +373,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/progress": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** `GET /v1/progress`. */
+    get: operations["get_progress"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/subjects": {
     parameters: {
       query?: never;
@@ -434,6 +451,26 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    ActivityDto: {
+      last30Days: components["schemas"]["ActivityWindowDto"];
+      last7Days: components["schemas"]["ActivityWindowDto"];
+    };
+    /** @description The last N Jakarta days, today included, oldest first. */
+    ActivityWindowDto: {
+      days: components["schemas"]["DayActivityDto"][];
+      /** Format: int32 */
+      daysActive: number;
+      /** Format: date */
+      endsOn: string;
+      /** Format: int32 */
+      lessonsCompleted: number;
+      /** Format: int32 */
+      questionsAnswered: number;
+      /** Format: int32 */
+      questionsAsked: number;
+      /** Format: date */
+      startsOn: string;
+    };
     /** @description One chapter of a subject, with the student's own progress in it. */
     ChapterDto: {
       id: string;
@@ -453,6 +490,21 @@ export interface components {
       /** @description `null` before the student starts the chapter's lesson, else its current step. */
       step: string | null;
       title: string;
+    };
+    /** @description One chapter the student started in Belajar. */
+    ChapterProgressDto: {
+      chapterId: string;
+      chapterTitle: string;
+      isCompleted: boolean;
+      /** Format: uuid */
+      lessonId: string;
+      /** Format: int32 */
+      stars: number;
+      /** @description `explain`, `check`, `quiz` or `done`. */
+      step: string;
+      subjectId: string;
+      /** Format: date-time */
+      updatedAt: string;
     };
     /** @description The chapters list: `{ data, nextCursor }`, one complete page. */
     ChaptersDto: {
@@ -517,6 +569,20 @@ export interface components {
     CreateLessonRequest: {
       chapterId: string;
       subjectId: string;
+    };
+    /** @description One Jakarta calendar day. */
+    DayActivityDto: {
+      /** Format: int32 */
+      correctAnswers: number;
+      isActive: boolean;
+      /** Format: int32 */
+      lessonsCompleted: number;
+      /** Format: date */
+      on: string;
+      /** Format: int32 */
+      questionsAnswered: number;
+      /** Format: int32 */
+      questionsAsked: number;
     };
     /** @description One piece of the answer as it streams in. */
     DeltaData: {
@@ -592,6 +658,12 @@ export interface components {
     };
     /** @description `POST /v1/auth/logout` takes an empty object, so the extractor can tell `{}` from nothing. */
     LogoutRequest: Record<string, never>;
+    /**
+     * @description `not_started` (Belum mulai), `learning` (Sedang belajar), `almost` (Hampir) or `mastered`
+     *     (Dikuasai: at least 80% over at least 5 answered questions).
+     * @enum {string}
+     */
+    MasteryLevelDto: "not_started" | "learning" | "almost" | "mastered";
     /** @description One stored message: the student's question or the assistant's answer. */
     MessageDto: {
       content: string;
@@ -654,6 +726,33 @@ export interface components {
       nickname?: string | null;
       theme?: null | components["schemas"]["ThemePreferenceDto"];
     };
+    /** @description The headline numbers for one period ("Minggu ini" or "Semua"). */
+    PeriodSummaryDto: {
+      /**
+       * Format: int32
+       * @description Round(100 × correct / answered); `null` when nothing was answered.
+       */
+      accuracyPercent: number | null;
+      /** Format: int32 */
+      correctAnswers: number;
+      /**
+       * Format: int32
+       * @description Jakarta days with any activity in the period.
+       */
+      daysActive: number;
+      /**
+       * Format: int32
+       * @description Chapters completed for the first time in the period.
+       */
+      lessonsCompleted: number;
+      /** Format: int32 */
+      questionsAnswered: number;
+      /**
+       * Format: int32
+       * @description Stars earned in the period.
+       */
+      stars: number;
+    };
     /** @description The review a submission returns, and what `GET /v1/practice-sets/{id}` keeps showing after. */
     PracticeResultDto: {
       /** Format: int32 */
@@ -703,6 +802,28 @@ export interface components {
      * @enum {string}
      */
     PracticeStatusDto: "ready" | "submitted";
+    /** @description The whole Progres page in one response, for the signed-in student only. */
+    ProgressDto: {
+      activity: components["schemas"]["ActivityDto"];
+      allTime: components["schemas"]["PeriodSummaryDto"];
+      /** @description Unfinished chapters, most recent first (at most 3). */
+      continueLessons: components["schemas"]["ChapterProgressDto"][];
+      /** @description The weakest topics not yet mastered, weakest first (at most 3). */
+      practiceAgain: components["schemas"]["TopicProgressDto"][];
+      recentSessions: components["schemas"]["RecentSessionDto"][];
+      /** Format: int32 */
+      streakDays: number;
+      /** @description In the app's subject order. */
+      subjects: components["schemas"]["SubjectProgressDto"][];
+      thisWeek: components["schemas"]["PeriodSummaryDto"];
+      /** Format: date */
+      weekEndsOn: string;
+      /**
+       * Format: date
+       * @description The Jakarta week: Monday to Sunday.
+       */
+      weekStartsOn: string;
+    };
     /** @description One `progress` event of the generation stream. */
     ProgressEventDto: {
       /** Format: int32 */
@@ -736,6 +857,34 @@ export interface components {
     ReadyEventDto: {
       practiceSet: components["schemas"]["PracticeSetDto"];
     };
+    /** @description One recent session, newest first. */
+    RecentSessionDto: {
+      /**
+       * Format: int32
+       * @description Practice only.
+       */
+      correctCount: number | null;
+      /**
+       * Format: uuid
+       * @description The practice set, lesson or conversation.
+       */
+      id: string;
+      kind: components["schemas"]["SessionKindDto"];
+      /** Format: date-time */
+      occurredAt: string;
+      /**
+       * Format: int32
+       * @description Lesson only.
+       */
+      stars: number | null;
+      subjectId: string | null;
+      title: string;
+      /**
+       * Format: int32
+       * @description Practice only.
+       */
+      totalCount: number | null;
+    };
     RegisterRequest: {
       /** Format: int32 */
       grade: number;
@@ -759,6 +908,11 @@ export interface components {
       /** @description 1–2000 characters, after trimming. */
       content: string;
     };
+    /**
+     * @description What a recent session was.
+     * @enum {string}
+     */
+    SessionKindDto: "practice" | "lesson" | "ask";
     /**
      * @description One book passage an answer used. The upstream's `page_url` stays on our server; the browser
      *     fetches the page through `pagePreviewUrl` instead.
@@ -798,6 +952,26 @@ export interface components {
       mapel: string;
       name: string;
     };
+    /** @description One subject the student has practised or studied. */
+    SubjectProgressDto: {
+      /** Format: int32 */
+      attempts: number;
+      /** @description Most recently updated first. */
+      chapters: components["schemas"]["ChapterProgressDto"][];
+      /** Format: int32 */
+      correct: number;
+      /** Format: int32 */
+      lessonsCompleted: number;
+      /** Format: int32 */
+      lessonsStarted: number;
+      level: components["schemas"]["MasteryLevelDto"];
+      /** Format: int32 */
+      masteryPercent: number;
+      name: string;
+      subjectId: string;
+      /** @description Weakest first. */
+      topics: components["schemas"]["TopicProgressDto"][];
+    };
     /** @description The subjects list: `{ data, nextCursor }`, one complete page. */
     SubjectsDto: {
       data: components["schemas"]["SubjectDto"][];
@@ -820,6 +994,8 @@ export interface components {
       attempts: number;
       /** Format: int32 */
       correct: number;
+      /** @description The level `belajar_core::mastery::mastery_level` gives these answers. */
+      level: components["schemas"]["MasteryLevelDto"];
       /** Format: int32 */
       masteryPercent: number;
       subjectId: string;
@@ -829,6 +1005,40 @@ export interface components {
       data: components["schemas"]["TopicMasteryDto"][];
       nextCursor?: string | null;
     };
+    /** @description One practised topic. */
+    TopicProgressDto: {
+      /**
+       * Format: int32
+       * @description All answered questions on this topic, ever (the same numbers Latihan shows).
+       */
+      attempts: number;
+      /** Format: int32 */
+      correct: number;
+      /** Format: date-time */
+      lastPracticedAt: string | null;
+      /**
+       * Format: int32
+       * @description Last Jakarta week's accuracy; `null` without answers last week.
+       */
+      lastWeekPercent: number | null;
+      level: components["schemas"]["MasteryLevelDto"];
+      /** Format: int32 */
+      masteryPercent: number;
+      subjectId: string;
+      /**
+       * Format: int32
+       * @description This Jakarta week's accuracy; `null` without answers this week.
+       */
+      thisWeekPercent: number | null;
+      topic: string;
+      trend: components["schemas"]["TrendDto"];
+    };
+    /**
+     * @description This week's accuracy against last week's: `up`, `down`, `same`, or `no_data` when either week
+     *     has no answers.
+     * @enum {string}
+     */
+    TrendDto: "up" | "down" | "same" | "no_data";
   };
   responses: never;
   parameters: never;
@@ -2017,6 +2227,33 @@ export interface operations {
         };
       };
       504: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorBody"];
+        };
+      };
+    };
+  };
+  get_progress: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProgressDto"];
+        };
+      };
+      401: {
         headers: {
           [name: string]: unknown;
         };
