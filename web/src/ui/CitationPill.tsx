@@ -34,7 +34,7 @@ export function CitationPill({ label, ariaLabel, pressed, onPress }: CitationPil
       }
     >
       {/* A 48px-tall tap target that does not spread the line. */}
-      <span aria-hidden="true" className="absolute inset-x-0 -inset-y-3" />
+      <span aria-hidden="true" className="absolute -inset-x-1 -inset-y-[14px]" />
       <BookIcon size={14} />
       {label}
     </button>
