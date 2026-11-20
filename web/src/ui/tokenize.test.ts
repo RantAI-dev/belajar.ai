@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type Segment, tokenize } from "./tokenize";
+import { cutOutsideMaths, type Segment, tokenize } from "./tokenize";
 
 const kinds = (segs: readonly Segment[]) => segs.map((s) => s.kind);
 const maths = (segs: readonly Segment[]) =>
@@ -64,32 +64,36 @@ describe("currency is not maths", () => {
   });
 });
 
-describe("citations next to maths", () => {
-  test("[n] beside a formula stays a citation", () => {
-    const segs = tokenize("Jumlahnya $\\frac{1}{2}$[1] dan $x$ [2].");
-    expect(kinds(segs)).toEqual([
-      "text",
-      "math",
-      "citation",
-      "text",
-      "math",
-      "text",
-      "citation",
-      "text",
-    ]);
-    expect(segs.filter((s) => s.kind === "citation")).toEqual([
-      { kind: "citation", n: 1 },
-      { kind: "citation", n: 2 },
-    ]);
+describe("text around maths", () => {
+  test("[n] is left to Tanya's citation parser, even beside a formula", () => {
+    expect(textOf(tokenize("Jumlahnya $\\frac{1}{2}$[1]."))).toBe("Jumlahnya <math>[1].");
   });
 
-  test("brackets inside a formula are not citations", () => {
+  test("brackets inside a formula belong to the formula", () => {
     expect(kinds(tokenize("$[1] + [2]$"))).toEqual(["math"]);
   });
 
   test("tags and other markup pass through as text", () => {
     const text = "Lihat <gambar 3> dan [Gambar 1.2] di bukumu.";
     expect(textOf(tokenize(text))).toBe(text);
+  });
+});
+
+describe("cutOutsideMaths", () => {
+  test("a cut inside a formula moves to the formula's start", () => {
+    const text = "Jadi $ \\frac{1}{4} = 1 $";
+    expect(cutOutsideMaths(text, text.length - 1)).toBe(5);
+    expect(cutOutsideMaths(text, 4)).toBe(4);
+  });
+
+  test("a cut inside a fenced block moves to the fence", () => {
+    const text = "A:\n```mermaid\ngraph TD\nA-->B\n```\nB";
+    expect(cutOutsideMaths(text, 12)).toBe(3);
+    expect(cutOutsideMaths(text, text.length - 1)).toBe(text.length - 1);
+  });
+
+  test("money is not a formula, so a cut there stays", () => {
+    expect(cutOutsideMaths("Rp5.000 dan $3", 13)).toBe(13);
   });
 });
 
@@ -111,7 +115,7 @@ describe("a stream that stops mid-way", () => {
 
   test("every prefix of an answer tokenizes without throwing", () => {
     const answer =
-      "Pecahan $\\frac{1}{4}$ [1] dan $$\\sum_{i=1}^{n} i$$ lalu\n```mermaid\ngraph TD\nA-->B\n```\nselesai $5.";
+      "Pecahan $\\frac{1}{4}$ dan $$\\sum_{i=1}^{n} i$$ lalu\n```mermaid\ngraph TD\nA-->B\n```\nselesai $5.";
     for (let i = 0; i <= answer.length; i++) {
       expect(() => tokenize(answer.slice(0, i), { streaming: true })).not.toThrow();
     }

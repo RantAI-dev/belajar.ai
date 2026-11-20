@@ -1,8 +1,6 @@
 /** One piece of a model answer, in reading order. Plain data: rendering lives in `RichText.tsx`. */
 export type Segment =
   | { readonly kind: "text"; readonly text: string }
-  /** `[n]`: the number of a book source under the answer. */
-  | { readonly kind: "citation"; readonly n: number }
   /** `source` is the original text with its dollars, shown when KaTeX cannot draw `tex`. */
   | {
       readonly kind: "math";
@@ -20,7 +18,6 @@ export type TokenizeOptions = {
 };
 
 const FENCE_OPEN = /^ {0,3}(`{3,})[ \t]*([A-Za-z0-9_+-]*)[ \t]*(?:\n|$)/;
-const CITATION = /^\[(\d{1,3})\]/;
 const WORD_CHAR = /[\p{L}\p{N}]/u;
 const MATH_SIGN = /[\\^_=+<>{}*/]/;
 
@@ -62,8 +59,11 @@ const findInlineClose = (s: string, open: number): number => {
   return -1;
 };
 
-/** Maths and citations inside prose (text outside code fences). */
-const tokenizeInline = (s: string, out: Segment[]): void => {
+/** [start, end) of a formula or a fenced block in the text it was found in. */
+type Range = readonly [number, number];
+
+/** Maths inside prose (text outside code fences); `base` is where `s` starts in the answer. */
+const tokenizeInline = (s: string, out: Segment[], base: number, ranges: Range[]): void => {
   let buf = "";
   const flush = () => {
     if (buf !== "") out.push({ kind: "text", text: buf });
@@ -83,6 +83,7 @@ const tokenizeInline = (s: string, out: Segment[]): void => {
       if (tex.trim() !== "") {
         flush();
         out.push({ kind: "math", tex: tex.trim(), display: true, source: s.slice(i, end + 2) });
+        ranges.push([base + i, base + end + 2]);
         i = end + 2;
       } else {
         buf += "$$";
@@ -96,16 +97,10 @@ const tokenizeInline = (s: string, out: Segment[]): void => {
         flush();
         const tex = s.slice(i + 1, end).trim();
         out.push({ kind: "math", tex, display: false, source: s.slice(i, end + 1) });
+        ranges.push([base + i, base + end + 1]);
         i = end + 1;
         continue;
       }
-    }
-    const cite = c === "[" ? CITATION.exec(s.slice(i)) : null;
-    if (cite !== null) {
-      flush();
-      out.push({ kind: "citation", n: Number(cite[1]) });
-      i += cite[0].length;
-      continue;
     }
     buf += c;
     i++;
@@ -114,7 +109,8 @@ const tokenizeInline = (s: string, out: Segment[]): void => {
 };
 
 /**
- * Splits a model answer into text, `[n]` citations, maths and fenced blocks.
+ * Splits a model answer into text, maths and fenced blocks. `[n]` citations are not handled here:
+ * Tanya cuts them out first (features/tanya/citations.ts) and passes the text runs in between.
  *
  * Maths rule: `\$` is a literal dollar. `$$…$$` is a display formula and may span lines. `$…$` is
  * an inline formula only when it closes in the same paragraph (no blank line), the opening `$` does
@@ -122,7 +118,20 @@ const tokenizeInline = (s: string, out: Segment[]): void => {
  * Anything that does not close, including a formula still streaming in, stays plain text.
  */
 export function tokenize(text: string, options: TokenizeOptions = {}): Segment[] {
-  const streaming = options.streaming ?? false;
+  return scan(text, options.streaming ?? false, []);
+}
+
+/**
+ * `at`, moved back to the start of the formula or fenced block it falls inside, so that cutting
+ * the text there leaves every formula whole (`$ x = 1 $[1]` must not be cut before the last `$`).
+ */
+export function cutOutsideMaths(text: string, at: number): number {
+  const ranges: Range[] = [];
+  scan(text, false, ranges);
+  return ranges.find(([start, end]) => start < at && at < end)?.[0] ?? at;
+}
+
+function scan(text: string, streaming: boolean, ranges: Range[]): Segment[] {
   const out: Segment[] = [];
   let textStart = 0;
   const fenceOpen = new RegExp(FENCE_OPEN.source, "gm");
@@ -132,7 +141,7 @@ export function tokenize(text: string, options: TokenizeOptions = {}): Segment[]
     const bodyStart = m.index + m[0].length;
     // A stream may stop inside the opening line ("```merm"): wait for the rest of it.
     if (!m[0].endsWith("\n") && streaming) break;
-    tokenizeInline(text.slice(textStart, m.index), out);
+    tokenizeInline(text.slice(textStart, m.index), out, textStart, ranges);
     const rest = text.slice(bodyStart);
     const close = new RegExp(`^ {0,3}${fence}\`*[ \\t]*$`, "m").exec(rest);
     const code = close === null ? rest : rest.slice(0, close.index).replace(/\n$/, "");
@@ -142,12 +151,14 @@ export function tokenize(text: string, options: TokenizeOptions = {}): Segment[]
       out.push({ kind: "code", lang, code });
     }
     if (close === null) {
+      ranges.push([m.index, text.length]);
       textStart = text.length;
       break;
     }
+    ranges.push([m.index, bodyStart + close.index + close[0].length]);
     textStart = bodyStart + close.index + close[0].length;
     fenceOpen.lastIndex = textStart;
   }
-  tokenizeInline(text.slice(textStart), out);
+  tokenizeInline(text.slice(textStart), out, textStart, ranges);
   return out;
 }

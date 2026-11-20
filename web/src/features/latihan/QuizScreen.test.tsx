@@ -45,7 +45,7 @@ describe("Latihan with maths", () => {
     expect(out).toContain("Rp5.000 dan $3 permen.");
   });
 
-  test("the explanation in the review draws maths and keeps its citation", () => {
+  test("the explanation in the review draws maths and keeps its [n] marker", () => {
     const out = renderToStaticMarkup(
       <ResultScreen
         result={{
@@ -68,7 +68,8 @@ describe("Latihan with maths", () => {
       />,
     );
     expect(out).not.toContain("$\\frac");
-    expect(out).toContain("sumber </span>[1]");
+    // Latihan shows its source as a link under the explanation; the marker stays as text.
+    expect(out).toContain(" [1].");
     expect(out).toContain('data-math="inline"');
   });
 });

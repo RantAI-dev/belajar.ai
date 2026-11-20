@@ -39,12 +39,6 @@ describe("RichText", () => {
     expect(out).toContain("Rp5.000 dan $3 saja.");
   });
 
-  test("citations stay readable beside maths", () => {
-    const out = html("Hasilnya $\\frac{1}{2}$[1].");
-    expect(out).toContain("data-math");
-    expect(out).toMatch(/<span class="sr-only">sumber <\/span>\[1\]/);
-  });
-
   test("model text is escaped, never markup", () => {
     const out = html("<img src=x onerror=alert(1)> $x$");
     expect(out).not.toContain("<img");

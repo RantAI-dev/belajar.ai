@@ -45,7 +45,7 @@ pub(crate) async fn chat(State(state): State<AppState>, Json(request): Json<Chat
     let frames = match answer {
         Answer::Grounded { text, sources } => chat_frames(
             &text,
-            data::sources_json(&sources, &state.base_url),
+            data::sources_json(&sources, &text, &state.base_url),
             json!(true),
             json!(data::grounded_score()),
         ),

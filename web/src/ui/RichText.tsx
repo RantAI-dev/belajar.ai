@@ -101,21 +101,13 @@ export function MermaidDiagram({ code }: { readonly code: string }) {
   );
 }
 
-function Citation({ n }: { readonly n: number }) {
-  return (
-    <span className="text-[0.85em] font-extrabold text-primary">
-      <span className="sr-only">sumber </span>[{n}]
-    </span>
-  );
-}
-
 export type RichTextProps = {
   readonly text: string;
   /** The text is still arriving. */
   readonly streaming?: boolean;
 };
 
-/** A model answer with maths, `[n]` citations and diagrams. Use it for every answer the student reads. */
+/** Model text with maths and diagrams. Use it for every answer the student reads. */
 export function RichText({ text, streaming = false }: RichTextProps) {
   // Segments are an ordered split of one text; position plus kind is a stable key.
   const segments = useMemo(
@@ -141,8 +133,6 @@ function SegmentView({ seg }: { readonly seg: Segment }) {
   switch (seg.kind) {
     case "text":
       return <span>{seg.text}</span>;
-    case "citation":
-      return <Citation n={seg.n} />;
     case "math":
       return <MathSegment seg={seg} />;
     case "code":

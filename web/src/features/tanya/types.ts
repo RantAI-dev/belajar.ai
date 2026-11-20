@@ -2,6 +2,10 @@ export type AnswerPart = { readonly text: string; readonly emphasis?: boolean };
 
 export type BookSource = {
   readonly id: string;
+  /** The `n` of the `[n]` markers in the answer text. */
+  readonly number: number;
+  /** The book page, when the source has one. */
+  readonly page?: number;
   /** Short chip label, e.g. "Buku IPA 7 · hal. 112". */
   readonly label: string;
   /** Long title for the preview, e.g. "IPA Kelas VII Semester 1 · Pemuaian · halaman 112". */
@@ -23,7 +27,10 @@ export type TanyaMessage =
       readonly parts: readonly AnswerPart[];
       /** "Contoh lain" shown in a warm box under the answer. */
       readonly example?: string;
+      /** The chips under the answer: the cited sources, or all of them when none is cited. */
       readonly sources: readonly BookSource[];
+      /** Every source of the answer, cited or not: an inline `[n]` is looked up here. */
+      readonly allSources?: readonly BookSource[];
     }
   | {
       readonly id: string;
