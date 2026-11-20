@@ -1,4 +1,6 @@
 pub(crate) mod auth;
+pub(crate) mod google_auth;
+pub(crate) mod google_signup;
 pub(crate) mod health;
 pub(crate) mod home;
 pub(crate) mod lessons;
@@ -58,6 +60,7 @@ pub fn v1() -> Router<AppState> {
             get(tanya_pages::message_source_page),
         )
         .merge(auth::routes())
+        .merge(google_auth::routes())
         .merge(practice::routes())
         .fallback(not_found)
 }

@@ -21,6 +21,11 @@ describe("guardRedirect", () => {
     expect(guardRedirect(at("/masuk/"), false)).toBeNull();
   });
 
+  test("signed out: the Google grade step shows; signed in, it goes home", () => {
+    expect(guardRedirect(at("/daftar/google"), false)).toBeNull();
+    expect(guardRedirect(at("/daftar/google"), true)).toBe("/");
+  });
+
   test("signed in: /masuk and /daftar go back to where they were going, else home", () => {
     expect(guardRedirect(at("/masuk"), true)).toBe("/");
     expect(guardRedirect(at("/daftar"), true)).toBe("/");

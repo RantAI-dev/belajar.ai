@@ -151,11 +151,11 @@ fn validate_password(errors: &mut Vec<FieldError>, password: &str) {
     check_length(errors, "/password", password.chars().count(), 8, 128);
 }
 
-fn validate_nickname(errors: &mut Vec<FieldError>, nickname: &str) {
+pub(crate) fn validate_nickname(errors: &mut Vec<FieldError>, nickname: &str) {
     check_length(errors, "/nickname", nickname.trim().chars().count(), 1, 40);
 }
 
-fn validate_grade(errors: &mut Vec<FieldError>, grade: u8) {
+pub(crate) fn validate_grade(errors: &mut Vec<FieldError>, grade: u8) {
     if Grade::new(grade).is_err() {
         errors.push(out_of_range("/grade", Grade::MIN, Grade::MAX));
     }
@@ -187,7 +187,10 @@ fn password_cause(err: &passwords::PasswordError) -> String {
 
 /// A fresh session for `student_id`, as a `Set-Cookie` value. The caller maps the store error,
 /// so this stays one small `Result`.
-async fn start_session(state: &AppState, student_id: Uuid) -> Result<String, StoreError> {
+pub(crate) async fn start_session(
+    state: &AppState,
+    student_id: Uuid,
+) -> Result<String, StoreError> {
     let token = tokens::new_token();
     let expires_at =
         state.clock.now() + chrono::Duration::seconds(cookies::SESSION_MAX_AGE_SECONDS as i64);
@@ -394,6 +397,12 @@ pub(crate) async fn change_password(
     }
     let stored_hash = match state.accounts.password_hash(student.student_id).await {
         Ok(hash) => hash,
+        // The signed-in student exists, so `NotFound` here means they have no password.
+        Err(StoreError::NotFound) => {
+            return ApiError::new(ErrorCode::PermissionDenied)
+                .message("This account signs in with Google and has no password to change.")
+                .into_response(&id.0);
+        }
         Err(err) => return store_errors::into_response(err, &id.0),
     };
     let ok = match passwords::verify(stored_hash, req.current_password).await {

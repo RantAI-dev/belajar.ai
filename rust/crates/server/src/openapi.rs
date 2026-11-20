@@ -8,6 +8,8 @@ use crate::api_error::{ErrorBody, FieldError};
 use crate::routes::auth::{
     LoginRequest, LogoutRequest, PasswordChangeRequest, RegisterRequest, StudentDto,
 };
+use crate::routes::google_auth::GoogleSignInDto;
+use crate::routes::google_signup::{CompleteGoogleSignupRequest, PendingGoogleSignupDto};
 use crate::routes::health::Health as V1Health;
 use crate::routes::home::{ContinueItemDto, HomeDto, MissionDto};
 use crate::routes::lessons::{
@@ -37,8 +39,8 @@ use crate::routes::tanya::{
 };
 use crate::routes::tanya_messages::{DeltaData, SendMessageRequest};
 use crate::routes::{
-    auth, health, home, lessons, me, openapi, progress, root, subjects, tanya, tanya_messages,
-    tanya_pages,
+    auth, google_auth, google_signup, health, home, lessons, me, openapi, progress, root, subjects,
+    tanya, tanya_messages, tanya_pages,
 };
 use crate::wire::mastery::{MasteryLevelDto, TrendDto};
 
@@ -54,6 +56,11 @@ use crate::wire::mastery::{MasteryLevelDto, TrendDto};
         auth::login,
         auth::logout,
         auth::change_password,
+        google_auth::google_status,
+        google_auth::google_start,
+        google_auth::google_callback,
+        google_signup::get_pending,
+        google_signup::complete,
         me::get_me,
         me::patch_me,
         subjects::list_subjects,
@@ -89,6 +96,9 @@ use crate::wire::mastery::{MasteryLevelDto, TrendDto};
             LoginRequest,
             LogoutRequest,
             PasswordChangeRequest,
+            GoogleSignInDto,
+            PendingGoogleSignupDto,
+            CompleteGoogleSignupRequest,
             PatchMeRequest,
             ThemePreferenceDto,
             SubjectDto,

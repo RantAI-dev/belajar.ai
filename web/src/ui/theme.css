@@ -18,6 +18,11 @@
   --color-primary-ink: #0069a8;
   --color-brand-sky: #5cb6f9;
   --color-brand-navy: #050a30;
+  /* Google's "G" on the sign-in button: fixed by Google's branding rules, the same in both themes. */
+  --color-google-red: #ea4335;
+  --color-google-blue: #4285f4;
+  --color-google-yellow: #fbbc05;
+  --color-google-green: #34a853;
   --color-ink: #10233a;
   --color-ink-muted: #3d5470;
   --color-ink-faint: #55697f;

@@ -60,6 +60,8 @@ export type Auth = {
     nickname: string;
     grade: Grade;
   }) => Promise<ApiResult<Student>>;
+  /** Finishes a first Google sign-in: the server already holds the verified Google account. */
+  readonly googleSignup: (v: { nickname: string; grade: Grade }) => Promise<ApiResult<Student>>;
   readonly logout: () => Promise<ApiResult<undefined>>;
   /** Loads the student again (on start, and after "coba lagi" on the failed screen). */
   readonly refresh: () => Promise<void>;
@@ -106,6 +108,10 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
     async (v) => signedIn(asStudent(await api.post("/v1/auth/register", v))),
     [signedIn],
   );
+  const googleSignup = useCallback<Auth["googleSignup"]>(
+    async (v) => signedIn(asStudent(await api.post("/v1/auth/google/signup", v))),
+    [signedIn],
+  );
   const updateProfile = useCallback<Auth["updateProfile"]>(
     async (p) => signedIn(asStudent(await api.patch("/v1/me", p))),
     [signedIn],
@@ -127,11 +133,12 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       student: state.status === "signedIn" ? state.student : null,
       login,
       register,
+      googleSignup,
       logout,
       refresh,
       updateProfile,
     }),
-    [state, login, register, logout, refresh, updateProfile],
+    [state, login, register, googleSignup, logout, refresh, updateProfile],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -141,6 +148,7 @@ const OUTSIDE: Auth = {
   student: null,
   login: async () => err(brokenAnswer),
   register: async () => err(brokenAnswer),
+  googleSignup: async () => err(brokenAnswer),
   logout: async () => err(brokenAnswer),
   refresh: async () => {},
   updateProfile: async () => err(brokenAnswer),

@@ -6,6 +6,7 @@ pub mod config;
 pub mod cookies;
 pub mod current_student;
 pub mod error_codes;
+pub mod google;
 pub mod logging;
 pub mod login_limiter;
 pub mod openapi;

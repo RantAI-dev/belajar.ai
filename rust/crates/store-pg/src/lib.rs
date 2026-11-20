@@ -4,6 +4,7 @@
 mod accounts;
 mod activity;
 mod conversations;
+mod google;
 mod home;
 mod lessons;
 mod practice;

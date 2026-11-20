@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from "react";
 import { AppLink, Button, FormAlert, TextField } from "../../ui";
 import { AuthFrame } from "./AuthFrame";
+import { GoogleButton } from "./GoogleButton";
 import { GradePicker } from "./GradePicker";
 import type { Grade } from "./grades";
 import { hasErrors, PASSWORD_MIN, type RegisterErrors, validateRegister } from "./validate";
@@ -20,6 +21,8 @@ export type RegisterScreenProps = {
   readonly serverErrors?: RegisterErrors;
   /** A message for the whole form, e.g. no connection. */
   readonly error?: string;
+  /** "Masuk dengan Google" goes here; no button when Google sign-in is off. */
+  readonly googleHref?: string;
 };
 
 const errorProp = (message: string | undefined) =>
@@ -31,6 +34,7 @@ export function RegisterScreen({
   submitting = false,
   serverErrors = {},
   error,
+  googleHref,
 }: RegisterScreenProps) {
   const [nickname, setNickname] = useState("");
   const [username, setUsername] = useState("");
@@ -89,6 +93,7 @@ export function RegisterScreen({
           Daftar dan mulai belajar
         </Button>
       </form>
+      {googleHref !== undefined && <GoogleButton href={googleHref} label="Daftar dengan Google" />}
       <p className="m-0 text-center text-[16px] font-bold text-ink-muted">
         Sudah punya akun?{" "}
         <AppLink

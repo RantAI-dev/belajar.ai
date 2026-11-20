@@ -16,6 +16,7 @@ export const ERROR_CODES = {
   upstream_failed: { status: 502, message: "A service we depend on returned an error." },
   unavailable: { status: 503, message: "The service is temporarily unavailable. Try again later." },
   timeout: { status: 504, message: "The request took too long." },
+  google_disabled: { status: 404, message: "Sign-in with Google is not set up on this server." },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

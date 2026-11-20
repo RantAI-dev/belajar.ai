@@ -6,6 +6,7 @@
 //! impl TestApp {
 //!     pub async fn new(pool: sqlx::PgPool) -> TestApp;
 //!     pub async fn with_parts(pool: sqlx::PgPool, upstream: Arc<dyn Upstream>, clock: Arc<dyn Clock>) -> TestApp;
+//!     pub async fn with_google(pool: sqlx::PgPool, google: GoogleConfig) -> TestApp;
 //!     pub async fn get(&self, path: &str, cookie: Option<&str>) -> TestResponse;
 //!     pub async fn delete(&self, path: &str, cookie: Option<&str>) -> TestResponse;
 //!     pub async fn post(&self, path: &str, body: serde_json::Value, cookie: Option<&str>) -> TestResponse;
@@ -22,6 +23,8 @@
 //! impl TestResponse {
 //!     pub fn set_cookie_header(&self) -> Option<String>;
 //!     pub fn cookie(&self) -> Option<String>;
+//!     pub fn set_cookies(&self) -> Vec<String>;
+//!     pub fn cookie_named(&self, name: &str) -> Option<String>;
 //! }
 //! ```
 
@@ -42,6 +45,7 @@ use axum::body::Body;
 use axum::http::{HeaderMap, HeaderValue, Method, StatusCode, header};
 use belajar_ports::clock::{Clock, SystemClock};
 use belajar_ports::upstream::Upstream;
+use belajar_server::config::GoogleConfig;
 use belajar_server::{Config, Deps, app, upstream_stub::UpstreamStub};
 use belajar_store_pg::Db;
 use http_body_util::BodyExt;
@@ -57,6 +61,7 @@ fn test_config() -> Config {
         upstream_url: None,
         upstream_keys: None,
         upstream_timeout_ms: 60_000,
+        google: None,
     }
 }
 
@@ -71,15 +76,33 @@ impl TestApp {
         Self::with_parts(pool, Arc::new(UpstreamStub), Arc::new(SystemClock)).await
     }
 
+    /// The same with Google sign-in configured (endpoints usually on an in-process fake).
+    pub async fn with_google(pool: sqlx::PgPool, google: GoogleConfig) -> TestApp {
+        let config = Config {
+            google: Some(google),
+            ..test_config()
+        };
+        Self::build(pool, config, Arc::new(UpstreamStub), Arc::new(SystemClock))
+    }
+
     /// The same with a chosen upstream and clock.
     pub async fn with_parts(
         pool: sqlx::PgPool,
         upstream: Arc<dyn Upstream>,
         clock: Arc<dyn Clock>,
     ) -> TestApp {
+        Self::build(pool, test_config(), upstream, clock)
+    }
+
+    fn build(
+        pool: sqlx::PgPool,
+        config: Config,
+        upstream: Arc<dyn Upstream>,
+        clock: Arc<dyn Clock>,
+    ) -> TestApp {
         TestApp {
             router: app(
-                test_config(),
+                config,
                 Deps {
                     db: Db::from_pool(pool),
                     upstream,
@@ -249,6 +272,28 @@ impl TestResponse {
             return None;
         }
         Some(format!("belajar_session={token}"))
+    }
+
+    /// Every Set-Cookie header, in order.
+    pub fn set_cookies(&self) -> Vec<String> {
+        self.headers
+            .get_all(header::SET_COOKIE)
+            .iter()
+            .filter_map(|v| v.to_str().ok())
+            .map(str::to_owned)
+            .collect()
+    }
+
+    /// "<name>=<value>" from the Set-Cookie headers, if one sets a non-empty `name`.
+    pub fn cookie_named(&self, name: &str) -> Option<String> {
+        self.set_cookies().iter().find_map(|header| {
+            let value = header
+                .strip_prefix(&format!("{name}="))?
+                .split(';')
+                .next()?
+                .trim();
+            (!value.is_empty()).then(|| format!("{name}={value}"))
+        })
     }
 
     /// A header value, for assertions.
