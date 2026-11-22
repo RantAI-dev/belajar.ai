@@ -1,0 +1,14 @@
+{
+ "request": {
+  "path": "/api/v1/practice/generate",
+  "body": {
+   "mapel": "IPA",
+   "topic": "Sejarah kerajaan Majapahit di Pulau Mars",
+   "practice_type": "mcq_normal",
+   "total_questions": 5,
+   "stream": true
+  }
+ },
+ "status": 200,
+ "content_type": "text/event-stream"
+}

@@ -4,7 +4,7 @@
 
 use serde_json::{Value, json};
 
-use crate::data::{SeedSource, source_json};
+use crate::data::SeedSource;
 
 pub(crate) struct Seed {
     story: Option<&'static str>,
@@ -12,6 +12,7 @@ pub(crate) struct Seed {
     options: &'static [(&'static str, &'static str)],
     answer: &'static [&'static str],
     explanation: &'static str,
+    /// The real practice API cites no page per question; the section names the `materi`.
     source: Option<&'static SeedSource>,
 }
 
@@ -616,59 +617,91 @@ const STORY: &[Seed] = &[
     },
 ];
 
-/// The whole practice set, exactly as it travels inside the SSE `result` event.
+/// The whole practice set in the real upstream's shape (recorded in `fixtures/practice/`): the
+/// body of a `stream: false` response and the payload of the stream's `result` event.
+/// `delivered` may be below `requested`: the real API drops questions that fail its checks.
 pub(crate) fn set_json(
     practice_type: &str,
-    total: usize,
-    mapel: &str,
-    topics: &str,
-    base_url: &str,
+    requested: usize,
+    delivered: usize,
+    topics: &[String],
 ) -> Value {
-    let questions: Vec<Value> = (0..total)
-        .map(|index| question_json(index, practice_type, base_url))
+    let topic = topics.first().map(String::as_str).unwrap_or("Pemuaian");
+    let questions: Vec<Value> = (0..delivered)
+        .map(|index| question_json(index, practice_type, topic))
         .collect();
+    let mut materi_titles: Vec<&str> = Vec::new();
+    for question in &questions {
+        if let Some(materi) = question["materi"].as_str()
+            && !materi_titles.contains(&materi)
+        {
+            materi_titles.push(materi);
+        }
+    }
     json!({
-        "practice_id": format!("fake-{}", uuid::Uuid::now_v7()),
         "practice_type": practice_type,
-        "mapel": mapel,
-        "topic": topics,
+        "topic": topic,
+        "topics": topics,
+        "total_questions": questions.len(),
+        "materi_titles": materi_titles,
         "questions": questions,
+        "report": {
+            "requested": requested,
+            "delivered": questions.len(),
+            "adapter_calls": requested + 1,
+            "checks_run": requested,
+            "seconds": 0.1,
+            "rejected": {
+                "format": 0, "key_unsupported": 0, "twin_keys": 0,
+                "ambiguous": 0, "ai_checker": requested - questions.len().min(requested), "duplicate": 0,
+            },
+            "skipped_topics": [],
+        },
     })
 }
 
-fn question_json(index: usize, practice_type: &str, base_url: &str) -> Value {
-    let (bank, kind) = match practice_type {
-        "mcq_multiple_correct" => (MULTIPLE, "mcq_multiple_correct"),
-        "mcq_story" => (STORY, "mcq_story"),
+fn question_json(index: usize, practice_type: &str, topic: &str) -> Value {
+    let bank = match practice_type {
+        "mcq_multiple_correct" => MULTIPLE,
+        "mcq_story" => STORY,
         "mcq_mixed" => match index % 3 {
-            0 => (SINGLE, "mcq_normal"),
-            1 => (MULTIPLE, "mcq_multiple_correct"),
-            _ => (STORY, "mcq_story"),
+            0 => SINGLE,
+            1 => MULTIPLE,
+            _ => STORY,
         },
         // Anything unknown serves single questions; the client only sends the four names anyway.
-        _ => (SINGLE, "mcq_normal"),
+        _ => SINGLE,
     };
     // The bank is longer than any request, but cycling keeps a huge `total_questions` honest.
-    let seed = match bank.iter().cycle().nth(index) {
-        Some(seed) => seed,
-        None => return Value::Null,
+    let Some(seed) = bank.iter().cycle().nth(index) else {
+        return Value::Null;
     };
-    json!({
-        "id": format!("q{}", index + 1),
-        "type": kind,
-        "story": seed.story,
+    let multi = std::ptr::eq(bank, MULTIPLE);
+    let options: serde_json::Map<String, Value> = seed
+        .options
+        .iter()
+        .map(|(label, text)| ((*label).to_owned(), json!(text)))
+        .collect();
+    // One letter for a single-answer question, a list for a multi one, as the real API sends.
+    let answer_key = match seed.answer {
+        [one] if !multi => json!(one),
+        many => json!(many),
+    };
+    let mut question = json!({
+        "question_id": format!("q{}", index + 1),
+        "type": if multi { "mcq_multi" } else { "mcq_single" },
+        "materi": seed.source.map_or(topic, |source| source.section),
         "question": seed.stem,
-        "options": seed
-            .options
-            .iter()
-            .map(|(label, text)| json!({ "label": label, "text": text }))
-            .collect::<Vec<_>>(),
-        "answer": seed.answer,
-        "explanation": seed.explanation,
-        "source": seed
-            .source
-            .map(|source| source_json(source, 1, true, base_url)),
-    })
+        "options": options,
+        "answer_key": answer_key,
+        "pembahasan": seed.explanation,
+        "topic": topic,
+    });
+    // Only a story question has a `scenario`; the others leave the field out.
+    if let (Some(story), Some(object)) = (seed.story, question.as_object_mut()) {
+        object.insert("scenario".into(), json!(story));
+    }
+    question
 }
 
 #[cfg(test)]
@@ -709,29 +742,101 @@ mod tests {
 
     #[test]
     fn the_set_has_unique_ids_and_the_requested_number_of_questions() {
-        let set = set_json("mcq_mixed", 7, "IPA", "Pemuaian", "http://u");
+        let set = set_json("mcq_mixed", 7, 7, &["Pemuaian".to_owned()]);
         let questions = set["questions"].as_array().unwrap();
         assert_eq!(questions.len(), 7);
+        assert_eq!(set["total_questions"], 7);
         let ids: Vec<&str> = questions
             .iter()
-            .map(|q| q["id"].as_str().unwrap())
+            .map(|q| q["question_id"].as_str().unwrap())
             .collect();
         let mut unique = ids.clone();
         unique.sort_unstable();
         unique.dedup();
         assert_eq!(ids.len(), unique.len());
-        let kinds: Vec<&str> = questions
+        let kinds: Vec<(&str, bool)> = questions
             .iter()
-            .map(|q| q["type"].as_str().unwrap())
+            .map(|q| (q["type"].as_str().unwrap(), q.get("scenario").is_some()))
             .collect();
-        assert!(kinds.contains(&"mcq_normal"));
-        assert!(kinds.contains(&"mcq_multiple_correct"));
-        assert!(kinds.contains(&"mcq_story"));
-        assert!(
-            questions[0]["source"]["page_url"]
-                .as_str()
+        assert!(kinds.contains(&("mcq_single", false)));
+        assert!(kinds.contains(&("mcq_multi", false)));
+        assert!(kinds.contains(&("mcq_single", true)));
+    }
+
+    /// The JSON type of every value, recursively: objects by key, arrays by their items' union.
+    fn shape(value: &Value) -> Value {
+        match value {
+            Value::Object(map) => {
+                Value::Object(map.iter().map(|(k, v)| (k.clone(), shape(v))).collect())
+            }
+            Value::Array(items) => {
+                let mut kinds: Vec<Value> = items.iter().map(shape).collect();
+                kinds.sort_by_key(|kind| kind.to_string());
+                kinds.dedup();
+                Value::Array(kinds)
+            }
+            Value::String(_) => json!("string"),
+            Value::Number(_) => json!("number"),
+            Value::Bool(_) => json!("bool"),
+            Value::Null => json!("null"),
+        }
+    }
+
+    /// A question's shape with its option letters folded, so four options and five compare equal.
+    fn question_shape(question: &Value) -> Value {
+        let mut shaped = shape(question);
+        shaped["options"] = json!({ "<letter>": "string" });
+        shaped
+    }
+
+    #[test]
+    fn every_set_has_the_shape_the_real_upstream_recorded() {
+        for practice_type in [
+            "mcq_normal",
+            "mcq_multiple_correct",
+            "mcq_story",
+            "mcq_mixed",
+        ] {
+            let recorded = crate::recorded::json(&format!("generate-{practice_type}-json.json"));
+            let fake = set_json(practice_type, 5, 5, &["Pemuaian".to_owned()]);
+
+            let top = |set: &Value| {
+                let mut keys: Vec<String> = set.as_object().unwrap().keys().cloned().collect();
+                keys.sort();
+                keys
+            };
+            assert_eq!(top(&fake), top(&recorded), "{practice_type}: set fields");
+            assert_eq!(
+                shape(&fake["report"]),
+                shape(&recorded["report"]),
+                "{practice_type}"
+            );
+
+            let recorded_shapes: Vec<Value> = recorded["questions"]
+                .as_array()
                 .unwrap()
-                .starts_with("http://u/pages/")
-        );
+                .iter()
+                .map(question_shape)
+                .collect();
+            let fake_shapes: Vec<Value> = fake["questions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(question_shape)
+                .collect();
+            for fake_shape in &fake_shapes {
+                assert!(
+                    recorded_shapes.contains(fake_shape),
+                    "{practice_type}: the fake built a question the real API never sent: \
+                     {fake_shape}\nrecorded: {recorded_shapes:?}"
+                );
+            }
+            for recorded_shape in &recorded_shapes {
+                assert!(
+                    fake_shapes.contains(recorded_shape),
+                    "{practice_type}: the fake never builds {recorded_shape}"
+                );
+            }
+        }
     }
 }

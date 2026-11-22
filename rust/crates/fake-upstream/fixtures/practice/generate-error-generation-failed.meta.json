@@ -1,0 +1,13 @@
+{
+ "request": {
+  "path": "/api/v1/practice/generate",
+  "body": {
+   "mapel": "Bahasa Inggris",
+   "topic": "Describing people",
+   "practice_type": "mcq_multiple_correct",
+   "total_questions": 5
+  }
+ },
+ "status": 502,
+ "content_type": "application/json"
+}

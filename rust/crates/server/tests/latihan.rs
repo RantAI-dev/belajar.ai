@@ -156,6 +156,30 @@ async fn submit(
     .await
 }
 
+/// The real practice API cites no page per question (see `fake-upstream/fixtures/practice/`), so
+/// the fake does not invent one: a test of the page behind a reviewed question gives the stored
+/// question a source the way a citing upstream would have, pointing at the fake's own page.
+async fn cite_first_question(pool: &PgPool, fake: &FakeServer, set_id: &str) {
+    let source = json!({
+        "number": 1,
+        "title": "IPA Buku Siswa Kelas VII",
+        "section": "Bab 5: Suhu, Kalor, dan Pemuaian",
+        "document_id": "kb-ipa-7",
+        "page": 70,
+        "cited": true,
+        "page_url": format!("{}/pages/kb-ipa-7/70.svg?sig=t", fake.base_url),
+    });
+    sqlx::query(
+        "UPDATE practice_sets SET practice = jsonb_set(practice, '{questions,0,source}', $1) \
+         WHERE id = $2::uuid",
+    )
+    .bind(source)
+    .bind(set_id)
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
 #[sqlx::test(migrations = "../../migrations")]
 async fn a_mixed_set_carries_every_kind_and_stories_have_their_text(pool: PgPool) {
     let (app, _fake) = world(pool).await;
@@ -183,11 +207,34 @@ async fn a_mixed_set_carries_every_kind_and_stories_have_their_text(pool: PgPool
 }
 
 #[sqlx::test(migrations = "../../migrations")]
-async fn the_page_appears_only_after_submit(pool: PgPool) {
+async fn a_set_delivered_short_counts_the_questions_it_holds(pool: PgPool) {
+    // The real API may deliver fewer questions than asked for (recorded: 2 of 5); the fake's
+    // "__short__" topic does the same.
     let (app, _fake) = world(pool.clone()).await;
+    let budi = app.student("budi").await;
+    let set = generate(&app, &budi, "ipa", "__short__", "mcq_multiple_correct", 5).await;
+    let held = set["questions"].as_array().unwrap().len() as u64;
+    assert_eq!(held, 2);
+    assert_eq!(set["totalQuestions"], held, "the set counts what it holds");
+
+    let res = submit(&app, &pool, &budi, &set, false).await;
+    assert_eq!(res.status, StatusCode::OK, "{}", res.text);
+    assert_eq!(res.body["totalCount"], held);
+    let list = app.get("/v1/practice-sets?limit=10", Some(&budi)).await;
+    assert_eq!(
+        list.body["data"][0]["totalQuestions"], held,
+        "{}",
+        list.text
+    );
+}
+
+#[sqlx::test(migrations = "../../migrations")]
+async fn the_page_appears_only_after_submit(pool: PgPool) {
+    let (app, fake) = world(pool.clone()).await;
     let budi = app.student("budi").await;
     let set = generate(&app, &budi, "ipa", "Pemuaian", "mcq_normal", 5).await;
     let id = set["id"].as_str().unwrap();
+    cite_first_question(&pool, &fake, id).await;
     let qid = set["questions"][0]["id"].as_str().unwrap();
     let path = format!("/v1/practice-sets/{id}/questions/{qid}/page");
 
@@ -231,11 +278,12 @@ async fn the_page_appears_only_after_submit(pool: PgPool) {
 
 #[sqlx::test(migrations = "../../migrations")]
 async fn the_page_of_another_students_set_is_not_found(pool: PgPool) {
-    let (app, _fake) = world(pool.clone()).await;
+    let (app, fake) = world(pool.clone()).await;
     let budi = app.student("budi").await;
     let siti = app.student("siti").await;
     let set = generate(&app, &budi, "ipa", "Pemuaian", "mcq_normal", 5).await;
     let id = set["id"].as_str().unwrap();
+    cite_first_question(&pool, &fake, id).await;
     let qid = set["questions"][0]["id"].as_str().unwrap();
     let path = format!("/v1/practice-sets/{id}/questions/{qid}/page");
     let missing_set = "/v1/practice-sets/0193b2c4-7a1e-7c3f-9d2a-5e8f1b6c4d90/questions/q1/page";

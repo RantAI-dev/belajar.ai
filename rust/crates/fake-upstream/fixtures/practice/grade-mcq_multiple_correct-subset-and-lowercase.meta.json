@@ -1,0 +1,84 @@
+{
+ "request": {
+  "path": "/api/v1/practice/grade",
+  "body": {
+   "practice": {
+    "practice_type": "mcq_multiple_correct",
+    "topic": "Pemuaian",
+    "topics": [
+     "Pemuaian"
+    ],
+    "total_questions": 2,
+    "materi_titles": [
+     "Koefisien Muai",
+     "Perubahan Benda"
+    ],
+    "questions": [
+     {
+      "question_id": "q1",
+      "type": "mcq_multi",
+      "materi": "Koefisien Muai",
+      "question": "Benda yang mudah memuai dan benda yang sulit memuai adalah dua hal yang berbeda. Manakah dua pernyataan berikut yang benar? (pilih dua)",
+      "options": {
+       "A": "Benda yang mudah memuai akan mengalami perubahan ukuran meskipun kenaikan suhu sedikit",
+       "B": "Pemuaian benda hanya dapat diukur dengan cara mengamati perubahan ukuran",
+       "C": "Benda yang sulit memuai hampir tidak mengalami perubahan ukuran meskipun suhu bertambah besar",
+       "D": "Sifat pemuaian hanya bermanfaat untuk keperluan ilmiah"
+      },
+      "answer_key": [
+       "A",
+       "C"
+      ],
+      "pembahasan": "Jawaban yang benar adalah A. Benda yang mudah memuai akan mengalami perubahan ukuran meskipun kenaikan suhu sedikit dan C. Benda yang sulit memuai hampir tidak mengalami perubahan ukuran meskipun suhu bertambah besar. Di buku tertulis: \"Sebaliknya, ada benda yang sulit memuai sehingga meskipun suhu bertambah cukup besar, ukuran benda hampir tidak mengalami perubahan.\"",
+      "topic": "Pemuaian"
+     },
+     {
+      "question_id": "q2",
+      "type": "mcq_multi",
+      "materi": "Perubahan Benda",
+      "question": "Manakah dua hal berikut terkait perubahan pada benda? (pilih dua)",
+      "options": {
+       "A": "Pemuaian terjadi pada zat cair",
+       "B": "Pemuaian hanya terjadi pada benda padat",
+       "C": "Ukuran benda bertambah saat suhu benda naik",
+       "D": "Gelas menjadi retak karena pemuaian yang tidak merata"
+      },
+      "answer_key": [
+       "C",
+       "D"
+      ],
+      "pembahasan": "Jawaban yang benar adalah C. Ukuran benda bertambah saat suhu benda naik dan D. Gelas menjadi retak karena pemuaian yang tidak merata. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\"",
+      "topic": "Pemuaian"
+     }
+    ],
+    "report": {
+     "requested": 5,
+     "delivered": 2,
+     "adapter_calls": 13,
+     "checks_run": 9,
+     "seconds": 12.7,
+     "rejected": {
+      "format": 0,
+      "key_unsupported": 0,
+      "twin_keys": 0,
+      "ambiguous": 4,
+      "ai_checker": 7,
+      "duplicate": 0
+     },
+     "skipped_topics": []
+    }
+   },
+   "answers": {
+    "q1": [
+     "A"
+    ],
+    "q2": [
+     "d",
+     "c"
+    ]
+   }
+  }
+ },
+ "status": 200,
+ "content_type": "application/json"
+}

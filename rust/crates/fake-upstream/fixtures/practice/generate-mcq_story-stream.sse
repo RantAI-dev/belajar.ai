@@ -1,0 +1,36 @@
+event: progress
+data: {"stage":"retrieval","delivered":0,"adapter_calls":0,"total":5,"elapsed_s":0}
+
+event: progress
+data: {"stage":"generating","delivered":0,"total":5,"adapter_calls":0,"elapsed_s":0}
+
+event: progress
+data: {"stage":"checking","delivered":0,"total":5,"adapter_calls":5,"elapsed_s":3.9}
+
+event: progress
+data: {"stage":"checking","delivered":1,"total":5,"adapter_calls":5,"elapsed_s":4.3}
+
+event: progress
+data: {"stage":"checking","delivered":2,"total":5,"adapter_calls":5,"elapsed_s":4.3}
+
+event: progress
+data: {"stage":"checking","delivered":3,"total":5,"adapter_calls":5,"elapsed_s":4.3}
+
+event: progress
+data: {"stage":"checking","delivered":4,"total":5,"adapter_calls":5,"elapsed_s":4.3}
+
+event: progress
+data: {"stage":"generating","delivered":4,"total":5,"adapter_calls":5,"elapsed_s":4.3}
+
+event: progress
+data: {"stage":"checking","delivered":4,"total":5,"adapter_calls":6,"elapsed_s":7.1}
+
+event: progress
+data: {"stage":"checking","delivered":5,"total":5,"adapter_calls":6,"elapsed_s":7.5}
+
+event: progress
+data: {"stage":"labelling","delivered":5,"adapter_calls":6,"total":5,"elapsed_s":7.5}
+
+event: result
+data: {"practice_type":"mcq_story","topic":"Pemuaian","topics":["Pemuaian"],"total_questions":5,"materi_titles":["Gaya Angkat","Perbandingan Benda","Pemuaian Benda","Pemuaian Dua Arah","Pemuaian Kaca"],"questions":[{"question_id":"q1","type":"mcq_single","materi":"Gaya Angkat","question":"Apa yang menyebabkan wadah tersebut bisa terbang?","scenario":"Sinta ingin membuat model balon udara sederhana menggunakan kertas bekas dan api lilin kecil.","options":{"A":"Karena api lilin kecil menghasilkan daya dorong yang kuat untuk mengangkat wadah","B":"Karena kertas bekas menjadi lebih berat dari udara di sekitarnya","C":"Karena udara di dalam wadah menjadi lebih dingin daripada udara di sekitarnya","D":"Karena udara panas di dalam wadah memuai sehingga menjadi lebih ringan daripada udara di sekitarnya"},"answer_key":"D","pembahasan":"Jawaban yang benar adalah D. Karena udara panas di dalam wadah memuai sehingga menjadi lebih ringan daripada udara di sekitarnya. Di buku tertulis: \"Dengan membuat sebuah wadah kubah dengan bahan koran/kertas bekas atau plastik, kamu dapat menerbangkan wadah tersebut akibat udara panas didalamnya yang memuai sehingga menjadi lebih ringan daripada udara di sekitarnya.\"","topic":"Pemuaian"},{"question_id":"q2","type":"mcq_single","materi":"Perbandingan Benda","question":"Apa perbedaan mendasar antara kedua benda tersebut berdasarkan pengamatan Fajar?","scenario":"Fajar sedang mengamati dua benda berbeda. Benda pertama terlihat berubah ukuran meskipun suhunya hanya naik sedikit, sedangkan benda kedua suhunya naik cukup besar namun ukurannya hampir tidak berubah.","options":{"A":"Benda pertama memiliki warna yang lebih cerah daripada benda kedua.","B":"Benda pertama lebih berat daripada benda kedua.","C":"Benda pertama mudah memuai sedangkan benda kedua sulit memuai.","D":"Benda pertama terbuat dari bahan yang lebih keras daripada benda kedua."},"answer_key":"C","pembahasan":"Jawaban yang benar adalah C. Benda pertama mudah memuai sedangkan benda kedua sulit memuai.. Di buku tertulis: \"Ada benda yang sangat mudah memuai sehingga kenaikan suhu sedikit saja sudah cukup membuat ukuran benda yang dapat diamati mata.\"","topic":"Pemuaian"},{"question_id":"q3","type":"mcq_single","materi":"Pemuaian Benda","question":"Apa yang terjadi pada ukuran benda tersebut?","scenario":"Yoga memasang jendela di ruang kelasnya dengan sedikit longgar.","options":{"A":"Ukuran benda menjadi membesar","B":"Ukuran benda menjadi mengecil","C":"Ukuran benda berubah bentuk","D":"Ukuran benda tetap sama"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A. Ukuran benda menjadi membesar. Di buku tertulis: \"Pemuaian adalah peristiwa memuai, di mana suatu benda ukurannya membesar, baik panjang, lebar, tinggi, luas, maupun volume yang dipengaruhi kalor.\"","topic":"Pemuaian"},{"question_id":"q4","type":"mcq_single","materi":"Pemuaian Dua Arah","question":"Jika pelat logam tersebut dipanaskan, pemuaian yang terjadi pada kedua arah sisi-sisinya disebut apa?","scenario":"Andi sedang memasang dua pelat logam yang akan dipanaskan di sebuah bengkel.","options":{"A":"pemuaian luas","B":"pemuaian volume","C":"pemuaian panjang","D":"pemuaian ruang"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A. pemuaian luas. Di buku tertulis: \"Pemuaian Luas dan Volume Zat Padat Jika suatu benda berbentuk lempengan dipanaskan, pemuaian terjadi pada kedua arah sisi-sisinya.\"","topic":"Pemuaian"},{"question_id":"q5","type":"mcq_single","materi":"Pemuaian Kaca","question":"Apa yang terjadi pada kaca tersebut ketika suhu udara menjadi sangat panas?","scenario":"Arif sedang memasang kaca jendela di rumahnya. Ia memastikan bahwa dudukan kaca tidak terlalu kencang agar kaca tidak pecah saat cuaca sedang panas terik.","options":{"A":"Kaca akan memiliki dimensi lebih besar dari semula","B":"Kaca akan berubah menjadi bentuk yang berbeda","C":"Kaca akan tetap sama ukurannya","D":"Kaca akan memiliki dimensi lebih kecil dari semula"},"answer_key":"A","pembahasan":"Jawaban yang benar adalah A. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\"","topic":"Pemuaian"}],"report":{"requested":5,"delivered":5,"adapter_calls":6,"checks_run":6,"seconds":8.4,"rejected":{"format":0,"key_unsupported":0,"twin_keys":0,"ambiguous":0,"ai_checker":1,"duplicate":0},"skipped_topics":[]}}
+

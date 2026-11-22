@@ -1,0 +1,14 @@
+{
+ "error": {
+  "message": "Invalid request body",
+  "type": "invalid_request_error",
+  "details": {
+   "formErrors": [],
+   "fieldErrors": {
+    "answers": [
+     "Expected object, received array"
+    ]
+   }
+  }
+ }
+}

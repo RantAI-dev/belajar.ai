@@ -1,0 +1,6 @@
+event: progress
+data: {"stage":"retrieval","delivered":0,"adapter_calls":0,"total":5,"elapsed_s":0}
+
+event: error
+data: {"error":{"message":"I don't know based on the available books.","type":"not_grounded","code":"topic_not_in_books"},"status":422}
+

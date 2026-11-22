@@ -1,0 +1,62 @@
+{
+ "score": {
+  "correct": 1,
+  "total": 2,
+  "percentage": 50
+ },
+ "questions": [
+  {
+   "question_id": "q1",
+   "materi": "Koefisien Muai",
+   "correct": false,
+   "answered": true,
+   "your_answer": [
+    "A"
+   ],
+   "answer_key": [
+    "A",
+    "C"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Benda yang mudah memuai akan mengalami perubahan ukuran meskipun kenaikan suhu sedikit dan C. Benda yang sulit memuai hampir tidak mengalami perubahan ukuran meskipun suhu bertambah besar. Di buku tertulis: \"Sebaliknya, ada benda yang sulit memuai sehingga meskipun suhu bertambah cukup besar, ukuran benda hampir tidak mengalami perubahan.\""
+  },
+  {
+   "question_id": "q2",
+   "materi": "Perubahan Benda",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "C",
+    "D"
+   ],
+   "answer_key": [
+    "C",
+    "D"
+   ],
+   "pembahasan": "Jawaban yang benar adalah C. Ukuran benda bertambah saat suhu benda naik dan D. Gelas menjadi retak karena pemuaian yang tidak merata. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\""
+  }
+ ],
+ "materi": [
+  {
+   "materi": "Koefisien Muai",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Perubahan Benda",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  }
+ ],
+ "recommendations": [
+  {
+   "materi": "Koefisien Muai",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Koefisien Muai\": benar 0 dari 1 soal."
+  }
+ ]
+}

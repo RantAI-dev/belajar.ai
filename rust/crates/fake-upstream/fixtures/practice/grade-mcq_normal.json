@@ -1,0 +1,127 @@
+{
+ "score": {
+  "correct": 2,
+  "total": 5,
+  "percentage": 40
+ },
+ "questions": [
+  {
+   "question_id": "q1",
+   "materi": "Pemuaian panas",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "B"
+   ],
+   "answer_key": [
+    "B"
+   ],
+   "pembahasan": "Jawaban yang benar adalah B. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\""
+  },
+  {
+   "question_id": "q2",
+   "materi": "Koefisien muai luas",
+   "correct": false,
+   "answered": true,
+   "your_answer": [
+    "A"
+   ],
+   "answer_key": [
+    "B"
+   ],
+   "pembahasan": "Jawaban yang benar adalah B. 0,000022/oC. Di buku tertulis: \"Berdasarkan data dalam Tabel 7.1, maka lempengan baja memiliki koeisien muai luas sebesar 0,000022/oC.\""
+  },
+  {
+   "question_id": "q3",
+   "materi": "Pemuaian suhu",
+   "correct": true,
+   "answered": true,
+   "your_answer": [
+    "B"
+   ],
+   "answer_key": [
+    "B"
+   ],
+   "pembahasan": "Jawaban yang benar adalah B. Pemuaian. Di buku tertulis: \"Jika suhu benda naik, secara umum ukuran benda bertambah.\""
+  },
+  {
+   "question_id": "q4",
+   "materi": "Gerak partikel",
+   "correct": false,
+   "answered": false,
+   "your_answer": [],
+   "answer_key": [
+    "B"
+   ],
+   "pembahasan": "Jawaban yang benar adalah B. Zat padat tersebut akan memuai. Di buku tertulis: \"Jarak antara partikel makin besar, zat padat itu memuai, bertambah panjang, bertambah luas, dan akhirnya bertambah volumenya.\""
+  },
+  {
+   "question_id": "q5",
+   "materi": "Penyebab pemuaian",
+   "correct": false,
+   "answered": false,
+   "your_answer": [],
+   "answer_key": [
+    "A"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Pengaruh kalor. Di buku tertulis: \"Pemuaian adalah peristiwa memuai, di mana suatu benda ukurannya membesar, baik panjang, lebar, tinggi, luas, maupun volume yang dipengaruhi kalor.\""
+  }
+ ],
+ "materi": [
+  {
+   "materi": "Pemuaian panas",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Koefisien muai luas",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Pemuaian suhu",
+   "total_questions": 1,
+   "correct_answers": 1,
+   "mastery_percentage": 100,
+   "weakness_level": "low"
+  },
+  {
+   "materi": "Gerak partikel",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  },
+  {
+   "materi": "Penyebab pemuaian",
+   "total_questions": 1,
+   "correct_answers": 0,
+   "mastery_percentage": 0,
+   "weakness_level": "high"
+  }
+ ],
+ "recommendations": [
+  {
+   "materi": "Gerak partikel",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Gerak partikel\": benar 0 dari 1 soal."
+  },
+  {
+   "materi": "Koefisien muai luas",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Koefisien muai luas\": benar 0 dari 1 soal."
+  },
+  {
+   "materi": "Penyebab pemuaian",
+   "weakness_level": "high",
+   "mastery_percentage": 0,
+   "message": "Pelajari lagi materi \"Penyebab pemuaian\": benar 0 dari 1 soal."
+  }
+ ]
+}

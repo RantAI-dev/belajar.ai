@@ -1,0 +1,96 @@
+{
+ "practice_type": "mcq_mixed",
+ "topic": "Pemuaian",
+ "topics": [
+  "Pemuaian"
+ ],
+ "total_questions": 4,
+ "materi_titles": [
+  "Pemuaian Gas",
+  "Sifat Pemuaian",
+  "Kaca Panas",
+  "Koeisien Muai"
+ ],
+ "questions": [
+  {
+   "question_id": "q1",
+   "type": "mcq_multi",
+   "materi": "Pemuaian Gas",
+   "question": "Manfaat pemuaian zat gas dalam kehidupan sehari-hari adalah untuk menerbangkan balon udara dan memompa ban sepeda. (pilih dua)",
+   "options": {
+    "A": "Menerbangkan balon udara",
+    "B": "Menyimpan gas dalam wadah tertutup",
+    "C": "Memompa ban sepeda",
+    "D": "Membuat termometer ruangan"
+   },
+   "answer_key": [
+    "A",
+    "C"
+   ],
+   "pembahasan": "Jawaban yang benar adalah A. Menerbangkan balon udara dan C. Memompa ban sepeda. Di buku tertulis: \"Sifat pemuaian gas dapat kita manfaatkan dalam kehidupan sehari-hari, misalnya untuk menerbangkan balon udara, memompa ban sepeda tidak perlu terlalu kencang dan jangan meletakkan balon di tempat yang panas.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q2",
+   "type": "mcq_single",
+   "materi": "Sifat Pemuaian",
+   "question": "Apa yang dapat disimpulkan mengenai sifat pemuaian kedua benda tersebut?",
+   "scenario": "Agus sedang mengamati dua benda yang berbeda. Benda pertama terlihat berubah ukuran hanya dengan kenaikan suhu yang sangat kecil, sedangkan benda kedua tetap hampir tidak berubah ukurannya meskipun suhunya naik cukup besar.",
+   "options": {
+    "A": "Benda pertama mudah memuai dan benda kedua sulit memuai.",
+    "B": "Kedua benda tersebut memiliki tingkat pemuaian yang sama.",
+    "C": "Benda pertama sulit memuai dan benda kedua mudah memuai.",
+    "D": "Benda pertama tidak memuai dan benda kedua memuai sedikit."
+   },
+   "answer_key": "A",
+   "pembahasan": "Jawaban yang benar adalah A. Benda pertama mudah memuai dan benda kedua sulit memuai.. Di buku tertulis: \"Ada benda yang sangat mudah memuai sehingga kenaikan suhu sedikit saja sudah cukup membuat ukuran benda yang dapat diamati mata.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q3",
+   "type": "mcq_single",
+   "materi": "Kaca Panas",
+   "question": "Peristiwa apa yang terjadi pada kaca ketika suhunya menjadi tinggi akibat cuaca yang sangat panas?",
+   "options": {
+    "A": "Kaca akan memiliki dimensi lebih besar dari semula",
+    "B": "Kaca akan pecah karena tekanan udara",
+    "C": "Kaca akan berubah warna menjadi biru",
+    "D": "Kaca akan menjadi lebih kecil dari semula"
+   },
+   "answer_key": "A",
+   "pembahasan": "Jawaban yang benar adalah A. Kaca akan memiliki dimensi lebih besar dari semula. Di buku tertulis: \"Ketika kaca memiliki suhu yang tinggi akibat cuaca yang sangat panas maka kaca akan memiliki dimensi lebih besar dari semula.\"",
+   "topic": "Pemuaian"
+  },
+  {
+   "question_id": "q4",
+   "type": "mcq_single",
+   "materi": "Koeisien Muai",
+   "question": "Koeisien muai ruang dibandingkan dengan koeisien muai panjang adalah tiga kali lipat.",
+   "options": {
+    "A": "Tiga kali lipat",
+    "B": "Satu kali lipat",
+    "C": "Lima kali lipat",
+    "D": "Dua kali lipat"
+   },
+   "answer_key": "A",
+   "pembahasan": "Jawaban yang benar adalah A. Tiga kali lipat. Di buku tertulis: \"Pemuaian ruang memiliki koeisien muai tiga kali koeisien muai panjang.\"",
+   "topic": "Pemuaian"
+  }
+ ],
+ "report": {
+  "requested": 5,
+  "delivered": 4,
+  "adapter_calls": 10,
+  "checks_run": 9,
+  "seconds": 13.2,
+  "rejected": {
+   "format": 0,
+   "key_unsupported": 0,
+   "twin_keys": 0,
+   "ambiguous": 1,
+   "ai_checker": 5,
+   "duplicate": 0
+  },
+  "skipped_topics": []
+ }
+}
