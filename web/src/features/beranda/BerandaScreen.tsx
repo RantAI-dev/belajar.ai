@@ -3,7 +3,6 @@ import {
   AppLink,
   ArrowRightIcon,
   ChartIcon,
-  Mascot,
   MissionCard,
   Stepper,
   SubjectCard,
@@ -11,6 +10,7 @@ import {
   subjectPaint,
 } from "../../ui";
 import { LESSON_STEPS } from "../belajar";
+import { MascotHero } from "./MascotHero";
 import type { BerandaView, ContinueLesson } from "./types";
 
 export type BerandaScreenProps = {
@@ -76,22 +76,14 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
   };
   return (
     <div className="flex flex-col gap-6">
-      <section className="on-dark flex flex-wrap items-center gap-6 rounded-panel bg-hero p-5 text-on-fill sm:p-7">
-        <Mascot
-          mood="happy"
-          size={132}
-          backdrop="var(--color-hero-glow)"
-          inverse
-          animate
-          className="max-sm:size-24"
-        />
-        <div className="flex min-w-0 flex-1 basis-[300px] flex-col gap-3.5">
-          <h1 className="m-0 font-display text-[30px] font-semibold leading-tight sm:text-[36px]">
-            Halo, {view.studentName}! Mau tahu apa hari ini?
-          </h1>
+      <section className="on-dark rounded-panel bg-hero p-5 text-on-fill sm:p-7">
+        <MascotHero name={view.studentName} mood={view.mood}>
           <form onSubmit={submit} className="flex flex-wrap gap-2.5">
-            <label htmlFor="ask-home" className="sr-only">
-              Pertanyaanmu
+            <label
+              htmlFor="ask-home"
+              className="basis-full font-display text-[20px] font-semibold leading-tight sm:text-[22px]"
+            >
+              Mau tahu apa hari ini?
             </label>
             <input
               id="ask-home"
@@ -121,7 +113,7 @@ export function BerandaScreen({ view, onAsk, asking = false, askError }: Beranda
           <p className="m-0 text-[15px] font-semibold text-hero-ink-soft">
             Jawabanku selalu dari buku pelajaranmu, lengkap dengan halamannya.
           </p>
-        </div>
+        </MascotHero>
       </section>
 
       <div className="flex flex-wrap items-stretch gap-5">
