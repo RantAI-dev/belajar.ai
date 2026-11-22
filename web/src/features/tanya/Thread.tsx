@@ -1,5 +1,6 @@
 import { ChatBubble } from "../../ui";
 import { AnswerBubble } from "./AnswerBubble";
+import { avatarFor } from "./avatar";
 import type { TanyaMessage } from "./types";
 
 /** The bubbles of one conversation, in order. Shared by Tanya and the Belajar session. */
@@ -16,14 +17,14 @@ export function ChatThread({ messages }: { readonly messages: readonly TanyaMess
         if (m.kind === "answer") return <AnswerBubble key={m.id} answer={m} />;
         if (m.kind === "error")
           return (
-            <ChatBubble key={m.id} from="mascot" mood="hmm" variant="ungrounded">
+            <ChatBubble key={m.id} from="mascot" avatar={avatarFor(m)} variant="ungrounded">
               <span role="alert" className="text-[17px] font-extrabold">
                 {m.text}
               </span>
             </ChatBubble>
           );
         return (
-          <ChatBubble key={m.id} from="mascot" mood="hmm" variant="ungrounded">
+          <ChatBubble key={m.id} from="mascot" avatar={avatarFor(m)} variant="ungrounded">
             <span className="text-[17px] font-extrabold">
               Hmm, itu tidak ada di buku pelajaranmu.
             </span>

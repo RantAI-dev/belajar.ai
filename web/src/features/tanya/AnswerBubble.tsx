@@ -9,6 +9,7 @@ import {
   RichText,
   SourceChip,
 } from "../../ui";
+import { avatarFor } from "./avatar";
 import {
   type CitationSegment,
   type CiteFocus,
@@ -67,7 +68,7 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
   };
   const keyOf = (s: CitationSegment, i: number) => `${i}:${s.kind === "text" ? s.text : s.id}`;
   return (
-    <ChatBubble from="mascot" mood={streaming ? "thinking" : "happy"} streaming={streaming}>
+    <ChatBubble from="mascot" avatar={avatarFor(answer)} streaming={streaming}>
       {hasText ? (
         <>
           <p className="m-0 text-[18px] font-semibold leading-[1.65]">

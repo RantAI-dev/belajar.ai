@@ -22,9 +22,9 @@ export function Composer({
   return (
     <form
       onSubmit={submit}
-      className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-auto bg-[linear-gradient(to_top,var(--color-page)_75%,transparent)] pt-3.5 pb-3 md:bottom-0 md:pb-[22px]"
+      className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-auto bg-page pt-3.5 pb-3 md:bottom-0 md:pb-[22px]"
     >
-      <div className="ring-within flex items-center gap-2.5 rounded-[20px] border-2 border-line-sky bg-surface py-2 pr-2 pl-4 shadow-[0_6px_20px_color-mix(in_srgb,var(--color-primary)_8%,transparent)] sm:pl-5">
+      <div className="ring-within flex items-center gap-2.5 rounded-[20px] border-2 border-line-sky bg-surface py-2 pr-2 pl-4 sm:pl-5">
         <label htmlFor="tanya-input" className="sr-only">
           Pertanyaanmu
         </label>
