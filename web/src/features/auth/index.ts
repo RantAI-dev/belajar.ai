@@ -1,3 +1,4 @@
+export { GoogleMark } from "./GoogleButton";
 export {
   type GoogleSignupErrors,
   GoogleSignupScreen,

@@ -1,7 +1,7 @@
 import { buttonClass } from "../../ui";
 
 /** Google's four-colour "G", as its sign-in branding asks for. */
-function GoogleMark() {
+export function GoogleMark() {
   return (
     <svg aria-hidden="true" width="24" height="24" viewBox="0 0 48 48">
       <path
