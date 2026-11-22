@@ -13,9 +13,9 @@ export const MASTERY_LABEL: Readonly<Record<MasteryLevel, string>> = {
 
 const TONE: Readonly<Record<MasteryLevel, string>> = {
   not_started: "bg-page text-ink-muted border-line-strong",
-  learning: "bg-primary-soft text-primary-strong border-line-sky",
+  learning: "bg-primary-soft text-primary-ink border-line-sky",
   almost: "bg-warm text-warm-ink border-warm-line",
-  mastered: "bg-success-soft text-success-edge border-success",
+  mastered: "bg-success-soft text-success-ink border-success",
 };
 
 /** How many of the four segments are filled: the level reads as a shape, not only a colour. */

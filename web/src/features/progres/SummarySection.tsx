@@ -17,8 +17,8 @@ const ICON: Readonly<Record<StatTile["id"], ReactNode>> = {
   stars: <StarIcon size={26} />,
   lessons: <BookIcon size={26} className="text-primary" />,
   questions: <CheckSquareIcon size={26} className="text-primary" />,
-  accuracy: <ChartIcon size={26} className="text-success-edge" />,
-  days: <CheckIcon size={26} className="text-success-edge" />,
+  accuracy: <ChartIcon size={26} className="text-success-ink" />,
+  days: <CheckIcon size={26} className="text-success-ink" />,
 };
 
 const PERIODS: ReadonlyArray<{ readonly id: Period; readonly label: string }> = [

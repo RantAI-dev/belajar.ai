@@ -11,9 +11,9 @@ const ICON: Readonly<Record<Trend, ReactNode>> = {
 
 // "Turun" stays in a calm tone: a dip is something to practise, not a warning.
 const TONE: Readonly<Record<Trend, string>> = {
-  up: "text-success-edge",
+  up: "text-success-ink",
   down: "text-oops-ink",
-  same: "text-primary-strong",
+  same: "text-primary-ink",
   no_data: "text-ink-faint",
 };
 
