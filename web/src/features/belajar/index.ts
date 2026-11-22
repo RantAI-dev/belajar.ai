@@ -8,11 +8,12 @@ export {
   subjectEntry,
 } from "./fromApi";
 export { type LessonResult, LessonScreen, type LessonScreenProps } from "./LessonScreen";
-export { explainPrompt, LESSON_STEPS, nextStep, QUIZ_TOTAL } from "./lesson";
+export { chapterContext, explainPrompt, LESSON_STEPS, nextStep, QUIZ_TOTAL } from "./lesson";
 export type {
   ChapterMapView,
   ChapterNode,
   ChapterStatus,
+  ChapterTopic,
   LessonStep,
   SubjectEntry,
 } from "./types";

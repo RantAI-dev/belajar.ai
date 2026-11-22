@@ -545,6 +545,13 @@ export interface components {
     };
     /** @description One chapter of a subject, with the student's own progress in it. */
     ChapterDto: {
+      /**
+       * Format: int32
+       * @description The number printed in the book; may repeat when a subject has several books.
+       */
+      bookNumber: number;
+      documentId: string;
+      documentTitle: string;
       id: string;
       isCompleted: boolean;
       /**
@@ -552,8 +559,16 @@ export interface components {
        * @description The student's lesson for this chapter, when they started one.
        */
       lessonId: string | null;
-      /** Format: int32 */
+      /**
+       * Format: int32
+       * @description Position in the subject's chapter path, 1-based.
+       */
       number: number;
+      /**
+       * Format: int32
+       * @description 0-based page where the chapter starts; `null` when the upstream has no page.
+       */
+      page: number | null;
       /**
        * Format: int32
        * @description The best stars the student's quizzes earned in this chapter, 0 when none.
@@ -562,6 +577,7 @@ export interface components {
       /** @description `null` before the student starts the chapter's lesson, else its current step. */
       step: string | null;
       title: string;
+      topics: components["schemas"]["ChapterTopicDto"][];
     };
     /** @description One chapter the student started in Belajar. */
     ChapterProgressDto: {
@@ -577,6 +593,15 @@ export interface components {
       subjectId: string;
       /** Format: date-time */
       updatedAt: string;
+    };
+    /** @description One topic ("materi") listed inside a chapter, from the book's table of contents. */
+    ChapterTopicDto: {
+      /**
+       * Format: int32
+       * @description 0-based page where the topic starts; `null` when the upstream has no page.
+       */
+      page: number | null;
+      title: string;
     };
     /** @description The chapters list: `{ data, nextCursor }`, one complete page. */
     ChaptersDto: {

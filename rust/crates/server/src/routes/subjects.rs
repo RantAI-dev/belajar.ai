@@ -32,13 +32,32 @@ pub struct SubjectDto {
     pub document_count: u32,
 }
 
+/// One topic ("materi") listed inside a chapter, from the book's table of contents.
+#[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ChapterTopicDto {
+    pub title: String,
+    /// 0-based page where the topic starts; `null` when the upstream has no page.
+    #[schema(required)]
+    pub page: Option<u32>,
+}
+
 /// One chapter of a subject, with the student's own progress in it.
 #[derive(Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ChapterDto {
     pub id: String,
+    /// Position in the subject's chapter path, 1-based.
     pub number: u32,
+    /// The number printed in the book; may repeat when a subject has several books.
+    pub book_number: u32,
     pub title: String,
+    /// 0-based page where the chapter starts; `null` when the upstream has no page.
+    #[schema(required)]
+    pub page: Option<u32>,
+    pub document_id: String,
+    pub document_title: String,
+    pub topics: Vec<ChapterTopicDto>,
     /// The best stars the student's quizzes earned in this chapter, 0 when none.
     pub stars: u8,
     /// `null` before the student starts the chapter's lesson, else its current step.
@@ -167,7 +186,19 @@ pub(crate) async fn list_chapters(
             ChapterDto {
                 id: chapter.id.clone(),
                 number: chapter.number,
+                book_number: chapter.book_number,
                 title: chapter.title.clone(),
+                page: chapter.page,
+                document_id: chapter.document_id.clone(),
+                document_title: chapter.document_title.clone(),
+                topics: chapter
+                    .topics
+                    .iter()
+                    .map(|topic| ChapterTopicDto {
+                        title: topic.title.clone(),
+                        page: topic.page,
+                    })
+                    .collect(),
                 stars: lesson.map_or(0, |lesson| lesson.stars),
                 step: step.map(|step| step.as_str().to_owned()),
                 is_completed: step == Some(belajar_ports::lessons::LessonStep::Done),

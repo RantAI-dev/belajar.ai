@@ -1974,8 +1974,33 @@
       "ChapterDto": {
         "type": "object",
         "description": "One chapter of a subject, with the student's own progress in it.",
-        "required": ["id", "number", "title", "stars", "step", "isCompleted", "lessonId"],
+        "required": [
+          "id",
+          "number",
+          "bookNumber",
+          "title",
+          "page",
+          "documentId",
+          "documentTitle",
+          "topics",
+          "stars",
+          "step",
+          "isCompleted",
+          "lessonId"
+        ],
         "properties": {
+          "bookNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number printed in the book; may repeat when a subject has several books.",
+            "minimum": 0
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "documentTitle": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -1990,6 +2015,13 @@
           "number": {
             "type": "integer",
             "format": "int32",
+            "description": "Position in the subject's chapter path, 1-based.",
+            "minimum": 0
+          },
+          "page": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "0-based page where the chapter starts; `null` when the upstream has no page.",
             "minimum": 0
           },
           "stars": {
@@ -2004,6 +2036,12 @@
           },
           "title": {
             "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterTopicDto"
+            }
           }
         }
       },
@@ -2049,6 +2087,22 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "ChapterTopicDto": {
+        "type": "object",
+        "description": "One topic (\"materi\") listed inside a chapter, from the book's table of contents.",
+        "required": ["title", "page"],
+        "properties": {
+          "page": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "0-based page where the topic starts; `null` when the upstream has no page.",
+            "minimum": 0
+          },
+          "title": {
+            "type": "string"
           }
         }
       },

@@ -4,7 +4,12 @@ import { type ChapterDto, chapterNodes, lessonStep, subjectEntry } from "./fromA
 const ch = (number: number, over: Partial<ChapterDto> = {}): ChapterDto => ({
   id: `bab-${number}`,
   number,
+  bookNumber: number,
   title: `Bab ${number}`,
+  page: 0,
+  documentId: "dok",
+  documentTitle: "Buku IPA",
+  topics: [],
   stars: 0,
   step: null,
   isCompleted: false,
@@ -33,6 +38,32 @@ describe("chapterNodes", () => {
 
   test("stars stay within 0..3", () => {
     expect(chapterNodes([ch(1, { stars: 9 })])[0]?.stars).toBe(3);
+  });
+
+  test("real book data is carried through: book number, page, book title and materi", () => {
+    const node = chapterNodes([
+      ch(7, {
+        bookNumber: 1,
+        title: "Sistem Organisasi Kehidupan Makhluk Hidup",
+        page: 6,
+        documentTitle: "Ilmu Pengetahuan Alam Kelas VII Semester 2",
+        topics: [
+          { title: "Sel sebagai Unit Struktural dan Fungsional Kehidupan", page: 9 },
+          { title: "Jaringan-Jaringan pada Hewan dan Tumbuhan", page: null },
+        ],
+      }),
+    ])[0];
+    expect(node).toMatchObject({
+      number: 7,
+      bookNumber: 1,
+      title: "Sistem Organisasi Kehidupan Makhluk Hidup",
+      page: 6,
+      documentTitle: "Ilmu Pengetahuan Alam Kelas VII Semester 2",
+    });
+    expect(node?.topics).toEqual([
+      { title: "Sel sebagai Unit Struktural dan Fungsional Kehidupan", page: 9 },
+      { title: "Jaringan-Jaringan pada Hewan dan Tumbuhan", page: null },
+    ]);
   });
 });
 

@@ -6,6 +6,7 @@ import {
   BelajarHomeScreen,
   type ChapterDto,
   ChapterMapScreen,
+  type ChapterTopic,
   chapterNodes,
   explainPrompt,
   type LessonDto,
@@ -87,6 +88,7 @@ function ChapterMap({ subjectId }: { readonly subjectId: string }) {
       onSelectChapter={setSelected}
       subjectHref={(id) => `/belajar/${id}`}
       chapterHref={(id) => `/belajar/${subjectId}/${id}`}
+      tanyaHref={(id) => `/tanya?subject=${id}`}
     />
   );
 }
@@ -109,6 +111,7 @@ function LessonStart({
 }) {
   const [lesson, setLesson] = useState<Load<LessonDto>>({ status: "loading" });
   const [title, setTitle] = useState<string | null>(null);
+  const [topics, setTopics] = useState<readonly ChapterTopic[]>([]);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     void attempt;
@@ -119,8 +122,10 @@ function LessonStart({
     void api
       .get("/v1/subjects/{subjectId}/chapters", { pathParams: { subjectId }, signal: ctrl.signal })
       .then((r) => {
-        if (!ctrl.signal.aborted && r.ok)
-          setTitle(r.value.data.find((c) => c.id === chapterId)?.title ?? null);
+        if (ctrl.signal.aborted || !r.ok) return;
+        const chapter = r.value.data.find((c) => c.id === chapterId);
+        setTitle(chapter?.title ?? null);
+        setTopics(chapter?.topics.map((topic) => ({ title: topic.title, page: topic.page })) ?? []);
       });
     void api.post("/v1/lessons", { subjectId, chapterId }, { signal: ctrl.signal }).then((r) => {
       if (ctrl.signal.aborted) return;
@@ -144,15 +149,23 @@ function LessonStart({
     ) : (
       <ErrorState message={lesson.message} onRetry={() => setAttempt((n) => n + 1)} />
     );
-  return <Lesson initial={lesson.value} chapterTitle={title ?? lesson.value.chapterTitle} />;
+  return (
+    <Lesson
+      initial={lesson.value}
+      chapterTitle={title ?? lesson.value.chapterTitle}
+      topics={topics}
+    />
+  );
 }
 
 function Lesson({
   initial,
   chapterTitle,
+  topics,
 }: {
   readonly initial: LessonDto;
   readonly chapterTitle: string;
+  readonly topics: readonly ChapterTopic[];
 }) {
   const grade = useAuth().student?.grade ?? 0;
   const { refresh } = useHome();
@@ -170,11 +183,11 @@ function Lesson({
   useEffect(() => {
     if (started.current || load !== "ready") return;
     started.current = true;
-    if (messages.length === 0) void send(explainPrompt(chapterTitle, grade));
-  }, [load, messages.length, send, chapterTitle, grade]);
+    if (messages.length === 0) void send(explainPrompt(chapterTitle, topics, grade));
+  }, [load, messages.length, send, chapterTitle, topics, grade]);
 
   const next = async () => {
-    const to = nextStep(step);
+    const to = nextStep(step, chapterTitle, topics);
     if (to === null) return;
     setMoving(true);
     setActionError(null);

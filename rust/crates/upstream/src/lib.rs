@@ -3,15 +3,13 @@
 //!
 //! Layout: [`keys`] owns the per-grade assistant keys (a secret — it never reaches a Debug or an
 //! error message), [`wire`] is every upstream JSON shape and its conversion to our ports types,
-//! [`streams`] drives the SSE streams with timeouts that survive `: ping` comments, and [`chapters`]
-//! is the built-in list served until the upstream ships a chapters endpoint.
+//! [`streams`] drives the SSE streams with timeouts that survive `: ping` comments.
 //!
 //! Key choice: `mapel` and `chapters` use the grade's `ask` key, `chat` uses the request's
 //! assistant, `generate_practice` and `grade_practice` use `practice`. A missing key answers
 //! [`UpstreamError::NotConfigured`] before any request is sent. `page` sends no key (its URL is
 //! pre-signed) and refuses URLs outside the configured upstream.
 
-mod chapters;
 mod keys;
 mod streams;
 mod wire;
@@ -144,9 +142,15 @@ impl Upstream for HttpUpstream {
     }
 
     async fn chapters(&self, grade: Grade, mapel: &str) -> Result<Vec<Chapter>, UpstreamError> {
-        // Built-in list, but the key check keeps "nothing configured" behaving like every call.
-        self.key(grade, Assistant::Ask)?;
-        Ok(chapters::chapters_for(mapel))
+        let key = self.key(grade, Assistant::Ask)?;
+        let url = self.api_url("/api/v1/mapel/chapters");
+        let request = self
+            .client
+            .get(url)
+            .query(&[("mapel", mapel)])
+            .bearer_auth(key);
+        let response: wire::ChaptersResponseWire = self.json(self.execute(request).await?).await?;
+        Ok(response.into_chapters())
     }
 
     async fn chat(&self, request: ChatRequest) -> Result<ChatStream, UpstreamError> {
