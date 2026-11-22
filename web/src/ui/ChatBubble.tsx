@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cx } from "./cx";
-import { Mascot, type MascotMood } from "./Mascot";
+import { Mascot, type MascotMood } from "./mascot/Mascot";
 
 export type ChatBubbleProps =
   | { readonly from: "student"; readonly children: ReactNode }

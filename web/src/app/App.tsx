@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { LinkProvider } from "../ui";
 import { HomeProvider } from "./home";
@@ -16,6 +17,9 @@ import { Shell } from "./Shell";
 import { AuthProvider } from "./session";
 import { ThemeProvider } from "./theme";
 
+// The brand style sheet: lazy, so it never weighs on the first load.
+const DesainRoute = lazy(() => import("./routes/DesainRoute"));
+
 export function App() {
   return (
     <BrowserRouter>
@@ -24,6 +28,14 @@ export function App() {
           <ThemeProvider>
             <HomeProvider>
               <Routes>
+                <Route
+                  path="/desain"
+                  element={
+                    <Suspense>
+                      <DesainRoute />
+                    </Suspense>
+                  }
+                />
                 <Route element={<RequireSession />}>
                   <Route path="/masuk" element={<LoginRoute />} />
                   <Route path="/daftar" element={<RegisterRoute />} />

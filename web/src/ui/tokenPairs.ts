@@ -70,6 +70,10 @@ const BASE: readonly TokenPair[] = [
   p("cite-line", "surface", "ui", "citation pill outline in an answer"),
   p("ink", "cite-marker", "text", "marked cited sentence"),
   p("cite-marker-ink", "cite-marker", "text", "emphasis inside a marked sentence"),
+  p("brand-wordmark", "surface", "large", "wordmark in the header (bold 22px+)"),
+  p("brand-wordmark", "page", "large", "wordmark on the page"),
+  p("mascot-accent", "page", "ui", "mascot marks (zzz, ?) on the page"),
+  p("mascot-accent", "surface", "ui", "mascot marks (zzz, ?) on cards"),
 ];
 
 const SUBJECT_PAIRS: readonly TokenPair[] = SUBJECTS.flatMap((s) => {
