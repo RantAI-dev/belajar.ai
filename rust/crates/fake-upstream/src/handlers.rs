@@ -273,6 +273,19 @@ pub(crate) async fn page_image(Path((document_id, page)): Path<(String, String)>
         .into_response()
 }
 
+/// A whole book (`/documents/{id}.pdf`), served as the upstream serves an original upload.
+pub(crate) async fn document_pdf(Path(file): Path<String>) -> Response {
+    let Some(document_id) = file.strip_suffix(".pdf") else {
+        return error_response(StatusCode::NOT_FOUND, "no such document", "not_found");
+    };
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "application/pdf")],
+        crate::pdf::render_book(document_id),
+    )
+        .into_response()
+}
+
 /// A simple book page: a title line, grey text lines, two lines highlighted yellow, the page
 /// number. `documentId` is interpolated into XML, so escape it even though we only ever see our
 /// own ids.

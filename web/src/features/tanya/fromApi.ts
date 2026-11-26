@@ -12,6 +12,7 @@ export const sourceFromDto = (messageId: string, s: SourceDto): BookSource => {
     .filter((p) => p !== null && p !== "")
     .join(" · ");
   const url = s.pagePreviewUrl ?? null;
+  const filePage = s.previewPage ?? null;
   const section = s.section ?? "";
   return {
     id: `${messageId}-${s.number}`,
@@ -21,7 +22,10 @@ export const sourceFromDto = (messageId: string, s: SourceDto): BookSource => {
     title,
     book: s.title,
     ...(section === "" ? {} : { section }),
-    ...(url === null ? {} : { imageUrl: url, fullPageHref: url }),
+    ...(url === null ? {} : { fileUrl: url }),
+    // A whole-book PDF cannot be an <img>: the preview draws a page sketch instead.
+    ...(url !== null && filePage === null ? { imageUrl: url } : {}),
+    ...(url !== null && filePage !== null ? { filePage } : {}),
   };
 };
 

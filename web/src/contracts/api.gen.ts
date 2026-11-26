@@ -1014,6 +1014,12 @@ export interface components {
       page?: number | null;
       /** @description `/v1/messages/{messageId}/sources/{number}/page` when the page image exists, else `null`. */
       pagePreviewUrl?: string | null;
+      /**
+       * Format: int32
+       * @description When `pagePreviewUrl` serves the whole book (a PDF) rather than one page: the 1-based page
+       *     of that file the source cites. `null` when the preview is the page itself.
+       */
+      previewPage?: number | null;
       section?: string | null;
       title: string;
     };

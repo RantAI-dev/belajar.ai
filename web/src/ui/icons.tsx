@@ -101,6 +101,23 @@ export const SendIcon = (p: IconProps) => (
     <path d="M22 2 15 22l-4-9-9-4z" />
   </Stroke>
 );
+export const CloseIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </Stroke>
+);
+export const PlusIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </Stroke>
+);
+export const MinusIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M5 12h14" />
+  </Stroke>
+);
 export const LockIcon = (p: IconProps) => (
   <Stroke {...p}>
     <rect x="4" y="11" width="16" height="10" rx="2" />

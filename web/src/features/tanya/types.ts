@@ -14,8 +14,12 @@ export type BookSource = {
   readonly book: string;
   /** The chapter or section, e.g. "Bab 5: Suhu, Kalor, dan Pemuaian". */
   readonly section?: string;
+  /** A picture of the cited page, for the preview; absent when the book is a whole PDF. */
   readonly imageUrl?: string;
-  readonly fullPageHref?: string;
+  /** What the book drawer opens: that page's picture, or the whole book as a PDF. */
+  readonly fileUrl?: string;
+  /** In a whole-book PDF, the 1-based page the source cites. */
+  readonly filePage?: number;
 };
 
 export type TanyaMessage =

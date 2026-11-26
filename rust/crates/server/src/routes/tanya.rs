@@ -115,6 +115,9 @@ pub struct SourceDto {
     pub is_cited: bool,
     /// `/v1/messages/{messageId}/sources/{number}/page` when the page image exists, else `null`.
     pub page_preview_url: Option<String>,
+    /// When `pagePreviewUrl` serves the whole book (a PDF) rather than one page: the 1-based page
+    /// of that file the source cites. `null` when the preview is the page itself.
+    pub preview_page: Option<u32>,
 }
 
 /// The message's own id, for the sources' preview URLs.
@@ -130,8 +133,20 @@ impl SourceDto {
                 .page_url
                 .as_ref()
                 .map(|_| format!("/v1/messages/{message_id}/sources/{}/page", source.number)),
+            preview_page: source.page_url.as_deref().and_then(pdf_page_fragment),
         }
     }
+}
+
+/// The upstream links a whole PDF with `#page=<n>` (1-based, as PDF viewers read it); a page
+/// image has no fragment. The fragment is the only place that page number is given.
+pub(crate) fn pdf_page_fragment(page_url: &str) -> Option<u32> {
+    let (_, fragment) = page_url.split_once('#')?;
+    fragment
+        .split('&')
+        .find_map(|part| part.strip_prefix("page="))
+        .and_then(|n| n.parse::<u32>().ok())
+        .filter(|n| *n > 0)
 }
 
 /// One stored message: the student's question or the assistant's answer.
@@ -566,7 +581,28 @@ mod tests {
             format!("/v1/messages/{id}/sources/1/page")
         );
         assert!(body["sources"][1]["pagePreviewUrl"].is_null());
+        assert!(
+            body["sources"][0]["previewPage"].is_null(),
+            "a page image needs no page"
+        );
         assert_eq!(body["isGrounded"], true);
+    }
+
+    #[test]
+    fn a_whole_pdf_preview_names_the_cited_page_from_the_upstream_fragment() {
+        assert_eq!(
+            pdf_page_fragment("http://u/api/v1/sources/page?t=abc.def#page=79"),
+            Some(79)
+        );
+        assert_eq!(pdf_page_fragment("http://u/p?t=x#zoom=2&page=3"), Some(3));
+        for url in [
+            "http://u/pages/kb-ipa-7/78.svg?sig=t",
+            "http://u/p#page=0",
+            "http://u/p#page=abc",
+            "http://u/p#section-2",
+        ] {
+            assert_eq!(pdf_page_fragment(url), None, "{url}");
+        }
     }
 
     #[test]

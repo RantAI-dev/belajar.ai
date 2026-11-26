@@ -3168,6 +3168,12 @@
             "type": ["string", "null"],
             "description": "`/v1/messages/{messageId}/sources/{number}/page` when the page image exists, else `null`."
           },
+          "previewPage": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "When `pagePreviewUrl` serves the whole book (a PDF) rather than one page: the 1-based page\nof that file the source cites. `null` when the preview is the page itself.",
+            "minimum": 0
+          },
           "section": {
             "type": ["string", "null"]
           },
