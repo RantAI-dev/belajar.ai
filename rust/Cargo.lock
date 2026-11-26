@@ -168,6 +168,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "belajar-pilot-upstream"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "bytes",
+ "eventsource-stream",
+ "futures",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
 name = "belajar-ports"
 version = "0.1.0"
 dependencies = [
