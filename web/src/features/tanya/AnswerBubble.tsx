@@ -8,6 +8,7 @@ import {
   PagePreview,
   RichText,
   SourceChip,
+  SourceDrawer,
 } from "../../ui";
 import { avatarFor } from "./avatar";
 import {
@@ -18,7 +19,7 @@ import {
   markedCite,
   pressCite,
 } from "./citations";
-import type { TanyaMessage } from "./types";
+import type { BookSource, TanyaMessage } from "./types";
 
 type Answer = Extract<TanyaMessage, { kind: "answer" }>;
 
@@ -31,6 +32,8 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
   const allSources = answer.allSources ?? answer.sources;
   const active = allSources.find((s) => s.id === focus.sourceId);
   const hasText = answer.parts.some((p) => p.text.length > 0);
+  // The source whose book is open in the drawer, if any.
+  const [reading, setReading] = useState<BookSource | null>(null);
   const segments = useMemo(
     () => citationSegments(answer.parts, allSources, streaming),
     [answer.parts, allSources, streaming],
@@ -46,7 +49,16 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
           label={s.label}
           ariaLabel={s.ariaLabel}
           pressed={s.sourceId === focus.sourceId}
-          onPress={() => setFocus((f) => pressCite(segments, f, s))}
+          onPress={() => {
+            const source = allSources.find((x) => x.id === s.sourceId);
+            // A pill with a book behind it opens the book; it stays pressed while the drawer is open.
+            if (source?.fileUrl !== undefined) {
+              setFocus({ sourceId: s.sourceId, citeId: s.id });
+              setReading(source);
+            } else {
+              setFocus((f) => pressCite(segments, f, s));
+            }
+          }}
         />
       );
     const isMarked = marked !== null && s.sentenceOf.includes(marked);
@@ -109,9 +121,7 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
               {active !== undefined && (
                 <PagePreview
                   title={active.title}
-                  {...(active.fullPageHref !== undefined
-                    ? { fullPageHref: active.fullPageHref }
-                    : {})}
+                  {...(active.fileUrl !== undefined ? { onOpen: () => setReading(active) } : {})}
                   {...(active.imageUrl !== undefined ? { imageUrl: active.imageUrl } : {})}
                 />
               )}
@@ -119,6 +129,20 @@ export function AnswerBubble({ answer }: { readonly answer: Answer }) {
           )}
         </>
       ) : null}
+      {reading?.fileUrl !== undefined && (
+        <SourceDrawer
+          title={reading.book}
+          subtitle={[
+            reading.section,
+            reading.page === undefined ? undefined : `halaman ${reading.page}`,
+          ]
+            .filter((p) => p !== undefined)
+            .join(" · ")}
+          src={reading.fileUrl}
+          {...(reading.filePage !== undefined ? { page: reading.filePage } : {})}
+          onClose={() => setReading(null)}
+        />
+      )}
     </ChatBubble>
   );
 }

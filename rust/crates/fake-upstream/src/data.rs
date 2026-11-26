@@ -21,8 +21,23 @@ pub(crate) fn source_json(source: &SeedSource, number: u32, cited: bool, base_ur
         "page": source.page,
         "number": number,
         "cited": cited,
-        "page_url": format!("{base_url}/pages/{}/{}.svg?sig=fake", source.document_id, source.page),
+        "page_url": page_url(source, base_url),
     })
+}
+
+/// Books the fake keeps as the whole original PDF, like the upstream's own uploads: their link
+/// is the book with `#page=<n>`. Every other book links one page image.
+const PDF_BOOKS: &[&str] = &["kb-matematika-7"];
+
+fn page_url(source: &SeedSource, base_url: &str) -> String {
+    let SeedSource {
+        document_id, page, ..
+    } = source;
+    if PDF_BOOKS.contains(document_id) {
+        format!("{base_url}/documents/{document_id}.pdf?sig=fake#page={page}")
+    } else {
+        format!("{base_url}/pages/{document_id}/{page}.svg?sig=fake")
+    }
 }
 
 /// The sources of an answer. A source is cited when the answer text marks it `[n]`, like
@@ -347,6 +362,8 @@ mod tests {
 
 #[cfg(test)]
 mod cited_tests {
+    #![allow(clippy::indexing_slicing, reason = "tests")]
+
     use super::*;
 
     const PAGE: SeedSource = SeedSource {
@@ -365,5 +382,24 @@ mod cited_tests {
                 .collect()
         });
         assert_eq!(cited, Some(vec![Some(true), Some(true), Some(false)]));
+    }
+
+    #[test]
+    fn a_pdf_book_links_the_whole_file_at_the_cited_page() {
+        let maths = SeedSource {
+            document_id: "kb-matematika-7",
+            page: 44,
+            ..PAGE
+        };
+        let json = source_json(&maths, 1, true, "http://f");
+        assert_eq!(
+            json["page_url"],
+            "http://f/documents/kb-matematika-7.pdf?sig=fake#page=44"
+        );
+        assert_eq!(
+            source_json(&PAGE, 1, true, "http://f")["page_url"],
+            "http://f/pages/kb-ipa-7/78.svg?sig=fake"
+        );
+        assert!(maths.page <= crate::pdf::BOOK_PAGES);
     }
 }

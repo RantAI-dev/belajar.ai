@@ -472,3 +472,46 @@ async fn the_fake_upstream_end_to_end_still_passes_the_worker_paths(pool: PgPool
     );
     assert!(!res.text.contains(&fake.base_url));
 }
+
+#[sqlx::test(migrations = "../../migrations")]
+async fn a_book_kept_as_a_whole_pdf_previews_the_file_and_names_the_cited_page(pool: PgPool) {
+    let fake: FakeServer = belajar_fake_upstream::spawn(FakeConfig::default())
+        .await
+        .unwrap();
+    let upstream = HttpUpstream::new(UpstreamConfig {
+        base_url: fake.base_url.clone(),
+        keys: UpstreamKeys::parse(KEYS).unwrap(),
+        timeout: Duration::from_secs(10),
+    })
+    .unwrap();
+    let app = TestApp::with_parts(pool, Arc::new(upstream), Arc::new(SystemClock)).await;
+    let budi = app.student("budi").await;
+    let res = app
+        .post(
+            "/v1/conversations",
+            json!({ "subjectId": "mtk" }),
+            Some(&budi),
+        )
+        .await;
+    let id = res.body["id"].as_str().unwrap().to_owned();
+    let res = app
+        .post(
+            &format!("/v1/conversations/{id}/messages"),
+            json!({ "content": "Bagaimana cara menjumlahkan pecahan?" }),
+            Some(&budi),
+        )
+        .await;
+    assert_eq!(res.status, StatusCode::OK);
+    let source = &done_event(&res)["sources"][0];
+    assert_eq!(source["page"], 44);
+    assert_eq!(source["previewPage"], 44, "the page inside the whole book");
+    let pdf = app
+        .get(source["pagePreviewUrl"].as_str().unwrap(), Some(&budi))
+        .await;
+    assert_eq!(pdf.status, StatusCode::OK);
+    assert_eq!(
+        pdf.header("content-type").as_deref(),
+        Some("application/pdf")
+    );
+    assert!(pdf.text.starts_with("%PDF-"));
+}

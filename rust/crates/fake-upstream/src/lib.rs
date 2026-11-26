@@ -7,6 +7,7 @@
 mod bank;
 mod data;
 mod handlers;
+mod pdf;
 
 use std::convert::Infallible;
 use std::sync::Arc;
@@ -60,6 +61,7 @@ pub fn router(config: FakeConfig, base_url: String) -> Router {
     // Page URLs are pre-signed by the upstream; the fake serves them without a key.
     let pages = Router::new()
         .route("/pages/{document_id}/{page}", get(handlers::page_image))
+        .route("/documents/{file}", get(handlers::document_pdf))
         .with_state(state);
     api.merge(pages)
 }

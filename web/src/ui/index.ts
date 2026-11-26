@@ -59,6 +59,7 @@ export { progressPercent } from "./progress";
 export { MermaidDiagram, RichText, type RichTextProps } from "./RichText";
 export { clampRating, type Rating, starsForScore } from "./rating";
 export { PagePreview, SourceChip } from "./Source";
+export { SourceDrawer, type SourceDrawerProps } from "./SourceDrawer";
 export { StarCount, StarRating } from "./Stars";
 export { ErrorState, LoadingState } from "./Status";
 export { Stepper } from "./Stepper";

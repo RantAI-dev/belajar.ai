@@ -185,6 +185,10 @@
   --color-paper-line-soft: #e9eff4;
   --color-paper-mark: #ffe28a;
   --color-paper-fill: #eef3f7;
+
+  /* The book drawer: the dimmed page behind it, and the shadow under a book page. */
+  --color-scrim: #141f4573;
+  --color-sheet-shadow: #141f452e;
 }
 
 /* The dark palette: deep navy surfaces, light inks, the same subject hues. A fill that carries
@@ -305,6 +309,9 @@
   --color-paper-line-soft: #ccd6e0;
   --color-paper-mark: #e8c95f;
   --color-paper-fill: #d3dce5;
+
+  --color-scrim: #000000a6;
+  --color-sheet-shadow: #00000080;
 }
 
 /* Base styles sit in the base layer so Tailwind utilities on an element always win. */
@@ -376,6 +383,23 @@
   60% {
     transform: rotate(8deg) scale(1.1);
   }
+}
+
+/* The book drawer (ui/SourceDrawer): it slides in from the right over a dimmed page, which
+ * stops scrolling while it is open. */
+.source-drawer::backdrop {
+  background: transparent;
+}
+.source-drawer[open] .source-drawer-panel {
+  animation: drawer-in 0.22s ease-out;
+}
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+body:has(.source-drawer[open]) {
+  overflow: hidden;
 }
 
 @keyframes bob {

@@ -40,8 +40,15 @@ describe("sourceFromDto", () => {
       book: "IPA Buku Siswa Kelas VII",
       section: "Bab 5: Suhu, Kalor, dan Pemuaian",
       imageUrl: "/v1/messages/m2/sources/1/page",
-      fullPageHref: "/v1/messages/m2/sources/1/page",
+      fileUrl: "/v1/messages/m2/sources/1/page",
     });
+  });
+
+  test("a whole-book PDF opens at its cited page and is never used as a picture", () => {
+    const s = sourceFromDto("m2", { ...SOURCE, page: 44, previewPage: 44 });
+    expect(s.fileUrl).toBe("/v1/messages/m2/sources/1/page");
+    expect(s.filePage).toBe(44);
+    expect(s.imageUrl).toBeUndefined();
   });
 
   test("a source without page or image has no preview link", () => {

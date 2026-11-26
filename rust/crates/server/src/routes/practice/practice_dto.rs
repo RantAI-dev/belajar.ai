@@ -54,6 +54,7 @@ pub struct QuestionDto {
 
 /// The same source shape Tanya answers carry, so the web app has one type for both.
 pub use crate::routes::tanya::SourceDto;
+use crate::routes::tanya::pdf_page_fragment;
 
 /// One graded question of the review, in question order.
 #[derive(Debug, Serialize, ToSchema)]
@@ -249,6 +250,7 @@ pub(crate) fn source_dto(source: &Source, set_id: Uuid, question_id: &str) -> So
             .page_url
             .as_ref()
             .map(|_| format!("/v1/practice-sets/{set_id}/questions/{question_id}/page")),
+        preview_page: source.page_url.as_deref().and_then(pdf_page_fragment),
     }
 }
 
